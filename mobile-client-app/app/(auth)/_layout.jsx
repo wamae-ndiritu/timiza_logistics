@@ -1,12 +1,22 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import { View, Text } from "react-native";
+import { Redirect, Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+// import { useGlobalContext } from "../../context/GlobalProvider";
 
 const AuthLayout = () => {
-  return (
-    <View>
-      <Text>AuthLayout</Text>
-    </View>
-  )
-}
+  // const { isLoading, isLoggedIn } = useGlobalContext();
+  // console.log(isLoading, isLoggedIn);
 
-export default AuthLayout
+  // if (!isLoading && isLoggedIn) return <Redirect href='/home' />;
+  return (
+    <>
+      <Stack>
+        <Stack.Screen name='sign-in' options={{ headerShown: false }} />
+        <Stack.Screen name='sign-up' options={{ headerShown: false }} />
+      </Stack>
+      <StatusBar backgroundColor='#E0DEDB' style='light' />
+    </>
+  );
+};
+
+export default AuthLayout;
