@@ -11,6 +11,11 @@ import logout from "../assets/icons/logout.png";
 import eyeHide from "../assets/icons/eye-hide.png";
 import eye from "../assets/icons/eye.png";
 import play from "../assets/icons/play.png";
+import deliveryTruck from "../assets/icons/delivery-truck.png";
+import driver from "../assets/icons/driver.png";
+import loader from "../assets/icons/load.png";
+import tripTruck from "../assets/icons/truck.png";
+import schedule from "../assets/icons/schedule.png";
 
 export default {
   play,
@@ -26,4 +31,9 @@ export default {
   logout,
   eyeHide,
   eye,
+  deliveryTruck,
+  loader,
+  driver,
+  tripTruck,
+  schedule
 };
