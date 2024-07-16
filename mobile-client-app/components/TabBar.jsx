@@ -17,7 +17,7 @@ const TabBar = ({links}) => {
               router.push(link.route)
             }}
             className={`flex-1 items-center py-4 ${
-              link.route === pathname ? "border-b-2 border-orange" : ""
+              link.route === pathname || "/" === pathname ? "border-b-2 border-orange" : ""
             }`}
           >
             <Text
