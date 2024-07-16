@@ -161,7 +161,7 @@ const Home = () => {
           </>
         )}
         renderItem={({ item }) => (
-          <View className='bg-white rounded border-2 border-black-300 p-2 flex-row items-start justify-between my-1 mx-2'>
+          <View className='bg-white rounded border-[1px] border-dotted border-black-300 p-2 flex-row items-start justify-between my-1 mx-2'>
             <View className='pr-4'>
               <Text className='text-black text-base pr-4'>{item.message}</Text>
             </View>
