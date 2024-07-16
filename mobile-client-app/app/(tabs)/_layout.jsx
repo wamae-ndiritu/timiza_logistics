@@ -34,7 +34,7 @@ const TabsLayout = () => {
             backgroundColor: "#2A7353",
             borderTopWidth: 1,
             borderTopColor: "#232533",
-            height: 70,
+            height: 60,
           },
         }}
       >
@@ -54,15 +54,45 @@ const TabsLayout = () => {
           }}
         />
         <Tabs.Screen
+          name='trips'
+          options={{
+            title: "Deliveries",
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.deliveryTruck}
+                color={color}
+                name='Deliveries'
+                focused={focused}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name='(staff)'
+          options={{
+            title: "Staff",
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.driver}
+                color={color}
+                name='Staff'
+                focused={focused}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
           name='profile'
           options={{
-            title: "Profile",
+            title: "Account",
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
                 icon={icons.profile}
                 color={color}
-                name='Profile'
+                name='Account'
                 focused={focused}
               />
             ),
