@@ -4,10 +4,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { icons, images } from "../../constants";
 import DashboardCard from "../../components/DashboardCard";
-// import { useGlobalContext } from "../../context/GlobalProvider";
+import { useSelector } from "react-redux";
 
 const Home = () => {
-  // const { user } = useGlobalContext();
+  const {user: {userInfo: {user: {email, role}}}} = useSelector((state) => state.user)
   // const { data: posts, refetch } = useAppwrite(getAllPosts);
   // const { data: latestPosts } = useAppwrite(getLatestPosts);
 
@@ -106,8 +106,8 @@ const Home = () => {
                   <Text className='font-pmedium text-sm text-secondary'>
                     Welcome Back
                   </Text>
-                  <Text className='text-2xl font-psemibold text-white-300'>
-                    John Doe
+                  <Text className='text-2xl font-psemibold text-white-300 capitalize'>
+                    {role }
                   </Text>
                 </View>
               </View>

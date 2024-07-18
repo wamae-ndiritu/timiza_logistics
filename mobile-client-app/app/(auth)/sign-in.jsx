@@ -1,48 +1,47 @@
 import { View, Text, Image, ScrollView, Alert } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "../../constants";
 import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton";
 import { Link, router } from "expo-router";
 import SelectInput from "../../components/SelectInput";
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "../../lib/redux/actions/userActions";
 // import { getCurrentUser, signIn } from "../../lib/appwrite";
 // import { useGlobalContext } from "../../context/GlobalProvider";
 
 const SignIn = () => {
-  // const { setUser, setIsLoggedIn } = useGlobalContext();
+  const dispatch = useDispatch();
+  const {user, loading, error} = useSelector((state) => state.user);
   const [form, setForm] = useState({
     email: "",
     password: "",
     role: ""
   });
 
-  console.log(form)
-  // const [isSubmitting, setIsSubmitting] = useState(false);
+  const submit = async () => {
+    if (!form.email || !form.password || !form.role) {
+      Alert.alert("Error", "Please fill in all the fields");
+      return;
+    }
+    dispatch(login(form));
+  };
 
-  // const submit = async () => {
-  //   if (!form.email || !form.password) {
-  //     Alert.alert("Error", "Please fill in all the fields");
-  //   }
-  //   setIsSubmitting(true);
-  //   try {
-  //     await signIn(form.email, form.password);
+  useEffect(() => {
+    setForm({
+      email: "",
+      password: "",
+      role: "",
+    });
+    if (user){
+      router.push('/home');
+    }
+    if (error){
+      Alert.alert("Error", error.message);
+    }
+  }, [user, error])
 
-  //     const result = await getCurrentUser();
-
-  //     setUser(result);
-  //     setIsLoggedIn(true);
-  //     router.replace("/home");
-  //   } catch (error) {
-  //     Alert.alert("Error", error.message);
-  //   } finally {
-  //     setIsSubmitting(false);
-  //   }
-  // };
-
-  const submit = () => {
-    router.push('/home')
-  }
 
   return (
     <SafeAreaView className='bg-primary h-full'>
@@ -89,7 +88,7 @@ const SignIn = () => {
             handlePress={submit}
             containerStyles='mt-7'
             textStyles='text-white-100 text-xl'
-            // isLoading={isSubmitting}
+            isLoading={loading}
           />
 
           {/* <View className='justify-center pt-5 flex-row items-center justify-center gap-2'>

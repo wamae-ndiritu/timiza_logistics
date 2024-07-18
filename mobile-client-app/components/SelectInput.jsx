@@ -22,7 +22,7 @@ const SelectInput = ({
         <SelectDropdown
           data={data}
           onSelect={(selectedItem, index) => {
-            handleChangeText(selectedItem.title)
+            handleChangeText(selectedItem.title.toLowerCase())
           }}
           renderButton={(selectedItem, isOpened) => {
             return (

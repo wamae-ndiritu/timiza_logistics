@@ -1,13 +1,13 @@
 import { View, Text } from "react-native";
 import { Redirect, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-// import { useGlobalContext } from "../../context/GlobalProvider";
+import { useSelector } from "react-redux";
 
 const AuthLayout = () => {
-  // const { isLoading, isLoggedIn } = useGlobalContext();
-  // console.log(isLoading, isLoggedIn);
+  const {user} = useSelector((state) => state.user);
 
-  // if (!isLoading && isLoggedIn) return <Redirect href='/home' />;
+  if (user?.token && user?.userInfo?.user?.role === "admin")
+    return <Redirect href='/home' />;
   return (
     <>
       <Stack>

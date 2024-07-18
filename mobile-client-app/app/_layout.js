@@ -2,7 +2,8 @@ import { StyleSheet, Text, View } from "react-native";
 import React, { useEffect } from "react";
 import { SplashScreen, Stack } from "expo-router";
 import { useFonts } from "expo-font";
-// import GlobalProvider from "../context/GlobalProvider";
+import { Provider } from "react-redux";
+import { store } from "../lib/redux/store";
 SplashScreen.preventAutoHideAsync();
 
 const RootLayout = () => {
@@ -26,7 +27,7 @@ const RootLayout = () => {
   if (!fontsLaoded && !error) return null;
 
   return (
-    // <GlobalProvider>
+    <Provider store={store}>
     <Stack>
       <Stack.Screen name='index' options={{ headerShown: false }} />
       <Stack.Screen name='explore' options={{ headerShown: false }} />
@@ -34,7 +35,7 @@ const RootLayout = () => {
       <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
       {/* <Stack.Screen name='search/[query]' options={{ headerShown: false }} /> */}
     </Stack>
-    // </GlobalProvider>
+    </Provider>
   );
 };
 
