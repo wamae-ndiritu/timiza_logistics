@@ -9,6 +9,7 @@ import React, { useEffect, useState } from "react";
 import HeaderComponent from "../../../components/HeaderComponent";
 import { useDispatch, useSelector } from "react-redux";
 import { listUsers } from "../../../lib/redux/actions/userActions";
+import EmptyState from "../../../components/EmptyState";
 
 const Staff = () => {
   const dispatch = useDispatch();
@@ -25,6 +26,11 @@ const Staff = () => {
   useEffect(() => {
     dispatch(listUsers(type="", search=""));
   }, [])
+
+  const links = [
+    { id: 0, title: "Staff", route: "/staff" },
+    { id: 1, title: "Add Staff", route: "/register-staff" },
+  ];
 
   return (
     <SafeAreaView className='h-full'>
@@ -43,13 +49,12 @@ const Staff = () => {
             setSearchQuery={setSearchQuery}
             isSearching={isSearching}
             setIsSearching={setIsSearching}
-            handleSearchSubmit={() => dispatch(listUsers(type="", search=searchQuery))}
+            handleSearchSubmit={() =>
+              dispatch(listUsers((type = ""), (search = searchQuery)))
+            }
             containerStyles='pt-16 pb-8'
             showSearch={true}
-            links={[
-              { id: 0, title: "Staff", route: "/staff" },
-              { id: 1, title: "Add Staff", route: "/register-staff" },
-            ]}
+            links={links}
           />
         )}
         renderItem={({ item }) => (
@@ -61,7 +66,9 @@ const Staff = () => {
                 </Text>
                 <Text
                   className={`w-20 text-center px-2 py-0.5 rounded-full text-sm text-white capitalize ${
-                    item?.user?.role === "driver" ? "bg-orange-500" : "bg-green-500"
+                    item?.user?.role === "driver"
+                      ? "bg-orange-500"
+                      : "bg-green-500"
                   }`}
                 >
                   {item?.user?.role}
@@ -77,6 +84,12 @@ const Staff = () => {
               </View>
             </View>
           </View>
+        )}
+        ListEmptyComponent={() => (
+          <EmptyState
+            title='No created users'
+            subtitle='Click Add Staff to add both Drivers and Loaders'
+          />
         )}
       />
     </SafeAreaView>

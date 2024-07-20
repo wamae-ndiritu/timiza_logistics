@@ -17,6 +17,7 @@ import loader from "../assets/icons/load.png";
 import tripTruck from "../assets/icons/truck.png";
 import schedule from "../assets/icons/schedule.png";
 import close from "../assets/icons/close.png";
+import empty from "../assets/icons/no-results.png"
 
 export default {
   play,
@@ -37,5 +38,6 @@ export default {
   driver,
   tripTruck,
   schedule,
-  close
+  close,
+  empty
 };
