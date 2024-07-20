@@ -1,7 +1,9 @@
 import { View, Text, Image } from "react-native";
-import { Tabs } from "expo-router";
+import { Redirect, router, Tabs } from "expo-router";
 
 import { icons } from "../../constants";
+import { useSelector } from "react-redux";
+import { useEffect } from "react";
 
 const TabIcon = ({ icon, color, name, focused }) => {
   return (
@@ -23,6 +25,17 @@ const TabIcon = ({ icon, color, name, focused }) => {
 };
 
 const TabsLayout = () => {
+   const { user } = useSelector((state) => state.user);
+
+   useEffect(() => {
+     if (!user?.token) {
+       router.replace("/sign-in");
+     }
+   }, [user]);
+
+   if (!user?.token) {
+     return null; // or a loading spinner, or a placeholder
+   }
 
   return (
     <>

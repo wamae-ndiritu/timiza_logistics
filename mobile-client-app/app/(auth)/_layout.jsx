@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 const AuthLayout = () => {
   const {user} = useSelector((state) => state.user);
 
-  if (user?.token && user?.user?.role === "admin")
+  if (user?.token)
     return <Redirect href='/home' />;
   return (
     <>

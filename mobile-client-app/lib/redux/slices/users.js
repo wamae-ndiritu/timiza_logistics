@@ -36,11 +36,14 @@ export const userSlice = createSlice({
     resetUserState: (state) => {
       state.error = null;
       state.success = false;
+    },
+    logoutUser: (state) => {
+      state.userData = null;
     }
   },
 });
 
 
-export const { userActionStart, userActionFail, userLogin, userRegister, resetUserState, userList } = userSlice.actions;
+export const { userActionStart, userActionFail, userLogin, userRegister, resetUserState, userList, logoutUser } = userSlice.actions;
 
 export default userSlice.reducer;
