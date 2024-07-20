@@ -32,7 +32,7 @@ export const registerUser = (userForm) => async (dispatch, getState) => {
   }
 };
 
-export const listUsers = (type="") => async (dispatch, getState) => {
+export const listUsers = (type="", search="") => async (dispatch, getState) => {
   try {
     const {
       user: { userData },
@@ -45,7 +45,7 @@ export const listUsers = (type="") => async (dispatch, getState) => {
     };
     dispatch(userActionStart());
     const { data } = await axios.get(
-      `${END_POINT}/users/?type=${type}`,
+      `${END_POINT}/users/?type=${type}&search=${search}`,
       config
     );
     dispatch(userList(data));

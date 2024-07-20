@@ -15,6 +15,7 @@ export const userSlice = createSlice({
     userActionStart: (state) => {
       state.loading = true;
       state.error = null;
+      state.usersList = [];
     },
     userActionFail: (state, action) => {
       state.loading = false;

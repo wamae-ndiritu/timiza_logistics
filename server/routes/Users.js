@@ -125,14 +125,8 @@ router.post("/register/admin", async (req, res) => {
 
 // User registration route (accessible only by admins)
 router.post("/register", isAdmin, async (req, res) => {
-  const {
-    email,
-    role,
-    fullName,
-    phoneNumber,
-    nationalId,
-    drivingLicense,
-  } = req.body;
+  const { email, role, fullName, phoneNumber, nationalId, drivingLicense } =
+    req.body;
 
   try {
     // Check if email already exists
@@ -145,7 +139,12 @@ router.post("/register", isAdmin, async (req, res) => {
     const randomPassword = generateRandomPassword();
 
     // Create new User instance
-    const newUser = new User({ email, password: randomPassword, role });
+    const newUser = new User({
+      email,
+      password: randomPassword,
+      role,
+      nationalId,
+    });
 
     // Save the user (password will be hashed automatically)
     await newUser.save();
@@ -193,19 +192,34 @@ router.post("/register", isAdmin, async (req, res) => {
 // Admin get all users
 router.get("/", isAdmin, async (req, res) => {
   const type = req.query.type;
+  const search = req.query.search;
   let usersList = [];
-  if (type === "drivers") {
-    usersList = await Driver.find({}).populate("user").sort({ _id: -1 });
-  } else if (type === "loaders") {
-    usersList = await Loader.find({}).populate("user").sort({ _id: -1 });
-  }else if (type === "admins") {
-    usersList = await User.find({ role: "admin" }).sort({ _id: -1 });
+  if (search) {
+    const user = await User.findOne({ nationalId: search });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: "No user match the search criteria" });
+    }
+    if (user.role === "driver") {
+      usersList = await Driver.find({ user: user._id }).populate("user");
+    }
+    if (user.role === "loader") {
+      usersList = await Loader.find({ user: user._id }).populate("user");
+    }
   } else {
-    const drivers = await Driver.find({}).populate("user").sort({ _id: -1 });
-    const loaders = await Loader.find({}).populate("user").sort({ _id: -1 });
-    usersList = [...drivers, ...loaders];
+    if (type === "drivers") {
+      usersList = await Driver.find({}).populate("user").sort({ _id: -1 });
+    } else if (type === "loaders") {
+      usersList = await Loader.find({}).populate("user").sort({ _id: -1 });
+    } else if (type === "admins") {
+      usersList = await User.find({ role: "admin" }).sort({ _id: -1 });
+    } else {
+      const drivers = await Driver.find({}).populate("user").sort({ _id: -1 });
+      const loaders = await Loader.find({}).populate("user").sort({ _id: -1 });
+      usersList = [...drivers, ...loaders];
+    }
   }
-  
   res.status(200).json(usersList);
 });
 
@@ -219,8 +233,8 @@ router.get("/profile", verify, async (req, res) => {
       user = await Driver.findOne({ user: req.user.id }).populate("user");
     } else if (type === "loader") {
       user = await Loader.findOne({ user: req.user.id }).populate("user");
-    }else{
-      return res.status(400).json({message: "Invalid user type!"})
+    } else {
+      return res.status(400).json({ message: "Invalid user type!" });
     }
 
     if (!user) {
@@ -307,14 +321,14 @@ router.put("/profile/documents", verify, async (req, res) => {
     if (type === "driver" || type === "loader") {
       if (!user.nationalIdCopy && nationalIdCopy) {
         user.nationalIdCopy = nationalIdCopy;
-      } else{
+      } else {
         return res.status(400).json({
           message: "Updating documents may only be initiated by the admin!",
         });
       }
       if (!user.drivingLicense && drivingLicenseCopy) {
         user.drivingLicense = drivingLicenseCopy;
-      }else{
+      } else {
         return res.status(400).json({
           message: "Updating documents may only be initiated by the admin!",
         });
@@ -378,13 +392,13 @@ router.delete("/:id", isAdmin, async (req, res) => {
   try {
     let user;
     if (type === "driver") {
-      user = await Driver.findOne({user: req.params.id}).populate("user");
+      user = await Driver.findOne({ user: req.params.id }).populate("user");
       if (user) {
         await User.findByIdAndDelete(user.user._id);
         await Driver.findByIdAndDelete(req.params.id);
       }
     } else if (type === "loader") {
-      user = await Loader.findOne({user: req.params.id}).populate("user");
+      user = await Loader.findOne({ user: req.params.id }).populate("user");
       if (user) {
         await User.findByIdAndDelete(user.user._id);
         await Loader.findByIdAndDelete(req.params.id);
@@ -397,9 +411,7 @@ router.delete("/:id", isAdmin, async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res
-      .status(200)
-      .json({ message: "User profile deleted successfully" });
+    res.status(200).json({ message: "User profile deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

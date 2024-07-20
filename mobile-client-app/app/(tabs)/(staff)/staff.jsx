@@ -14,16 +14,16 @@ const Staff = () => {
   const dispatch = useDispatch();
   const {usersList} = useSelector((state) => state.user);
   const [refreshing, setRefreshing] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
   const onRefresh = async () => {
     setRefreshing(true);
-    // await refetch();
+    dispatch(listUsers((type = ""), (search = "")));
     setRefreshing(false);
   };
 
   useEffect(() => {
-    dispatch(listUsers());
+    dispatch(listUsers(type="", search=""));
   }, [])
 
   return (
@@ -38,7 +38,12 @@ const Staff = () => {
         ListHeaderComponent={() => (
           <HeaderComponent
             title='Staff'
-            inputPlaceHolder='Search staff'
+            inputPlaceHolder='Type National ID and enter..'
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            isSearching={isSearching}
+            setIsSearching={setIsSearching}
+            handleSearchSubmit={() => dispatch(listUsers(type="", search=searchQuery))}
             containerStyles='pt-16 pb-8'
             showSearch={true}
             links={[

@@ -24,6 +24,7 @@ const FormField = ({
           placeholderTextColor='#7b7b8b'
           onChangeText={handleChangeText}
           secureTextEntry={title === "Password" && !showPasssord}
+          cursorColor='#7b7b8b'
         />
         {title === "Password" && (
           <TouchableOpacity onPress={() => setShowPassword(!showPasssord)}>
