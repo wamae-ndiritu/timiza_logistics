@@ -4,13 +4,13 @@ const User = require("../models/User");
 const Driver = require("../models/Driver");
 const Loader = require("../models/Loader");
 const { isAdmin, verify } = require("../middleware/auth");
+const { generateRandomPassword, sendEmail } = require("../helpers");
 
 const router = express.Router();
 
 // User login
 router.post("/login", async (req, res) => {
   const { email, password, role } = req.body;
-  console.log(req.body)
 
   try {
     // Find user by email
@@ -92,7 +92,7 @@ router.post("/login", async (req, res) => {
 
         res.json({
           token,
-          userInfo: userDetails,
+          ...userDetails,
         });
       }
     );
@@ -127,7 +127,6 @@ router.post("/register/admin", async (req, res) => {
 router.post("/register", isAdmin, async (req, res) => {
   const {
     email,
-    password,
     role,
     fullName,
     phoneNumber,
@@ -142,8 +141,11 @@ router.post("/register", isAdmin, async (req, res) => {
       return res.status(400).json({ message: "Email already exists" });
     }
 
+    // Generate a random password
+    const randomPassword = generateRandomPassword();
+
     // Create new User instance
-    const newUser = new User({ email, password, role });
+    const newUser = new User({ email, password: randomPassword, role });
 
     // Save the user (password will be hashed automatically)
     await newUser.save();
@@ -175,6 +177,13 @@ router.post("/register", isAdmin, async (req, res) => {
     // Save driver or loader profile
     await newProfile.save();
 
+    // Send the random password to the user's email
+    await sendEmail(
+      email,
+      "Login Credentials",
+      `Your Timiza Login credentials are email: <strong>${email}</strong> and initial password: <strong>${randomPassword}</strong>. Please note you'll be required to reset this password for security purposes.`
+    );
+
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -189,10 +198,14 @@ router.get("/", isAdmin, async (req, res) => {
     usersList = await Driver.find({}).populate("user").sort({ _id: -1 });
   } else if (type === "loaders") {
     usersList = await Loader.find({}).populate("user").sort({ _id: -1 });
-  }
-  if (type === "admins") {
+  }else if (type === "admins") {
     usersList = await User.find({ role: "admin" }).sort({ _id: -1 });
+  } else {
+    const drivers = await Driver.find({}).populate("user").sort({ _id: -1 });
+    const loaders = await Loader.find({}).populate("user").sort({ _id: -1 });
+    usersList = [...drivers, ...loaders];
   }
+  
   res.status(200).json(usersList);
 });
 

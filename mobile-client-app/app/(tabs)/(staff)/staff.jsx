@@ -5,10 +5,14 @@ import {
   RefreshControl,
   FlatList,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import HeaderComponent from "../../../components/HeaderComponent";
+import { useDispatch, useSelector } from "react-redux";
+import { listUsers } from "../../../lib/redux/actions/userActions";
 
 const Staff = () => {
+  const dispatch = useDispatch();
+  const {usersList} = useSelector((state) => state.user);
   const [refreshing, setRefreshing] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -17,27 +21,17 @@ const Staff = () => {
     // await refetch();
     setRefreshing(false);
   };
+
+  useEffect(() => {
+    dispatch(listUsers());
+  }, [])
+
   return (
     <SafeAreaView className='h-full'>
       <FlatList
         className=''
-        data={[
-          {
-            id: 1,
-            fullName: "Wamae Joseph Ndiritu",
-            role: "driver",
-            email: "wamaejoseph392@gmail.com",
-            ntionalId: "39840260",
-          },
-          {
-            id: 2,
-            fullName: "Susan Nakhumicha Kirwa",
-            role: "loader",
-            email: "susannakumicha@gmail.com",
-            ntionalId: "39825610",
-          },
-        ]}
-        keyExtractor={(item) => item.id.toString()}
+        data={usersList}
+        keyExtractor={(item) => item._id.toString()}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -62,10 +56,10 @@ const Staff = () => {
                 </Text>
                 <Text
                   className={`w-20 text-center px-2 py-0.5 rounded-full text-sm text-white capitalize ${
-                    item.role === "driver" ? "bg-orange-500" : "bg-green-500"
+                    item?.user?.role === "driver" ? "bg-orange-500" : "bg-green-500"
                   }`}
                 >
-                  {item.role}
+                  {item?.user?.role}
                 </Text>
               </View>
               <View className='flex-row justify-between items-center py-1'>
@@ -74,7 +68,7 @@ const Staff = () => {
               </View>
               <View className='flex-row justify-between items-center py-1'>
                 <Text className='font-pmedium'>ID NO</Text>
-                <Text className='text-gray-600'>{item.ntionalId}</Text>
+                <Text className='text-gray-600'>{item.nationalId}</Text>
               </View>
             </View>
           </View>

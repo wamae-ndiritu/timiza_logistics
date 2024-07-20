@@ -1,24 +1,70 @@
-import { View, Text, TextInput, ScrollView } from 'react-native'
-import React, { useState } from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context';
-import HeaderComponent from '../../../components/HeaderComponent';
-import FormField from '../../../components/FormField';
-import CustomButton from '../../../components/CustomButton';
-import CustomRadioButton from '../../../components/CustomRadioButton';
+import { View, Text, TextInput, ScrollView, Alert } from "react-native";
+import React, { useEffect, useState } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useDispatch, useSelector } from "react-redux";
+import HeaderComponent from "../../../components/HeaderComponent";
+import FormField from "../../../components/FormField";
+import CustomButton from "../../../components/CustomButton";
+import CustomRadioButton from "../../../components/CustomRadioButton";
+import { registerUser } from "../../../lib/redux/actions/userActions";
+import { resetUserState } from "../../../lib/redux/slices/users";
+import { router } from "expo-router";
 
 const RegisterStaff = () => {
+  const dispatch = useDispatch();
+  const { userData, loading, error, success } = useSelector(
+    (state) => state.user
+  );
   const [form, setForm] = useState({
     fullName: "",
     email: "",
     phoneNumber: "",
     nationalId: "",
-  })
-  const [role, setRole] = useState("")
-  const [submitting, setSubmitting] = useState(false);
+    drivingLicense: "",
+  });
+  const [role, setRole] = useState("");
 
   const handleSubmit = () => {
-    console.log({...form, role})
-  }
+    if (
+      !form.fullName ||
+      !form.email ||
+      !form.phoneNumber ||
+      !form.nationalId ||
+      !form.drivingLicense ||
+      !role
+    ) {
+      Alert.alert("Error", "Please fill in all the fields");
+      return;
+    }
+    dispatch(registerUser({ ...form, role: role.toLowerCase() }));
+  };
+
+  useEffect(() => {
+    setForm({
+      fullName: "",
+      email: "",
+      phoneNumber: "",
+      nationalId: "",
+      drivingLicense: "",
+    });
+    setRole("");
+    if (success) {
+      router.push("/staff");
+    }
+    if (error) {
+      Alert.alert("Error", error);
+    }
+  }, [success, error]);
+
+  useEffect(() => {
+    if (error || success) {
+      const timeout = setTimeout(() => {
+        dispatch(resetUserState());
+      }, 3000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, []);
   return (
     <SafeAreaView className=''>
       <ScrollView>
@@ -60,6 +106,13 @@ const RegisterStaff = () => {
             handleChangeText={(e) => setForm({ ...form, nationalId: e })}
             otherStyles='mb-4'
           />
+          <FormField
+            title='Driving Licence No'
+            placeholder=''
+            value={form.drivingLicense}
+            handleChangeText={(e) => setForm({ ...form, drivingLicense: e })}
+            otherStyles='mb-4'
+          />
           <CustomRadioButton
             options={[
               {
@@ -74,20 +127,19 @@ const RegisterStaff = () => {
               },
             ]}
             handlePress={setRole}
-            title="Select Role"
+            title='Select Role'
           />
           <CustomButton
             title='Save User'
             handlePress={handleSubmit}
-            isLoading={submitting}
+            isLoading={loading}
             textStyles='text-lg'
-            containerStyles="bg-orange py-1"
-
+            containerStyles='bg-orange py-1 mt-5'
           />
         </View>
       </ScrollView>
     </SafeAreaView>
   );
-}
+};
 
-export default RegisterStaff
+export default RegisterStaff;

@@ -7,7 +7,7 @@ import DashboardCard from "../../components/DashboardCard";
 import { useSelector } from "react-redux";
 
 const Home = () => {
-  const {user: {userInfo: {user: {email, role}}}} = useSelector((state) => state.user)
+  const {userData } = useSelector((state) => state.user)
   // const { data: posts, refetch } = useAppwrite(getAllPosts);
   // const { data: latestPosts } = useAppwrite(getLatestPosts);
 
@@ -107,7 +107,7 @@ const Home = () => {
                     Welcome Back
                   </Text>
                   <Text className='text-2xl font-psemibold text-white-300 capitalize'>
-                    {role }
+                    {userData?.user?.role }
                   </Text>
                 </View>
               </View>

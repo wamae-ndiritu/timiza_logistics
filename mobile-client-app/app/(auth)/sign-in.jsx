@@ -13,7 +13,7 @@ import { login } from "../../lib/redux/actions/userActions";
 
 const SignIn = () => {
   const dispatch = useDispatch();
-  const {user, loading, error} = useSelector((state) => state.user);
+  const {userData, loading, error} = useSelector((state) => state.user);
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -34,13 +34,13 @@ const SignIn = () => {
       password: "",
       role: "",
     });
-    if (user){
+    if (userData){
       router.push('/home');
     }
     if (error){
       Alert.alert("Error", error.message);
     }
-  }, [user, error])
+  }, [userData, error])
 
 
   return (
