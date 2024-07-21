@@ -6,6 +6,7 @@ import AvatarWithInitials from "../../components/AvatarWithInitials";
 import { useSelector } from "react-redux";
 import { icons } from "../../constants";
 import InvoiceUpload from "../../components/InvoiceUpload";
+import UploadDocument from "../../components/UploadDocument";
 
 const Profile = () => {
   const { userData } = useSelector((state) => state.user);
@@ -57,9 +58,7 @@ const Profile = () => {
             <Text className='text-gray-600'>{userData?.user?.nationalId}</Text>
           </View>
         </View>
-        <View className="mt-3">
-          <InvoiceUpload />
-        </View>
+        <UploadDocument />
       </ScrollView>
       <StatusBar backgroundColor='#2A7353' style='light' />
     </SafeAreaView>
