@@ -25,15 +25,15 @@ const TabIcon = ({ icon, color, name, focused }) => {
 };
 
 const TabsLayout = () => {
-   const { user } = useSelector((state) => state.user);
+   const { userData } = useSelector((state) => state.user);
 
    useEffect(() => {
-     if (!user?.token) {
+     if (!userData?.token) {
        router.replace("/sign-in");
      }
-   }, [user]);
+   }, [userData]);
 
-   if (!user?.token) {
+   if (!userData?.token) {
      return null; // or a loading spinner, or a placeholder
    }
 

@@ -5,10 +5,11 @@ import { StatusBar } from "expo-status-bar";
 import AvatarWithInitials from "../../components/AvatarWithInitials";
 import { useSelector } from "react-redux";
 import { icons } from "../../constants";
+import InvoiceUpload from "../../components/InvoiceUpload";
 
 const Profile = () => {
   const { userData } = useSelector((state) => state.user);
-  console.log(userData);
+  // console.log(userData);
 
   const logout = () => {};
   return (
@@ -55,6 +56,9 @@ const Profile = () => {
             <Text className='font-pmedium'>ID NO</Text>
             <Text className='text-gray-600'>{userData?.user?.nationalId}</Text>
           </View>
+        </View>
+        <View className="mt-3">
+          <InvoiceUpload />
         </View>
       </ScrollView>
       <StatusBar backgroundColor='#2A7353' style='light' />

@@ -4,10 +4,11 @@ import { StatusBar } from "expo-status-bar";
 import { useSelector } from "react-redux";
 
 const AuthLayout = () => {
-  const {user} = useSelector((state) => state.user);
+  const {userData} = useSelector((state) => state.user);
 
-  if (user?.token)
+  if (userData?.token){
     return <Redirect href='/home' />;
+  }
   return (
     <>
       <Stack>

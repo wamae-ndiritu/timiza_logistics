@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "apis": [
+    {
+      "identifier": "taggun",
+      "source": "@taggun/v1.0#434y728ljnlts4j",
+      "integrity": "sha512-u2D8tgsllZafCbqdfzT3lF4mB4gaZQuhLwU1ywFvhi1RpTgIv9OSfe8Uri6a/FpByZEcbCXgIdchVBo9jRGbNQ==",
+      "installerVersion": "6.1.2"
+    }
+  ]
+}
