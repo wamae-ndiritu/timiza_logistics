@@ -19,6 +19,7 @@ import schedule from "../assets/icons/schedule.png";
 import close from "../assets/icons/close.png";
 import empty from "../assets/icons/no-results.png"
 import notAuthorized from "../assets/icons/not-authorized.png";
+import camera from "../assets/icons/camera.png";
 
 export default {
   play,
@@ -41,5 +42,6 @@ export default {
   schedule,
   close,
   empty,
-  notAuthorized
+  notAuthorized,
+  camera
 };
