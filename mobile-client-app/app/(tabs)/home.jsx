@@ -7,7 +7,7 @@ import DashboardCard from "../../components/DashboardCard";
 import { useSelector } from "react-redux";
 
 const Home = () => {
-  const {userData } = useSelector((state) => state.user)
+  const { userData } = useSelector((state) => state.user);
   // const { data: posts, refetch } = useAppwrite(getAllPosts);
   // const { data: latestPosts } = useAppwrite(getLatestPosts);
 
@@ -84,7 +84,24 @@ const Home = () => {
   ];
 
   return (
-    <SafeAreaView className='bg-primary h-full'>
+    <SafeAreaView className='bg-white h-full'>
+      <View
+        View
+        className='bg-secondary py-0.5'
+      ></View>
+      <View className='flex-row justify-between items-center flex-row my-3 px-4 py-2 border-b border-green-500 border-dotted'>
+        <Image
+          source={images.logoHorizontal}
+          className='w-[180px] h-[38px]'
+          resizeMode='contain'
+        />
+        <View className="flex-row space-x-2">
+          <Text className='font-psemibold text-xl text-gray-600'>Hi,</Text>
+          <Text className='text-xl font-psemibold text-orange capitalize'>
+            {userData?.fullName}
+          </Text>
+        </View>
+      </View>
       <FlatList
         data={notifications}
         keyExtractor={(item) => item.id.toString()}
@@ -93,39 +110,20 @@ const Home = () => {
         }
         ListHeaderComponent={() => (
           <>
-            <View className='mt-6 px-4'>
-              <View className='justify-between items-center flex-row mb-6'>
-                <View className='mt-1.5'>
-                  <Image
-                    source={images.logoHorizontal}
-                    className='w-[180px] h-[38px]'
-                    resizeMode='contain'
-                  />
-                </View>
-                <View>
-                  <Text className='font-pmedium text-sm text-secondary'>
-                    Welcome Back
-                  </Text>
-                  <Text className='text-2xl font-psemibold text-white-300 capitalize'>
-                    {userData?.user?.role }
-                  </Text>
-                </View>
-              </View>
-              <FlatList
-                data={data}
-                keyExtractor={(item) => item.id.toString()}
-                className='flex gap-4'
-                renderItem={({ item }) => (
-                  <DashboardCard
-                    title={item.title}
-                    stats={item.stats}
-                    icon={item.icon}
-                    containerStyles='w-[150px] mx-1 h-[100px] bg-secondary'
-                  />
-                )}
-                horizontal
-              />
-            </View>
+            <FlatList
+              data={data}
+              keyExtractor={(item) => item.id.toString()}
+              className='flex gap-4'
+              renderItem={({ item }) => (
+                <DashboardCard
+                  title={item.title}
+                  stats={item.stats}
+                  icon={item.icon}
+                  containerStyles='w-[150px] mx-1 h-[100px] bg-secondary'
+                />
+              )}
+              horizontal
+            />
             <View className='mx-2'>
               <View className='bg-orange p-8 rounded my-6 flex-row space-x-4 space-y-2 relative'>
                 <View className='bg-primary justify-center rounded py-1'>
@@ -173,7 +171,7 @@ const Home = () => {
           </View>
         )}
       />
-      <StatusBar backgroundColor='#E0DEDB' style='light' />
+      <StatusBar backgroundColor='#2A7353' style='light' />
     </SafeAreaView>
   );
 };

@@ -10,23 +10,13 @@ const UploadDocument = () => {
     nationalIdBack: null,
   });
 
-  const openPicker = async (type, side) => {
-    let result;
-    if (type === "camera") {
-      result = await ImagePicker.launchCameraAsync({
+  const openPicker = async (side) => {
+    const result = await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true,
         aspect: [4, 3],
         quality: 1,
       });
-    } else if (type === "gallery") {
-      result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
-      });
-    }
 
     if (!result.canceled) {
       if (side === "front") {
@@ -76,44 +66,42 @@ const UploadDocument = () => {
   return (
     <View>
       <View className='mt-7 space-y-2'>
-        <Text className='text-base text-gray-600 font-pmedium'>
+        <Text className='text-base text-gray-600 font-pregular'>
           Upload ID (Front-Side)
         </Text>
-        <View className='flex-row space-x-2'>
-          <TouchableOpacity onPress={() => openPicker("camera", "front")}>
+        <TouchableOpacity
+          className='bg-white border-[1px] border-gray-300 p-1 h-48 rounded-lg'
+          onPress={() => openPicker("front")}
+        >
+          {form.nationalIdFront ? (
+            <Image
+              source={{ uri: form.nationalIdFront.uri }}
+              resizeMode='cover'
+              className='w-full h-full rounded-xl border-[1px]'
+            />
+          ) : (
             <Text>Take Photo</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => openPicker("gallery", "front")}>
-            <Text>Pick from Gallery</Text>
-          </TouchableOpacity>
-        </View>
-        {form.nationalIdFront && (
-          <Image
-            source={{ uri: form.nationalIdFront.uri }}
-            resizeMode='cover'
-            className='w-full h-48 rounded-xl border-[1px]'
-          />
-        )}
+          )}
+        </TouchableOpacity>
       </View>
       <View className='mt-7 space-y-2'>
         <Text className='text-base text-gray-600 font-pmedium'>
           Upload ID (Back-Side)
         </Text>
-        <View className='flex-row space-x-2'>
-          <TouchableOpacity onPress={() => openPicker("camera", "back")}>
-            <Text>Take Photo</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => openPicker("gallery", "back")}>
-            <Text>Pick from Gallery</Text>
-          </TouchableOpacity>
-        </View>
-        {form.nationalIdBack && (
-          <Image
-            source={{ uri: form.nationalIdBack.uri }}
-            resizeMode='cover'
-            className='w-full h-48 rounded-xl border-[1px]'
-          />
-        )}
+        <TouchableOpacity
+          className='bg-white border-[1px] border-gray-300 p-1 h-48 rounded-lg'
+          onPress={() => openPicker("back")}
+        >
+          {form.nationalIdBack ? (
+            <Image
+              source={{ uri: form.nationalIdBack.uri }}
+              resizeMode='cover'
+              className='w-full h-full rounded-xl border-[1px]'
+            />
+          )
+          : (<Text>Take Photo</Text>
+          )}
+        </TouchableOpacity>
       </View>
       <CustomButton
         title='Submit & Finish'

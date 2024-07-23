@@ -3,16 +3,21 @@ import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import AvatarWithInitials from "../../components/AvatarWithInitials";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { icons } from "../../constants";
-import InvoiceUpload from "../../components/InvoiceUpload";
+import { router } from "expo-router";
 import UploadDocument from "../../components/UploadDocument";
+import { logoutUser } from "../../lib/redux/slices/users";
 
 const Profile = () => {
+  const dispatch = useDispatch();
   const { userData } = useSelector((state) => state.user);
   // console.log(userData);
 
-  const logout = () => {};
+  const logout = () => {
+    dispatch(logoutUser());
+    router.replace('/sign-in');
+  };
   return (
     <SafeAreaView className='bg-white h-full'>
       <View className='px-4 bg-secondary w-full h-14 flex-row justify-between items-center'>
@@ -30,7 +35,7 @@ const Profile = () => {
       </View>
       <ScrollView className="px-4">
         <View className='px-4 w-full flex-row space-x-3 items-center mt-5'>
-          <AvatarWithInitials name='Wamae Ndiritu' />
+          <AvatarWithInitials name={userData?.fullName || userData?.user?.role} />
           <View>
             <Text className='text-gray-500 capitalize text-xl font-pregular'>
               {userData?.fullName || userData?.user?.role}
