@@ -19,7 +19,7 @@ const HeaderComponent = ({
   
 
   return (
-    <View className={`w-full bg-secondary px-4 ${containerStyles}`}>
+    <View className={`w-full bg-secondary px-4 z-[99] ${containerStyles}`}>
       <View className='flex-row justify-between items-center'>
         <Text className='font-pbold text-primary text-3xl'>{title}</Text>
         {showSearch && (

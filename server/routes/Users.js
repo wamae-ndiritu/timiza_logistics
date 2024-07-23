@@ -10,24 +10,24 @@ const router = express.Router();
 
 // User login
 router.post("/login", async (req, res) => {
-  const { email, password, role } = req.body;
+  const { email, password} = req.body;
 
   try {
     // Find user by email
     let user;
     let isMatch;
-    if (role === "driver") {
-      user = await Driver.findOne({ email }).populate("user");
-    } else if (role === "loader") {
-      user = await Loader.findOne({ email }).populate("user");
-    } else {
-      user = await User.findOne({ email, role: "admin" });
-    }
-    if (!user) {
+    const foundUser = await User.findOne({email});
+    if (!foundUser) {
       return res.status(404).json({ message: "User not found" });
     }
+    if (foundUser.role === "driver") {
+      user = await Driver.findOne({ email }).populate("user");
+    }
+    if (foundUser.role === "loader") {
+      user = await Loader.findOne({ email }).populate("user");
+    }
 
-    if (role === "driver" || role === "loader") {
+    if (foundUser.role === "driver" || foundUser.role === "loader") {
       isMatch = await user.user.comparePassword(password);
     } else {
       isMatch = await user.comparePassword(password);
@@ -41,7 +41,7 @@ router.post("/login", async (req, res) => {
     // Create and return JWT token
     let payload = {};
     let userDetails = {};
-    if (role === "driver" || role === "loader") {
+    if (foundUser.role === "driver" || foundUser.role === "loader") {
       payload = {
         user: {
           id: user.user._id,

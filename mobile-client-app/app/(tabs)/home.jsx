@@ -5,6 +5,8 @@ import { StatusBar } from "expo-status-bar";
 import { icons, images } from "../../constants";
 import DashboardCard from "../../components/DashboardCard";
 import { useSelector } from "react-redux";
+import AdminRoute from "../../components/AdminRoute";
+import { usePathname } from "expo-router";
 
 const Home = () => {
   const { userData } = useSelector((state) => state.user);
@@ -53,6 +55,8 @@ const Home = () => {
     setRefreshing(false);
   };
 
+  // console.log(usePathname())
+
   const data = [
     { id: 3, title: "Trips", stats: 15, icon: icons.tripTruck },
     { id: 0, title: "Drivers", stats: 5, icon: icons.driver },
@@ -84,95 +88,94 @@ const Home = () => {
   ];
 
   return (
-    <SafeAreaView className='bg-white h-full'>
-      <View
-        View
-        className='bg-secondary py-0.5'
-      ></View>
-      <View className='flex-row justify-between items-center flex-row my-3 px-4 py-2 border-b border-green-500 border-dotted'>
-        <Image
-          source={images.logoHorizontal}
-          className='w-[180px] h-[38px]'
-          resizeMode='contain'
-        />
-        <View className="flex-row space-x-2">
-          <Text className='font-psemibold text-xl text-gray-600'>Hi,</Text>
-          <Text className='text-xl font-psemibold text-orange capitalize'>
-            {userData?.fullName}
-          </Text>
+      <SafeAreaView className='bg-white h-full'>
+        <View View className='bg-secondary py-0.5'></View>
+        <View className='flex-row justify-between items-center flex-row mt-3 mb-6 px-4 py-2 border-b border-green-500 border-dotted'>
+          <Image
+            source={images.logoHorizontal}
+            className='w-[180px] h-[38px]'
+            resizeMode='contain'
+          />
+          <View className='flex-row space-x-2'>
+            <Text className='font-psemibold text-xl text-gray-600'>Hi,</Text>
+            <Text className='text-xl font-psemibold text-orange capitalize'>
+              {userData?.fullName || userData?.user?.role}
+            </Text>
+          </View>
         </View>
-      </View>
-      <FlatList
-        data={notifications}
-        keyExtractor={(item) => item.id.toString()}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        ListHeaderComponent={() => (
-          <>
-            <FlatList
-              data={data}
-              keyExtractor={(item) => item.id.toString()}
-              className='flex gap-4'
-              renderItem={({ item }) => (
-                <DashboardCard
-                  title={item.title}
-                  stats={item.stats}
-                  icon={item.icon}
-                  containerStyles='w-[150px] mx-1 h-[100px] bg-secondary'
-                />
-              )}
-              horizontal
-            />
-            <View className='mx-2'>
-              <View className='bg-orange p-8 rounded my-6 flex-row space-x-4 space-y-2 relative'>
-                <View className='bg-primary justify-center rounded py-1'>
+        <FlatList
+          data={notifications}
+          keyExtractor={(item) => item.id.toString()}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          ListHeaderComponent={() => (
+            <>
+              <FlatList
+                data={data}
+                keyExtractor={(item) => item.id.toString()}
+                className='flex gap-4'
+                renderItem={({ item }) => (
+                  <DashboardCard
+                    title={item.title}
+                    stats={item.stats}
+                    icon={item.icon}
+                    containerStyles='w-[150px] mx-1 h-[100px] bg-secondary'
+                  />
+                )}
+                horizontal
+              />
+              <View className='mx-2'>
+                <View className='bg-orange p-8 rounded my-6 flex-row space-x-4 space-y-2 relative'>
+                  <View className='bg-primary justify-center rounded py-1'>
+                    <Image
+                      source={icons.schedule}
+                      className='h-[60px] w-[80px]'
+                      resizeMode='contain'
+                    />
+                  </View>
+                  <View className='flex-col'>
+                    <Text className='text-white font-pregular text-xl'>
+                      {formatDateTime(dateTime)}
+                    </Text>
+                    <Text className='text-secondary font-pbold text-xl space-y-2'>
+                      {dateTime.toLocaleTimeString()}
+                    </Text>
+                  </View>
                   <Image
-                    source={icons.schedule}
-                    className='h-[60px] w-[80px]'
+                    source={icons.menu}
+                    className='h-8 w-8 absolute top-0 right-0'
                     resizeMode='contain'
                   />
                 </View>
-                <View className='flex-col'>
-                  <Text className='text-white font-pregular text-xl'>
-                    {formatDateTime(dateTime)}
-                  </Text>
-                  <Text className='text-secondary font-pbold text-xl space-y-2'>
-                    {dateTime.toLocaleTimeString()}
+                <View className='bg-secondary rounded p-2'>
+                  <Text className='text-white'>Hey there</Text>
+                </View>
+                <View className='space-y-2 my-6'>
+                  <Text className='text-2xl font-psemibold text-secondary'>
+                    Notifications
                   </Text>
                 </View>
-                <Image
-                  source={icons.menu}
-                  className='h-8 w-8 absolute top-0 right-0'
-                  resizeMode='contain'
-                />
               </View>
-              <View className='bg-secondary rounded p-2'>
-                <Text className='text-white'>Hey there</Text>
-              </View>
-              <View className='space-y-2 my-6'>
-                <Text className='text-2xl font-psemibold text-secondary'>
-                  Notifications
+            </>
+          )}
+          renderItem={({ item }) => (
+            <View className='bg-white rounded border-[1px] border-dotted border-black-300 p-2 flex-row items-start justify-between my-1 mx-2'>
+              <View className='pr-4'>
+                <Text className='text-black text-base pr-4'>
+                  {item.message}
                 </Text>
               </View>
+              <Image
+                source={icons.eye}
+                className='h-6 w-6'
+                resizeMode='contain'
+              />
             </View>
-          </>
-        )}
-        renderItem={({ item }) => (
-          <View className='bg-white rounded border-[1px] border-dotted border-black-300 p-2 flex-row items-start justify-between my-1 mx-2'>
-            <View className='pr-4'>
-              <Text className='text-black text-base pr-4'>{item.message}</Text>
-            </View>
-            <Image
-              source={icons.eye}
-              className='h-6 w-6'
-              resizeMode='contain'
-            />
-          </View>
-        )}
-      />
-      <StatusBar backgroundColor='#2A7353' style='light' />
-    </SafeAreaView>
+          )}
+        />
+        <StatusBar backgroundColor='#2A7353' style='light' />
+      </SafeAreaView>
   );
 };
 

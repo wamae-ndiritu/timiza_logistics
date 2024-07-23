@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "../../constants";
 import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton";
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 import SelectInput from "../../components/SelectInput";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../../lib/redux/actions/userActions";
@@ -17,11 +17,10 @@ const SignIn = () => {
   const [form, setForm] = useState({
     email: "",
     password: "",
-    role: ""
   });
 
   const submit = async () => {
-    if (!form.email || !form.password || !form.role) {
+    if (!form.email || !form.password) {
       Alert.alert("Error", "Please fill in all the fields");
       return;
     }
@@ -38,24 +37,20 @@ const SignIn = () => {
       router.push('/home');
     }
     if (error){
-      Alert.alert("Error", error.message);
+      Alert.alert("Error", error);
     }
   }, [userData, error])
 
 
   return (
-    <SafeAreaView className='bg-primary h-full'>
+    <SafeAreaView className='bg-white h-full'>
       <ScrollView>
-        <View className='w-full h-full justify-center px-4 my-6'>
+        <View className='w-full min-h-[65vh] flex-col justify-center px-4'>
           <Image
             source={images.logoHorizontal}
             resizeMode='contain'
             className='w-[300px] h-[85px]'
           />
-          <Text className='text-3xl text-secondary font-semibold mt-10 font-psemibold'>
-            Welcome Back to{" "}
-            <Text className='text-orange uppercase'>Timiza Logistics</Text>
-          </Text>
           <FormField
             title='Email'
             value={form.email}
@@ -71,34 +66,13 @@ const SignIn = () => {
             handleChangeText={(e) => setForm({ ...form, password: e })}
             otherStyles='mt-7'
           />
-          <SelectInput
-            title='Choose Role'
-            data={[
-              { title: "Admin" },
-              { title: "Driver" },
-              { title: "Loader" },
-            ]}
-            placeholder='........'
-            value={form.password}
-            handleChangeText={(e) => setForm({ ...form, role: e })}
-            otherStyles='mt-7'
-          />
-          <CustomButton
-            title='Sign In'
-            handlePress={submit}
-            containerStyles='mt-7'
-            textStyles='text-white-100 text-xl'
-            isLoading={loading}
-          />
-
-          {/* <View className='justify-center pt-5 flex-row items-center justify-center gap-2'>
-            <Text className='text-lg text-black-300 font-pregular'>
-              Don't have an account?
-            </Text>
-            <Link href='/sign-up' className='text-lg text-orange underline'>
-              Sign Up
-            </Link>
-          </View> */}
+            <CustomButton
+              title='Sign In'
+              handlePress={submit}
+              containerStyles='mt-7 w-full rounded'
+              textStyles='text-white-100 text-xl text-white'
+              isLoading={loading}
+            />
         </View>
       </ScrollView>
     </SafeAreaView>

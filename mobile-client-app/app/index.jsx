@@ -5,7 +5,7 @@ import images from "../constants/images";
 import CustomButton from "../components/CustomButton";
 import { router } from "expo-router";
 
-export default function App() {
+export default function IndexScreen() {
   return (
     <SafeAreaView className='bg-primary h-full'>
       <ScrollView contentContainerStyle={{ height: "100%" }}>
@@ -20,8 +20,8 @@ export default function App() {
             with Aora
           </Text>
           <CustomButton
-            title='Explore'
-            handlePress={() => router.push("/explore")}
+            title='Get Started'
+            handlePress={() => router.push("/sign-in")}
             containerStyles='w-full mt-7'
             textStyles="text-xl text-white-100"
           />

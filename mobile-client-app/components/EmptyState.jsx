@@ -5,7 +5,7 @@ import { icons } from "../constants";
 
 const EmptyState = ({ title, subtitle }) => {
   return (
-    <View className='border-[1px] border-gray-300 rounded-xl m-4 bg-white flex-col justify-center items-center px-4 py-12'>
+    <View className='min-h-[80vh] rounded bg-white flex-col justify-center items-center px-4 py-12'>
       <Image
         source={icons.empty}
         className='w-20 h-16'

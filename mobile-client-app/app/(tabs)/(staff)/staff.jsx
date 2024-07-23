@@ -13,7 +13,7 @@ import EmptyState from "../../../components/EmptyState";
 
 const Staff = () => {
   const dispatch = useDispatch();
-  const {usersList} = useSelector((state) => state.user);
+  const { usersList } = useSelector((state) => state.user);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -24,16 +24,30 @@ const Staff = () => {
   };
 
   useEffect(() => {
-    dispatch(listUsers(type="", search=""));
-  }, [])
+    dispatch(listUsers((type = ""), (search = "")));
+  }, []);
 
   const links = [
-    { id: 0, title: "Staff", route: "/staff" },
+    { id: 0, title: "List Staff", route: "/staff" },
     { id: 1, title: "Add Staff", route: "/register-staff" },
   ];
 
   return (
     <SafeAreaView className='h-full'>
+      <HeaderComponent
+        title='Staff'
+        inputPlaceHolder='Type National ID and enter..'
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        isSearching={isSearching}
+        setIsSearching={setIsSearching}
+        handleSearchSubmit={() =>
+          dispatch(listUsers((type = ""), (search = searchQuery)))
+        }
+        containerStyles='pt-10 pb-3'
+        showSearch={true}
+        links={links}
+      />
       <FlatList
         className=''
         data={usersList}
@@ -41,22 +55,6 @@ const Staff = () => {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
-        ListHeaderComponent={() => (
-          <HeaderComponent
-            title='Staff'
-            inputPlaceHolder='Type National ID and enter..'
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            isSearching={isSearching}
-            setIsSearching={setIsSearching}
-            handleSearchSubmit={() =>
-              dispatch(listUsers((type = ""), (search = searchQuery)))
-            }
-            containerStyles='pt-16 pb-8'
-            showSearch={true}
-            links={links}
-          />
-        )}
         renderItem={({ item }) => (
           <View className='px-2 my-2'>
             <View className='bg-white p-2'>

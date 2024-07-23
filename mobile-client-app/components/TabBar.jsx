@@ -1,35 +1,22 @@
-import { router, useNavigation, usePathname } from "expo-router";
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { Link, usePathname } from "expo-router";
+import React from "react";
+import { View } from "react-native";
 
-const TabBar = ({links}) => {
-  const [activeTab, setActiveTab] = useState("");
-  const navigation = useNavigation();
+const TabBar = ({ links }) => {
   const pathname = usePathname();
   return (
-    <View className=''>
-      <View className='flex-row justify-around'>
-        {links?.map((link) => (
-          <TouchableOpacity
-            key={link.id}
-            onPress={() => {
-              setActiveTab("staff");
-              router.push(link.route)
-            }}
-            className={`flex-1 items-center py-4 ${
-              link.route === pathname || "/" === pathname ? "border-b-2 border-orange" : ""
-            }`}
-          >
-            <Text
-              className={`text-lg ${
-                link.route === pathname ? "text-orange" : "text-primary"
-              }`}
-            >
-              {link.title}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+    <View className='flex-row my-3 space-x-2'>
+      {links?.map((link) => (
+        <Link
+          href={link.route}
+          key={link.id}
+          className={`text-lg w-24 px-2 py-0.5 rounded text-center ${
+            link.route === pathname ? "bg-orange text-white" : "bg-primary text-gray-600"
+          }`}
+        >
+          {link.title}
+        </Link>
+      ))}
     </View>
   );
 };

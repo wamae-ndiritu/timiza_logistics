@@ -37,6 +37,7 @@ const TabsLayout = () => {
      return null; // or a loading spinner, or a placeholder
    }
 
+   const isAdmin = userData?.user?.role === "admin"
   return (
     <>
       <Tabs
@@ -87,6 +88,7 @@ const TabsLayout = () => {
           options={{
             title: "Staff",
             headerShown: false,
+            href: isAdmin ? '/staff' : null,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
                 icon={icons.driver}

@@ -65,18 +65,20 @@ const RegisterStaff = () => {
       return () => clearTimeout(timeout);
     }
   }, []);
+
+  const links = [
+    { id: 0, title: "List Staff", route: "/staff" },
+    { id: 1, title: "Add Staff", route: "/register-staff" },
+  ];
   return (
     <SafeAreaView className=''>
-      <ScrollView>
-        <HeaderComponent
-          title='Create Staff'
-          inputPlaceHolder='Search staff'
-          containerStyles='py-6'
-          links={[
-            { id: 0, title: "Staff", route: "/staff" },
-            { id: 1, title: "Add Staff", route: "/register-staff" },
-          ]}
-        />
+      <HeaderComponent
+        title='Create Staff'
+        inputPlaceHolder='Search staff'
+        containerStyles='py-2'
+        links={links}
+      />
+      <ScrollView class="min-h-full">
         <View className='px-4 my-4'>
           <FormField
             title='Full Name'
