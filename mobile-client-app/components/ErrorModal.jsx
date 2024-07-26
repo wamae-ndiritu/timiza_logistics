@@ -1,17 +1,29 @@
 import { View, Text, Modal, TouchableOpacity, StyleSheet, Image } from "react-native";
 import React from "react";
 import icons from "../constants/icons";
+import { Link } from "expo-router";
 
-const ErrorModal = ({ visible, onClose, description }) => {
+const ErrorModal = ({ visible, description, redirect}) => {
   return (
     <Modal
       visible={visible}
       transparent={true}
       animationType='slide'
-      onRequestClose={onClose}
     >
       <View style={styles.overlay}>
-        <Image source={icons.error} className="h-18 w-18" resizeMode="contain" />
+        <View className="bg-white rounded-full p-4 flex-row justify-center align-center my-3">
+          <Image
+            source={icons.error}
+            className='h-8 w-8'
+            resizeMode='contain'
+          />
+        </View>
+        <View className='px-8'>
+          <Text className='text-center text-gray-300 font-pregular text-xl text-base'>
+            {description} Please try again!
+          </Text>
+        </View>
+        <Link href={redirect} className="bg-secondary px-4 py-2 text-white w-36 rounded-lg text-xl text-center my-3">Go Back</Link>
         {/* <View style={styles.container}>
           <Text style={styles.errorText}>Error</Text>
           <Text style={styles.description}>{description}</Text>

@@ -24,7 +24,7 @@ const Staff = () => {
   };
 
   useEffect(() => {
-    dispatch(listUsers((type = ""), (search = "")));
+    dispatch(listUsers("", ""));
   }, []);
 
   const links = [

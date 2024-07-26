@@ -194,9 +194,10 @@ const Profile = () => {
         description='Uploading...'
       />
       <ErrorModal
-        visible={error ? true : false}
+        visible={true}
         onClose={() => dispatch(resetUserState())}
-        description={error}
+        description="There was an error on the server!"
+        redirect="/profile"
       />
     </SafeAreaView>
   );

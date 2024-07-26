@@ -9,6 +9,7 @@ import CustomRadioButton from "../../../components/CustomRadioButton";
 import { registerUser } from "../../../lib/redux/actions/userActions";
 import { resetUserState } from "../../../lib/redux/slices/users";
 import { router } from "expo-router";
+import ErrorModal from "../../../components/ErrorModal";
 
 const RegisterStaff = () => {
   const dispatch = useDispatch();
@@ -71,15 +72,15 @@ const RegisterStaff = () => {
     { id: 1, title: "Add Staff", route: "/register-staff" },
   ];
   return (
-    <SafeAreaView className=''>
+    <SafeAreaView className='h-full'>
       <HeaderComponent
         title='Create Staff'
         inputPlaceHolder='Search staff'
         containerStyles='py-2'
         links={links}
       />
-      <ScrollView class="min-h-full">
-        <View className='px-4 my-4'>
+      <ScrollView class="">
+        <View className='px-4 my-3'>
           <FormField
             title='Full Name'
             placeholder='Enter full name'
@@ -139,6 +140,7 @@ const RegisterStaff = () => {
             containerStyles='bg-orange py-1 mt-5'
           />
         </View>
+        <ErrorModal visible={error ? true : false} onClose={() => dispatch(resetUserState())} redirect='/register-staff' description={error} />
       </ScrollView>
     </SafeAreaView>
   );
