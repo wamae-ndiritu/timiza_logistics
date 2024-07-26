@@ -7,8 +7,9 @@ const driverSchema = new mongoose.Schema(
     email: { type: String, unique: true, required: true },
     phoneNumber: { type: String, required: true },
     nationalId: { type: String, required: true },
-    drivingLicense: { type: String, default: null},
-    nationalIdCopy: { type: String, default: null },
+    nationalIdFront: { type: String, required: true },
+    nationalIdBack: { type: String, required: true },
+    drivingLicense: { type: String, default: null },
   },
   { timestamps: true }
 );

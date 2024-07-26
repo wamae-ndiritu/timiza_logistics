@@ -20,6 +20,7 @@ import close from "../assets/icons/close.png";
 import empty from "../assets/icons/no-results.png"
 import notAuthorized from "../assets/icons/not-authorized.png";
 import camera from "../assets/icons/camera.png";
+import error from "../assets/icons/error.png";
 
 export default {
   play,
@@ -43,5 +44,6 @@ export default {
   close,
   empty,
   notAuthorized,
-  camera
+  camera,
+  error
 };

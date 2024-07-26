@@ -1,30 +1,40 @@
-import { View, Text, TouchableOpacity, Image, ScrollView, Alert } from "react-native";
-import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+  Alert,
+} from "react-native";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import * as ImagePicker from "expo-image-picker";
-import moment from 'moment'
+import moment from "moment";
 import AvatarWithInitials from "../../components/AvatarWithInitials";
 import { useDispatch, useSelector } from "react-redux";
 import { icons } from "../../constants";
 import { router } from "expo-router";
-import { logoutUser } from "../../lib/redux/slices/users";
+import { logoutUser, resetUserState } from "../../lib/redux/slices/users";
 import CustomButton from "../../components/CustomButton";
-// import PdfUploader from "../../components/PdfUploader";
+import { uploadFiles } from "../../lib/firebase";
+import { updateProfile } from "../../lib/redux/actions/userActions";
+import ActivityIndicatorModal from "../../components/ActivityIndicatorModal";
+import ErrorModal from "../../components/ErrorModal";
 
 const Profile = () => {
   const dispatch = useDispatch();
-  const { userData } = useSelector((state) => state.user);
+  const { userData, loading, error } = useSelector((state) => state.user);
 
   const [form, setForm] = useState({
     nationalIdFront: null,
     nationalIdBack: null,
   });
-  // console.log(userData);
+  const [uploading, setUploading] = useState(false);
 
   const logout = () => {
     dispatch(logoutUser());
-    router.replace('/sign-in');
+    router.replace("/sign-in");
   };
 
   const openPicker = async (side) => {
@@ -49,34 +59,13 @@ const Profile = () => {
       Alert.alert("Please select both front and back images");
       return;
     }
-
-    const data = new FormData();
-    data.append("front", {
-      uri: form.nationalIdFront.uri,
-      name: `front-${Date.now()}.jpg`,
-      type: "image/jpeg",
-    });
-    data.append("back", {
-      uri: form.nationalIdBack.uri,
-      name: `back-${Date.now()}.jpg`,
-      type: "image/jpeg",
-    });
-
-    try {
-      const response = await fetch("http://your-server-url/upload", {
-        method: "POST",
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        body: data,
-      });
-
-      const result = await response.json();
-      console.log(result);
-    } catch (error) {
-      console.error("Error uploading document:", error);
-    }
+    setUploading(true);
+    const res = await uploadFiles(form);
+    console.log(res)
+      dispatch(updateProfile(res));
+    setUploading(false);
   };
+
   return (
     <SafeAreaView className='bg-white h-full'>
       <View className='px-4 z-[99] bg-secondary w-full h-14 flex-row justify-between items-center'>
@@ -189,9 +178,6 @@ const Profile = () => {
             )}
           </TouchableOpacity>
         </View>
-        <Text className='text-base text-gray-600 font-pmedium'>
-          Upload ID (Back-Side)
-        </Text>
         {/* <PdfUploader /> */}
         <CustomButton
           title='Update Profile'
@@ -201,6 +187,17 @@ const Profile = () => {
         />
       </ScrollView>
       <StatusBar backgroundColor='#2A7353' style='light' />
+      <ActivityIndicatorModal
+        visible={uploading || loading}
+        transparent={true}
+        onClose={() => setUploading(false)}
+        description='Uploading...'
+      />
+      <ErrorModal
+        visible={error ? true : false}
+        onClose={() => dispatch(resetUserState())}
+        description={error}
+      />
     </SafeAreaView>
   );
 };

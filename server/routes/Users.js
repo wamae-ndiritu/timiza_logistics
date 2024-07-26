@@ -27,6 +27,10 @@ router.post("/login", async (req, res) => {
       user = await Loader.findOne({ email }).populate("user");
     }
 
+    if (foundUser.role === "admin"){
+      user = foundUser
+    }
+
     if (foundUser.role === "driver" || foundUser.role === "loader") {
       isMatch = await user.user.comparePassword(password);
     } else {
@@ -297,7 +301,7 @@ router.put("/profile", verify, async (req, res) => {
 
 // User update nationalIdCopy and drivingLicenseCopy (normal user)
 router.put("/profile/documents", verify, async (req, res) => {
-  const { nationalIdCopy, drivingLicenseCopy } = req.body;
+  const { nationalIdFront, nationalIdBack, drivingLicenseCopy } = req.body;
 
   try {
     // Find the user by ID
@@ -319,8 +323,15 @@ router.put("/profile/documents", verify, async (req, res) => {
 
     // Update nationalIdCopy and drivingLicenseCopy if they are initially null
     if (type === "driver" || type === "loader") {
-      if (!user.nationalIdCopy && nationalIdCopy) {
-        user.nationalIdCopy = nationalIdCopy;
+      if (!user.nationalIdFront && nationalIdFront) {
+        user.nationalIdFront = nationalIdFront;
+      } else {
+        return res.status(400).json({
+          message: "Updating documents may only be initiated by the admin!",
+        });
+      }
+      if (!user.nationalIdBack && nationalIdBack) {
+        user.nationalIdBack = nationalIdBack;
       } else {
         return res.status(400).json({
           message: "Updating documents may only be initiated by the admin!",
@@ -335,6 +346,8 @@ router.put("/profile/documents", verify, async (req, res) => {
       }
       await user.save();
     }
+
+    console.log(user)
 
     res.status(200).json({ message: "Documents updated successfully" });
   } catch (error) {
