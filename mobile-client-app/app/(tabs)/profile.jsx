@@ -10,7 +10,7 @@ import { icons } from "../../constants";
 import { router } from "expo-router";
 import { logoutUser } from "../../lib/redux/slices/users";
 import CustomButton from "../../components/CustomButton";
-import PdfUploader from "../../components/PdfUploader";
+// import PdfUploader from "../../components/PdfUploader";
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -192,7 +192,7 @@ const Profile = () => {
         <Text className='text-base text-gray-600 font-pmedium'>
           Upload ID (Back-Side)
         </Text>
-        <PdfUploader />
+        {/* <PdfUploader /> */}
         <CustomButton
           title='Update Profile'
           handlePress={submit}
