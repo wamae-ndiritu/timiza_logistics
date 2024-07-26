@@ -8,7 +8,7 @@ import CustomButton from "../../../components/CustomButton";
 import CustomRadioButton from "../../../components/CustomRadioButton";
 import { registerUser } from "../../../lib/redux/actions/userActions";
 import { resetUserState } from "../../../lib/redux/slices/users";
-import { router } from "expo-router";
+import { router, useRouter } from "expo-router";
 import ErrorModal from "../../../components/ErrorModal";
 
 const RegisterStaff = () => {
@@ -21,7 +21,6 @@ const RegisterStaff = () => {
     email: "",
     phoneNumber: "",
     nationalId: "",
-    drivingLicense: "",
   });
   const [role, setRole] = useState("");
 
@@ -31,7 +30,6 @@ const RegisterStaff = () => {
       !form.email ||
       !form.phoneNumber ||
       !form.nationalId ||
-      !form.drivingLicense ||
       !role
     ) {
       Alert.alert("Error", "Please fill in all the fields");
@@ -46,14 +44,9 @@ const RegisterStaff = () => {
       email: "",
       phoneNumber: "",
       nationalId: "",
-      drivingLicense: "",
     });
-    setRole("");
     if (success) {
       router.push("/staff");
-    }
-    if (error) {
-      Alert.alert("Error", error);
     }
   }, [success, error]);
 
@@ -79,41 +72,34 @@ const RegisterStaff = () => {
         containerStyles='py-2'
         links={links}
       />
-      <ScrollView class="">
-        <View className='px-4 my-3'>
+      <ScrollView class=''>
+        <View className='px-4 mt-8 mb-3'>
           <FormField
             title='Full Name'
-            placeholder='Enter full name'
+            placeholder='Enter full Name...'
             value={form.fullName}
             handleChangeText={(e) => setForm({ ...form, fullName: e })}
-            otherStyles='mb-4'
+            otherStyles='mb-2'
           />
           <FormField
             title='Email'
-            placeholder='example@example.com'
+            placeholder='Enter email...'
             value={form.email}
             handleChangeText={(e) => setForm({ ...form, email: e })}
-            otherStyles='mb-4'
+            otherStyles='mb-2'
           />
           <FormField
             title='Contact'
-            placeholder='07 ** *** ***'
+            placeholder='Enter telephone no...'
             value={form.phoneNumber}
             handleChangeText={(e) => setForm({ ...form, phoneNumber: e })}
-            otherStyles='mb-4'
+            otherStyles='mb-2'
           />
           <FormField
-            title='National ID No'
-            placeholder='** *** ***'
+            title='National ID'
+            placeholder='Enter ID no...'
             value={form.nationalId}
             handleChangeText={(e) => setForm({ ...form, nationalId: e })}
-            otherStyles='mb-4'
-          />
-          <FormField
-            title='Driving Licence No'
-            placeholder=''
-            value={form.drivingLicense}
-            handleChangeText={(e) => setForm({ ...form, drivingLicense: e })}
             otherStyles='mb-4'
           />
           <CustomRadioButton
@@ -137,10 +123,17 @@ const RegisterStaff = () => {
             handlePress={handleSubmit}
             isLoading={loading}
             textStyles='text-lg'
-            containerStyles='bg-orange py-1 mt-5'
+            containerStyles='bg-orange min-h-[45px] mt-1'
           />
         </View>
-        <ErrorModal visible={error ? true : false} onClose={() => dispatch(resetUserState())} redirect='/register-staff' description={error} />
+        <ErrorModal
+          visible={error ? true : false}
+          onClose={() => {
+            dispatch(resetUserState());
+            router.push('/register-staff')
+          }}
+          description={error}
+        />
       </ScrollView>
     </SafeAreaView>
   );

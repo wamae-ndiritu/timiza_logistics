@@ -16,8 +16,10 @@ export const login = (userForm) => async (dispatch) => {
     const { data } = await axios.post(`${END_POINT}/users/login`, userForm);
     dispatch(userLogin(data));
   } catch (error) {
-    console.log(error);
-    dispatch(userActionFail(error.message));
+    const message = error?.response
+      ? error.response?.data.message || error.response?.data.error
+      : error.message;
+    dispatch(userActionFail(message));
   }
 };
 
@@ -38,10 +40,12 @@ export const registerUser = (userForm) => async (dispatch, getState) => {
       userForm,
       config
     );
+    console.log(data);
     dispatch(userRegister());
   } catch (error) {
+    console.log(error)
     const message = error?.response
-      ? error.response?.data?.message
+      ? error.response?.data.message || error.response?.data.error
       : error.message;
     dispatch(userActionFail(message));
   }
@@ -67,9 +71,9 @@ export const listUsers =
       );
       dispatch(userList(data));
     } catch (error) {
-      const message = error?.response
-        ? error.response?.data?.message
-        : error.message;
+     const message = error?.response
+       ? error.response?.data.message || error.response?.data.error
+       : error.message;
       dispatch(userActionFail(message));
     }
   };
@@ -87,17 +91,15 @@ export const updateProfile =
           "Content-Type": "application/json",
         },
       };
-      console.log("Attempting upload")
       dispatch(userActionStart());
       if (type === 'documents'){
         await axios.put(`${END_POINT}/users/profile/documents`, userForm, config);
       }
-      console.log("Profile update")
       dispatch(userUpdate());
     } catch (error) {
       console.log(error)
       const message = error?.response
-        ? error.response?.data?.message
+        ? error.response?.data.message || error.response?.data.error
         : error.message;
       dispatch(userActionFail(message));
     }

@@ -26,7 +26,7 @@ async function sendEmail(to, subject, text) {
     from: `Timiza Logistics <${AUTH_EMAIL}>`,
     to: to,
     subject: subject,
-    html: text,
+    text: text,
   };
 
   await transporter.sendMail(mailOptions);

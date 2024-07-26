@@ -5,15 +5,18 @@ import {
   RefreshControl,
   FlatList,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import React, { useCallback, useState } from "react";
 import HeaderComponent from "../../../components/HeaderComponent";
 import { useDispatch, useSelector } from "react-redux";
 import { listUsers } from "../../../lib/redux/actions/userActions";
 import EmptyState from "../../../components/EmptyState";
+import ActivityIndicatorModal from "../../../components/ActivityIndicatorModal";
+import { resetUserState } from "../../../lib/redux/slices/users";
 
 const Staff = () => {
   const dispatch = useDispatch();
-  const { usersList } = useSelector((state) => state.user);
+  const { usersList, loading } = useSelector((state) => state.user);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -23,9 +26,11 @@ const Staff = () => {
     setRefreshing(false);
   };
 
-  useEffect(() => {
-    dispatch(listUsers("", ""));
-  }, []);
+   useFocusEffect(
+     useCallback(() => {
+       dispatch(listUsers("", ""));
+     }, [dispatch])
+   );
 
   const links = [
     { id: 0, title: "List Staff", route: "/staff" },
@@ -89,6 +94,11 @@ const Staff = () => {
             subtitle='Click Add Staff to add both Drivers and Loaders'
           />
         )}
+      />
+      <ActivityIndicatorModal
+        visible={loading}
+        onClose={() => dispatch(resetUserState())
+        }
       />
     </SafeAreaView>
   );

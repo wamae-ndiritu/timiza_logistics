@@ -188,16 +188,18 @@ const Profile = () => {
       </ScrollView>
       <StatusBar backgroundColor='#2A7353' style='light' />
       <ActivityIndicatorModal
-        visible={uploading || loading}
+        visible={uploading}
         transparent={true}
         onClose={() => setUploading(false)}
         description='Uploading...'
       />
       <ErrorModal
-        visible={true}
-        onClose={() => dispatch(resetUserState())}
-        description="There was an error on the server!"
-        redirect="/profile"
+        visible={error ? true : false}
+        onClose={() => {
+          dispatch(resetUserState());
+          router.push("/profile");
+        }}
+        description={error}
       />
     </SafeAreaView>
   );

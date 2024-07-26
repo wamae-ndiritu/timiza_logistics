@@ -1,35 +1,35 @@
 import { View, Text, Modal, TouchableOpacity, StyleSheet, Image } from "react-native";
 import React from "react";
 import icons from "../constants/icons";
-import { Link } from "expo-router";
 
-const ErrorModal = ({ visible, description, redirect}) => {
+const ErrorModal = ({ visible, description, onClose}) => {
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType='slide'
-    >
+    <Modal visible={visible} transparent={true} animationType='slide'>
       <View style={styles.overlay}>
-        <View className="bg-white rounded-full p-4 flex-row justify-center align-center my-3">
+        <View className='bg-white rounded-full p-4 flex-row justify-center align-center my-3'>
           <Image
             source={icons.error}
-            className='h-8 w-8'
+            className='h-6 w-6'
             resizeMode='contain'
           />
         </View>
         <View className='px-8'>
-          <Text className='text-center text-gray-300 font-pregular text-xl text-base'>
+          <Text className='text-center text-red-400 font-pregular text-xl text-base'>
             {description} Please try again!
           </Text>
         </View>
-        <Link href={redirect} className="bg-secondary px-4 py-2 text-white w-36 rounded-lg text-xl text-center my-3">Go Back</Link>
+        <TouchableOpacity
+          className='bg-secondary px-4 py-2  w-36 rounded-lg my-3'
+          onPress={onClose}
+        >
+          <Text className='text-white text-xl text-center'>Go Back</Text>
+        </TouchableOpacity>
         {/* <View style={styles.container}>
           <Text style={styles.errorText}>Error</Text>
           <Text style={styles.description}>{description}</Text>
           <View style={styles.buttonsContainer}>
             <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-              <Text style={styles.closeButtonText}>Close</Text>
+              <Text style={styles.closeBu<Link href={redirect}>Go Back</Link>ttonText}>Close</Text>
             </TouchableOpacity>
           </View>
         </View> */}

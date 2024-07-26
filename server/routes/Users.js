@@ -129,7 +129,7 @@ router.post("/register/admin", async (req, res) => {
 
 // User registration route (accessible only by admins)
 router.post("/register", isAdmin, async (req, res) => {
-  const { email, role, fullName, phoneNumber, nationalId, drivingLicense } =
+  const { email, role, fullName, phoneNumber, nationalId } =
     req.body;
 
   try {
@@ -149,20 +149,17 @@ router.post("/register", isAdmin, async (req, res) => {
       role,
       nationalId,
     });
-
-    // Save the user (password will be hashed automatically)
     await newUser.save();
 
     // Create driver or loader profile based on role
     let newProfile;
-    if (role === "driver") {
+    if (newUser.role === "driver") {
       newProfile = new Driver({
         user: newUser._id,
         fullName,
         email,
         phoneNumber,
         nationalId,
-        drivingLicense,
       });
     } else if (role === "loader") {
       newProfile = new Loader({
@@ -171,7 +168,6 @@ router.post("/register", isAdmin, async (req, res) => {
         email,
         phoneNumber,
         nationalId,
-        drivingLicense,
       });
     } else {
       return res.status(400).json({ message: "Invalid role" });
@@ -184,7 +180,7 @@ router.post("/register", isAdmin, async (req, res) => {
     await sendEmail(
       email,
       "Login Credentials",
-      `Your Timiza Login credentials are email: <strong>${email}</strong> and initial password: <strong>${randomPassword}</strong>. Please note you'll be required to reset this password for security purposes.`
+      `Your Timiza Login credentials are email: ${email} and initial password: ${randomPassword}. Please note you'll be required to reset this password for security purposes.`
     );
 
     res.status(201).json({ message: "User registered successfully" });

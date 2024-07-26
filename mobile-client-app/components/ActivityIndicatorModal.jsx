@@ -1,11 +1,11 @@
 import { View, Text, Modal, ActivityIndicator } from 'react-native'
 import React from 'react'
 
-const ActivityIndicatorModal = ({visible, transparent, onClose, description}) => {
+const ActivityIndicatorModal = ({visible, onClose}) => {
   return (
     <Modal
       visible={visible}
-      transparent={transparent}
+      transparent={true}
       animationType='slide'
       onRequestClose={onClose}
     >
@@ -21,7 +21,7 @@ const ActivityIndicatorModal = ({visible, transparent, onClose, description}) =>
           style={{ padding: 20, backgroundColor: "white", borderRadius: 10 }}
         >
           <ActivityIndicator size='large' color='#2A7353' />
-          <Text style={{ marginTop: 10 }}>{description}</Text>
+          <Text style={{ marginTop: 10 }}>Please wait...</Text>
         </View>
       </View>
     </Modal>
