@@ -12,7 +12,7 @@ export default function IndexScreen() {
         <View className='w-full justify-center items-center min-h-[95vh] px-8'>
           <Image
             source={images.logoVertical}
-            className='max-w--[320px] w-full h-[200px]'
+            className='max-w-[320px] w-full h-[200px]'
             resizeMode='contain'
           />
           <Text className='text-xl font-pregular text-black-300 text-center mt-5'>

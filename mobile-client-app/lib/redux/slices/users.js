@@ -5,6 +5,7 @@ const initialState = {
   userData: null,
   error: null,
   success: false,
+  updateSuccess: false,
   usersList: [],
 }
 
@@ -15,7 +16,7 @@ export const userSlice = createSlice({
     userActionStart: (state) => {
       state.loading = true;
       state.error = null;
-      state.usersList = [];
+      state.updateSuccess = false;
     },
     userActionFail: (state, action) => {
       state.loading = false;
@@ -35,10 +36,12 @@ export const userSlice = createSlice({
     },
     userUpdate: (state) => {
       state.loading = false;
+      state.updateSuccess = true;
     },
     resetUserState: (state) => {
       state.error = null;
       state.success = false;
+      state.updateSuccess = false;
     },
     logoutUser: (state) => {
       state.userData = null;

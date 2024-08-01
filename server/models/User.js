@@ -9,6 +9,8 @@ const userSchema = new mongoose.Schema(
     nationalId: {type: String, required: true},
     password: { type: String, required: true },
     role: { type: String, enum: ["admin", "driver", "loader"], required: true },
+    isDefaultPassword: {type: Boolean, default: true},
+    fullName: {type: String}
   },
   { timestamps: true }
 );

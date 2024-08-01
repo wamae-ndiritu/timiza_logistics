@@ -59,6 +59,8 @@ router.post("/login", async (req, res) => {
           id: user.user._id,
           email: user.user.email,
           role: user.user.role,
+          fullName: user.user.fullName,
+          isDefaultPassword: user.user.isDefaultPassword,
           createdAt: user.user.createdAt,
           updatedAt: user.user.updatedAt,
         },
@@ -82,6 +84,9 @@ router.post("/login", async (req, res) => {
           id: user._id,
           email: user.email,
           role: user.role,
+          nationalId: user.nationalId,
+          fullName: user.fullName,
+          isDefaultPassword: user.isDefaultPassword,
           createdAt: user.createdAt,
           updatedAt: user.updatedAt,
         },
@@ -107,7 +112,7 @@ router.post("/login", async (req, res) => {
 
 // Register admin
 router.post("/register/admin", async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, nationalId, fullName } = req.body;
 
   try {
     // Check if email already exists
@@ -117,7 +122,7 @@ router.post("/register/admin", async (req, res) => {
     }
 
     // Create new User instance
-    const newUser = new User({ email, password, role: "admin" });
+    const newUser = new User({ email, password, nationalId, fullName, role: "admin" });
 
     // Save the user (password will be hashed automatically)
     await newUser.save();
@@ -148,6 +153,7 @@ router.post("/register", isAdmin, async (req, res) => {
       password: randomPassword,
       role,
       nationalId,
+      fullName,
     });
     await newUser.save();
 
@@ -291,6 +297,7 @@ router.put("/profile", verify, async (req, res) => {
 
     res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: error.message });
   }
 });

@@ -21,6 +21,8 @@ import empty from "../assets/icons/no-results.png"
 import notAuthorized from "../assets/icons/not-authorized.png";
 import camera from "../assets/icons/camera.png";
 import error from "../assets/icons/error.png";
+import warning from "../assets/icons/warning.png";
+import checkMark from "../assets/icons/checkMark.png";
 
 export default {
   play,
@@ -45,5 +47,7 @@ export default {
   empty,
   notAuthorized,
   camera,
-  error
+  error,
+  warning,
+  checkMark
 };

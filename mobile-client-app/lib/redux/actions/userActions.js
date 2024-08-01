@@ -95,6 +95,13 @@ export const updateProfile =
       if (type === 'documents'){
         await axios.put(`${END_POINT}/users/profile/documents`, userForm, config);
       }
+      if (type === 'password'){
+        await axios.put(
+          `${END_POINT}/users/profile`,
+          userForm,
+          config
+        );
+      }
       dispatch(userUpdate());
     } catch (error) {
       console.log(error)
