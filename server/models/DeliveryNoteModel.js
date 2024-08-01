@@ -2,12 +2,13 @@ const mongoose = require("mongoose");
 
 const deliveryNoteSchema = new mongoose.Schema(
   {
-    data: {type: String},
+    date: {type: String},
     vehicleRegistrationNumber: {type: String},
     transporterName: {type: String},
     driverName: {type: String},
     loadersName: {type: [String]},
     transporterSequenceRoute: {type: String},
+    numberOfDeliveryNotes: {type: String},
     deliveryNotesNumber: {type: [Number]},
     total: {type: String}
 

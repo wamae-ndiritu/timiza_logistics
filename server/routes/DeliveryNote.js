@@ -23,6 +23,7 @@ const upload = multer({ storage });
 
 router.post("/upload", upload.single("document"), async (req, res) => {
   const filePath = req.file.path;
+  console.log(filePath)
 
   try {
     const form = new FormData();
@@ -68,6 +69,7 @@ router.get("/status/:jobId", async (req, res) => {
     const {
       date,
       delivery_notes_number,
+      number_of_delivery_notes,
       driver_name,
       loaders_names,
       transporter_name,
@@ -84,6 +86,7 @@ router.get("/status/:jobId", async (req, res) => {
       driverName: driver_name?.value || "",
       loadersName: loaders_names?.map((loader) => loader.value) || [],
       transporterSequenceRoute: transporter_sequence_route?.value || "",
+      numberOfDeliveryNotes: number_of_delivery_notes?.value || "",
       deliveryNotesNumber:
         delivery_notes_number?.map((note) => parseInt(note.value, 10)) || [],
       total: total?.value || "",

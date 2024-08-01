@@ -9,7 +9,8 @@ import {
   userUpdate,
 } from "../slices/users";
 
-const END_POINT = "http://192.168.88.203:3000/api/v1";
+// const END_POINT = "http://192.168.88.203:3000/api/v1";
+const END_POINT = "http://192.168.174.91:3000/api/v1";
 
 export const login = (userForm) => async (dispatch) => {
   try {

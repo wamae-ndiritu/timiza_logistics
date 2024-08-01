@@ -69,10 +69,11 @@ const TabsLayout = () => {
           }}
         />
         <Tabs.Screen
-          name='trips'
+          name='(deliveries)'
           options={{
             title: "Deliveries",
             headerShown: false,
+            href: '/list',
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
                 icon={icons.deliveryTruck}
@@ -88,7 +89,7 @@ const TabsLayout = () => {
           options={{
             title: "Staff",
             headerShown: false,
-            href: isAdmin ? '/staff' : null,
+            href: isAdmin ? "/staff" : null,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
                 icon={icons.driver}
