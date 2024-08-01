@@ -3,15 +3,12 @@ const axios = require("axios");
 const FormData = require("form-data");
 const fs = require("fs");
 const path = require("path");
-const { fileURLToPath } = require("url");
 const DeliveryNote = require("../models/DeliveryNoteModel");
+const multer = require("multer");
 
 const router = express.Router();
 
 const MINDEE_OCR_API_KEY = process.env.MINDEE_OCR_API_KEY;
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -24,7 +21,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-app.post("/upload", upload.single("document"), async (req, res) => {
+router.post("/upload", upload.single("document"), async (req, res) => {
   const filePath = req.file.path;
 
   try {
@@ -54,7 +51,7 @@ app.post("/upload", upload.single("document"), async (req, res) => {
   }
 });
 
-app.get("/status/:jobId", async (req, res) => {
+router.get("/status/:jobId", async (req, res) => {
   const jobId = req.params.jobId;
 
   try {
