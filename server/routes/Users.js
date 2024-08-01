@@ -10,13 +10,13 @@ const router = express.Router();
 
 // User login
 router.post("/login", async (req, res) => {
-  const { email, password} = req.body;
+  const { email, password } = req.body;
 
   try {
     // Find user by email
     let user;
     let isMatch;
-    const foundUser = await User.findOne({email});
+    const foundUser = await User.findOne({ email });
     if (!foundUser) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -27,8 +27,8 @@ router.post("/login", async (req, res) => {
       user = await Loader.findOne({ email }).populate("user");
     }
 
-    if (foundUser.role === "admin"){
-      user = foundUser
+    if (foundUser.role === "admin") {
+      user = foundUser;
     }
 
     if (foundUser.role === "driver" || foundUser.role === "loader") {
@@ -122,7 +122,13 @@ router.post("/register/admin", async (req, res) => {
     }
 
     // Create new User instance
-    const newUser = new User({ email, password, nationalId, fullName, role: "admin" });
+    const newUser = new User({
+      email,
+      password,
+      nationalId,
+      fullName,
+      role: "admin",
+    });
 
     // Save the user (password will be hashed automatically)
     await newUser.save();
@@ -134,8 +140,7 @@ router.post("/register/admin", async (req, res) => {
 
 // User registration route (accessible only by admins)
 router.post("/register", isAdmin, async (req, res) => {
-  const { email, role, fullName, phoneNumber, nationalId } =
-    req.body;
+  const { email, role, fullName, phoneNumber, nationalId } = req.body;
 
   try {
     // Check if email already exists
@@ -255,7 +260,8 @@ router.get("/profile", verify, async (req, res) => {
       phoneNumber: user.phoneNumber,
       nationalId: user.nationalId,
       drivingLicense: user.drivingLicense,
-      nationalIdCopy: user.nationalIdCopy,
+      nationalIdFront: user.nationalIdFront,
+      nationalIdBack: user.nationalIdBack,
     };
 
     res.status(200).json(profile);
@@ -291,6 +297,7 @@ router.put("/profile", verify, async (req, res) => {
 
     // Set the new password (it will be hashed by the pre-save hook)
     user.password = newPassword;
+    user.isDefaultPassword = false;
 
     // Save the user with the updated password
     await user.save();
@@ -324,33 +331,14 @@ router.put("/profile/documents", verify, async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Update nationalIdCopy and drivingLicenseCopy if they are initially null
-    if (type === "driver" || type === "loader") {
-      if (!user.nationalIdFront && nationalIdFront) {
-        user.nationalIdFront = nationalIdFront;
-      } else {
-        return res.status(400).json({
-          message: "Updating documents may only be initiated by the admin!",
-        });
-      }
-      if (!user.nationalIdBack && nationalIdBack) {
-        user.nationalIdBack = nationalIdBack;
-      } else {
-        return res.status(400).json({
-          message: "Updating documents may only be initiated by the admin!",
-        });
-      }
-      if (!user.drivingLicense && drivingLicenseCopy) {
-        user.drivingLicense = drivingLicenseCopy;
-      } else {
-        return res.status(400).json({
-          message: "Updating documents may only be initiated by the admin!",
-        });
-      }
-      await user.save();
-    }
+    // Update documents
 
-    console.log(user)
+    user.nationalIdFront = nationalIdFront || user.nationalIdFront;
+    user.nationalIdBack = nationalIdBack || user.nationalIdBack;
+    user.drivingLicense = drivingLicenseCopy || user.drivingLicense;
+    await user.save();
+
+    console.log(user);
 
     res.status(200).json({ message: "Documents updated successfully" });
   } catch (error) {

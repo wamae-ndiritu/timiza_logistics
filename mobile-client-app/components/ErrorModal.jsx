@@ -5,8 +5,8 @@ import icons from "../constants/icons";
 const ErrorModal = ({ visible, description, onClose}) => {
   return (
     <Modal visible={visible} transparent={true} animationType='slide'>
-      <View style={styles.overlay}>
-        <View className='bg-white rounded-full p-4 flex-row justify-center align-center my-3'>
+      <View style={styles.overlay} className="bg-secondary">
+        <View className='bg-white rounded-full p-4 flex-row justify-center align-center my-10'>
           <Image
             source={icons.error}
             className='h-6 w-6'
@@ -14,12 +14,12 @@ const ErrorModal = ({ visible, description, onClose}) => {
           />
         </View>
         <View className='px-8'>
-          <Text className='text-center text-red-400 font-pregular text-xl text-base'>
+          <Text className='text-center text-white font-pregular text-2xl text-base'>
             {description} Please try again!
           </Text>
         </View>
         <TouchableOpacity
-          className='bg-secondary px-4 py-2  w-36 rounded-lg my-3'
+          className='bg-black px-4 py-2  w-36 rounded-lg my-3'
           onPress={onClose}
         >
           <Text className='text-white text-xl text-center'>Go Back</Text>
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.9)",
+    // backgroundColor: "rgba(0,0,0,0.9)",
   },
   container: {
     padding: 20,

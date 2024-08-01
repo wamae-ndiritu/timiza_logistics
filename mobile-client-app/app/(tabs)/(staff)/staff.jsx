@@ -97,8 +97,8 @@ const Staff = () => {
       />
       <ActivityIndicatorModal
         visible={loading}
-        onClose={() => dispatch(resetUserState())
-        }
+        onClose={() => dispatch(resetUserState())}
+        description='Fetching users...'
       />
     </SafeAreaView>
   );

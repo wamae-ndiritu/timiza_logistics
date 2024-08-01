@@ -32,51 +32,90 @@ const app = initializeApp(firebaseConfig);
 // const analytics = getAnalytics(app);
 
 
+const createUploadPromise = (storageRef, file, key, urls) => {
+  return new Promise((resolve, reject) => {
+    const metadata = {
+      contentType: file.mimeType || "application/octet-stream", // Use the provided MIME type or default to 'application/octet-stream'
+    };
+
+    // Fetch the file content using the URI
+    fetch(file.uri)
+      .then((response) => response.blob())
+      .then((blob) => {
+        const uploadTask = uploadBytesResumable(storageRef, blob, metadata);
+
+        uploadTask.on(
+          "state_changed",
+          (snapshot) => {
+            const progress = Math.round(
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+            );
+            console.log(`Uploaded ${key}: ${progress}%`);
+          },
+          (error) => {
+            console.error(`Error uploading ${key}: ${error.message}`);
+            reject(error);
+          },
+          async () => {
+            try {
+              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+              urls[key] = downloadURL;
+              resolve();
+            } catch (error) {
+              console.error(
+                `Error getting download URL for ${key}: ${error.message}`
+              );
+              reject(error);
+            }
+          }
+        );
+      })
+      .catch((error) => {
+        console.error(`Error fetching file for ${key}: ${error.message}`);
+        reject(error);
+      });
+  });
+};
+
 export const uploadFiles = async (files) => {
   const promises = [];
   const urls = {};
 
+  const storage = getStorage(app, BUCKET_URL);
+
   for (const key in files) {
-    const fileName = new Date().getTime() + "_" + files[key].fileName;
-    const storage = getStorage(app, BUCKET_URL);
-    const storageRef = ref(storage, fileName);
-    const uploadTask = uploadBytesResumable(storageRef, files[key]);
+    if (files.hasOwnProperty(key)) {
+      const file = files[key];
 
-    // Wrap the upload task in a promise
-    const uploadPromise = new Promise((resolve, reject) => {
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          const progress = Math.round(
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-          );
-          console.log("Uploaded: " + progress + "%");
-        },
-        (error) => {
-          console.log("Error uploading: " + error);
-          reject(error);
-        },
-        async () => {
-          try {
-            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            urls[key] = downloadURL;
-            resolve();
-          } catch (error) {
-            console.log("Error getting download URL: " + error);
-            reject(error);
-          }
-        }
+      // Enhanced logging to check the file object structure
+      console.log(`File object for key ${key}:`, file);
+
+      if (!file.fileName) {
+        console.error(
+          `File object for key ${key} is missing fileName property.`
+        );
+        continue; // Skip this file and log the error
+      }
+
+      const fileName = `${new Date().getTime()}_${file.fileName}`; // Ensure fileName exists
+      const storageRef = ref(storage, fileName);
+
+      console.log(
+        `Uploading file: ${fileName} with MIME type: ${
+          file.mimeType || "application/octet-stream"
+        }`
       );
-    });
 
-    promises.push(uploadPromise);
+      const uploadPromise = createUploadPromise(storageRef, file, key, urls);
+      promises.push(uploadPromise);
+    }
   }
 
   try {
     await Promise.all(promises);
     return urls;
   } catch (error) {
-    console.log("Error uploading files:", error);
+    console.error("Error uploading files:", error.message);
     throw new Error("Error uploading files");
   }
 };

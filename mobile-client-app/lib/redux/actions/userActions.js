@@ -1,5 +1,6 @@
 import axios from "axios";
 import {
+  getProfile,
   userActionFail,
   userActionStart,
   userList,
@@ -104,10 +105,37 @@ export const updateProfile =
       }
       dispatch(userUpdate());
     } catch (error) {
-      console.log(error)
       const message = error?.response
         ? error.response?.data.message || error.response?.data.error
         : error.message;
       dispatch(userActionFail(message));
     }
   };
+
+
+  export const getUserProfile =
+    () =>
+    async (dispatch, getState) => {
+      try {
+        const {
+          user: { userData },
+        } = getState();
+        const config = {
+          headers: {
+            Authorization: `Bearer ${userData?.token}`,
+            "Content-Type": "application/json",
+          },
+        };
+        dispatch(userActionStart());
+        const { data } = await axios.get(
+          `${END_POINT}/users/profile`,
+          config
+        );
+        dispatch(getProfile(data))
+      } catch (error) {
+        const message = error?.response
+          ? error.response?.data.message || error.response?.data.error
+          : error.message;
+        dispatch(userActionFail(message));
+      }
+    };

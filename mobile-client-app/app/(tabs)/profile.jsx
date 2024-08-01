@@ -6,7 +6,8 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import React, { useCallback, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import * as ImagePicker from "expo-image-picker";
@@ -18,13 +19,13 @@ import { router } from "expo-router";
 import { logoutUser, resetUserState } from "../../lib/redux/slices/users";
 import CustomButton from "../../components/CustomButton";
 import { uploadFiles } from "../../lib/firebase";
-import { updateProfile } from "../../lib/redux/actions/userActions";
+import { getUserProfile, updateProfile } from "../../lib/redux/actions/userActions";
 import ActivityIndicatorModal from "../../components/ActivityIndicatorModal";
 import ErrorModal from "../../components/ErrorModal";
 
 const Profile = () => {
   const dispatch = useDispatch();
-  const { userData, loading, error } = useSelector((state) => state.user);
+  const { userData, error, profile, updateSuccess } = useSelector((state) => state.user);
 
   const [form, setForm] = useState({
     nationalIdFront: null,
@@ -54,6 +55,8 @@ const Profile = () => {
     }
   };
 
+  console.log(form)
+
   const submit = async () => {
     if (!form.nationalIdFront || !form.nationalIdBack) {
       Alert.alert("Please select both front and back images");
@@ -65,6 +68,32 @@ const Profile = () => {
       dispatch(updateProfile(res));
     setUploading(false);
   };
+
+
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(getUserProfile());
+    }, [dispatch])
+  );
+
+  useEffect(() => {
+    if (updateSuccess){
+      dispatch(getUserProfile());
+      const interval = setInterval(() => {
+        dispatch(resetUserState());
+      }, 5000)
+
+      return () => clearInterval(interval);
+    }
+  })
+
+  useEffect(() => {
+    if (profile){
+      setForm({nationalIdFront: profile.nationalIdFront, nationalIdBack: profile.nationalIdBack})
+    }
+  }, [profile])
+
+  console.log(form)
 
   return (
     <SafeAreaView className='bg-white h-full'>
@@ -134,7 +163,7 @@ const Profile = () => {
           >
             {form.nationalIdFront ? (
               <Image
-                source={{ uri: form.nationalIdFront.uri }}
+                source={{ uri: form.nationalIdFront.uri || form.nationalIdFront }}
                 resizeMode='cover'
                 className='w-full h-full rounded-xl border-[1px]'
               />
@@ -191,7 +220,7 @@ const Profile = () => {
         visible={uploading}
         transparent={true}
         onClose={() => setUploading(false)}
-        description='Uploading...'
+        description='Uploading documents...'
       />
       <ErrorModal
         visible={error ? true : false}
