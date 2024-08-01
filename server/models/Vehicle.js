@@ -10,8 +10,7 @@ const vehicleSchema = new mongoose.Schema(
     notes: { type: String },
     ownerName: { type: String, required: true },
     ownerIdNumber: { type: String, required: true },
-    ownerLogBook: { type: String }, // URL or path to document
-    ownerIdDocument: { type: String }, // URL or path to document
+    ownerLogBook: { type: String, default: null },
     tripHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: "Trip" }],
   },
   { timestamps: true }

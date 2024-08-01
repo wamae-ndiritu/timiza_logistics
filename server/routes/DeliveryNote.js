@@ -3,13 +3,12 @@ const axios = require("axios");
 const FormData = require("form-data");
 const fs = require("fs");
 const path = require("path");
-const {fileURLToPath} = require('url');
-const { Document, Invoice } = require("../models/Invoice");
+const { fileURLToPath } = require("url");
+const DeliveryNote = require("../models/DeliveryNoteModel");
 
 const router = express.Router();
 
 const MINDEE_OCR_API_KEY = process.env.MINDEE_OCR_API_KEY;
-
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -69,7 +68,34 @@ app.get("/status/:jobId", async (req, res) => {
     );
 
     const data = response.data;
-    res.status(200).json(data);
+    const {
+      date,
+      delivery_notes_number,
+      driver_name,
+      loaders_names,
+      transporter_name,
+      transporter_sequence_route,
+      vehicle_registration_no,
+      total,
+    } = data.document.inference.prediction;
+
+    // Create a new DeliveryNote document
+    const deliveryNote = new DeliveryNote({
+      date: date?.value || "",
+      vehicleRegistrationNumber: vehicle_registration_no?.value || "",
+      transporterName: transporter_name?.value || "",
+      driverName: driver_name?.value || "",
+      loadersName: loaders_names?.map((loader) => loader.value) || [],
+      transporterSequenceRoute: transporter_sequence_route?.value || "",
+      deliveryNotesNumber:
+        delivery_notes_number?.map((note) => parseInt(note.value, 10)) || [],
+      total: total?.value || "",
+    });
+
+    // Save the document to the database
+    await deliveryNote.save();
+
+    res.status(200).json({ message: "Data saved successfully", deliveryNote });
   } catch (error) {
     console.error("Error retrieving job status:", error);
     res

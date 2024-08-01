@@ -5,7 +5,7 @@ const cors = require('cors')
 const app = express();
 const port = process.env.PORT || 3000;
 const userRouter = require('./routes/Users');
-const invoiceRouter = require("./routes/Invoices");
+const invoiceRouter = require("./routes/Invoices.js");
 const { connectDatabase } = require("./config/db");
 
 
