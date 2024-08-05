@@ -3,13 +3,18 @@ import * as DocumentPicker from "expo-document-picker";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
+import {useDispatch, useSelector} from "react-redux";
 import { icons } from "../../../constants";
 import CustomButton from "../../../components/CustomButton";
 import { Link } from "expo-router";
 import FormField from "../../../components/FormField";
-import { extractFileText } from "../../../lib/redux/actions/deliveryActions";
+import { createDelivery, extractFileText } from "../../../lib/redux/actions/deliveryActions";
+import { uploadImageToCloudinary } from "../../../lib/cloudinary";
+import { resetDeliveryState } from "../../../lib/redux/slices/deliverySlices";
 
 const NewDelivery = () => {
+  const dispatch = useDispatch();
+  const {loading, success, error} = useSelector((state) => state.delivery);
   const [form, setForm] = useState({
     vehicleRegistrationNumber: "",
     date: "",
@@ -26,6 +31,7 @@ const NewDelivery = () => {
   const [readingFile, setReadingFile] = useState(false);
   const [fileErr, setFileErr] = useState(null);
   const [file, setFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
   const openPicker = async () => {
     const result = await DocumentPicker.getDocumentAsync({
@@ -38,7 +44,6 @@ const NewDelivery = () => {
       setFileErr(null);
       try {
         const data = await extractFileText(result.assets[0]);
-        console.log(data);
         setForm(data);
       } catch (error) {
         setFileErr(error.message);
@@ -83,17 +88,48 @@ const NewDelivery = () => {
   }, [deliveryNotesNumber, loadersName]);
 
   const submit = async () => {
+    setFileErr(null);
+    setUploading(true);
     if (!file) {
       alert("Please select a file first.");
       return;
     }
 
     try {
-      await extractFileText(file);
+      const data = await uploadImageToCloudinary(file);
+      setFile({uri: data.secure_url})
+      dispatch(createDelivery({ ...form, fileRef: data.secure_url }));
     } catch (error) {
-      console.log(error);
+      setFileErr(error.message)
+    }finally{
+      setUploading(false);
     }
   };
+
+  useEffect(() => {
+    if (success || error){
+      setForm({
+        vehicleRegistrationNumber: "",
+        date: "",
+        transporterName: "",
+        driverName: "",
+        loadersName: [],
+        transporterSequenceRoute: "",
+        deliveryNotesNumber: [],
+        numberOfDeliveryNotes: 0,
+        total: "",
+      });
+      setLoadersName("");
+      setDeliveryNotesNumber("");
+      setFile(null);
+
+      const interval = setInterval(() => {
+        dispatch(resetDeliveryState());
+      }, 5000);
+
+      return () => clearInterval(interval);
+    }
+  }, [dispatch, success, error])
   return (
     <SafeAreaView className='bg-white h-full'>
       <View className='px-4 z-[99] bg-secondary w-full h-16 flex-row justify-between items-center'>
@@ -107,8 +143,13 @@ const NewDelivery = () => {
       </View>
       <ScrollView className='px-4'>
         <View className='mt-7 space-y-2'>
+          {error && (
+            <Text className='px-2 text-base text-red-500 font-pregular bg-red-100 py-1 rounded'>
+              {error}
+            </Text>
+          )}
           <Text className='text-base text-gray-600 font-pregular'>
-            Scan Delivery Note (Below fields wil autofill)
+            Scan Delivery Note (Below fields will autofill)
           </Text>
           <TouchableOpacity
             className='bg-white border-[1px] border-gray-300 p-1 h-48 rounded-lg'
@@ -136,7 +177,7 @@ const NewDelivery = () => {
           </TouchableOpacity>
           {readingFile ? (
             <Text className='px-2 py-0.5 text-base text-green-500 font-pregular'>
-              Loading...
+              Extracting delivery note details...
             </Text>
           ) : (
             fileErr && (
@@ -235,10 +276,11 @@ const NewDelivery = () => {
         </View>
         {/* <PdfUploader /> */}
         <CustomButton
-          title='Update Profile'
+          title={uploading || loading ? "Saving..." : "Save Delivery"}
           handlePress={submit}
           containerStyles='my-7 bg-orange rounded min-h-[45px]'
           textStyles='text-white font-psemibold text-xl'
+          isLoading={uploading || loading}
         />
       </ScrollView>
       <StatusBar backgroundColor='#2A7353' style='light' />

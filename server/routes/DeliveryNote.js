@@ -138,10 +138,11 @@ router.post("/create", verify, async (req, res) => {
     numberOfDeliveryNotes,
     deliveryNotesNumber,
     total,
+    fileRef,
   } = req.body;
   try {
     const deliveryNote = new DeliveryNote({
-      user: req.user._id,
+      user: req.user.id,
       date,
       vehicleRegistrationNumber,
       transporterName,
@@ -151,6 +152,7 @@ router.post("/create", verify, async (req, res) => {
       numberOfDeliveryNotes,
       deliveryNotesNumber,
       total,
+      fileRef
     });
 
     await deliveryNote.save();
