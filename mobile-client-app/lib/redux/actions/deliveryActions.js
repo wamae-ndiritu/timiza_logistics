@@ -1,7 +1,12 @@
-import axios from 'axios';
+import axios from "axios";
 import { END_POINT } from "../../baseUrl";
 import * as FileSystem from "expo-file-system";
-import { createDeliverySuccess, deliveryActionFail, deliveryActionStart } from '../slices/deliverySlices';
+import {
+  createDeliverySuccess,
+  deliveryActionFail,
+  deliveryActionStart,
+  getDeliveriesSuccess,
+} from "../slices/deliverySlices";
 
 export const extractFileText = async (file) => {
   // Read file content as Base64
@@ -33,37 +38,53 @@ export const extractFileText = async (file) => {
     // Assuming backend response includes jobId for processing
     const { jobId } = response.data;
 
-    const {data} = await axios.get(
-      `${END_POINT}/deliveries/status/${jobId}`
-    );
+    const { data } = await axios.get(`${END_POINT}/deliveries/status/${jobId}`);
     return data;
   } catch (error) {
     throw new Error(error.message);
   }
-}
+};
 
 export const createDelivery = (deliveryData) => async (dispatch, getState) => {
-   try {
-     const {
-       user: { userData },
-     } = getState();
-     const config = {
-       headers: {
-         Authorization: `Bearer ${userData?.token}`,
-         "Content-Type": "application/json",
-       },
-     };
-     dispatch(deliveryActionStart());
-     await axios.post(
-       `${END_POINT}/deliveries/create`,
-       deliveryData,
-       config
-     );
-     dispatch(createDeliverySuccess());
-   } catch (error) {
-     const message = error?.response
-       ? error.response?.data.message || error.response?.data.error
-       : error.message;
-     dispatch(deliveryActionFail(message));
-   }
-}
+  try {
+    const {
+      user: { userData },
+    } = getState();
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userData?.token}`,
+        "Content-Type": "application/json",
+      },
+    };
+    dispatch(deliveryActionStart());
+    await axios.post(`${END_POINT}/deliveries/create`, deliveryData, config);
+    dispatch(createDeliverySuccess());
+  } catch (error) {
+    const message = error?.response
+      ? error.response?.data.message || error.response?.data.error
+      : error.message;
+    dispatch(deliveryActionFail(message));
+  }
+};
+
+export const listDeliveries = () => async (dispatch, getState) => {
+  try {
+    const {
+      user: { userData },
+    } = getState();
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userData?.token}`,
+        "Content-Type": "application/json",
+      },
+    };
+    dispatch(deliveryActionStart());
+    const { data } = await axios.get(`${END_POINT}/deliveries/`, config);
+    dispatch(getDeliveriesSuccess(data));
+  } catch (error) {
+    const message = error?.response
+      ? error.response?.data.message || error.response?.data.error
+      : error.message;
+    dispatch(deliveryActionFail(message));
+  }
+};

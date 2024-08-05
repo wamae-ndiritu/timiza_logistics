@@ -162,4 +162,36 @@ router.post("/create", verify, async (req, res) => {
   }
 });
 
+
+// Route to get deliveries
+router.get('/', verify, async (req, res) => {
+  const { search, sort } = req.query;
+  const isAdmin = req.user.role === 'admin';
+  const searchQuery = {};
+
+  if (!isAdmin) {
+    searchQuery.user = req.user.id;
+  }
+
+  if (search) {
+    const regex = new RegExp(search, "i");
+    searchQuery.$or = [
+      { driverName: regex },
+      { vehicleRegistrationNumber: regex },
+      { loadersName: { $elemMatch: { $regex: regex } } },
+      { deliveryNotesNumber: { $elemMatch: { $regex: regex } } },
+    ];
+  }
+
+  try {
+    const deliveries = await DeliveryNote.find(searchQuery)
+      .select('createdAt deliveryNotesNumber driverName loadersName fileRef')
+      .sort({ createdAt: sort === 'asc' ? 1 : -1 }); // Default to newest first (desc)
+
+    res.status(200).json(deliveries);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

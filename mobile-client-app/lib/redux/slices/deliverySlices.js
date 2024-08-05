@@ -28,7 +28,7 @@ export const deliverySlice = createSlice({
         state.success = true;
     },
     getDeliveriesSuccess: (state, action) => {
-        state.loading = true;
+        state.loading = false;
         state.deliveries = action.payload;
     }
   },

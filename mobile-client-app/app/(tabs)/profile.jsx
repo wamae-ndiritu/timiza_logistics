@@ -55,7 +55,6 @@ const Profile = () => {
     }
   };
 
-  console.log(form)
 
   const submit = async () => {
     if (!form.nationalIdFront || !form.nationalIdBack) {
@@ -93,7 +92,6 @@ const Profile = () => {
     }
   }, [profile])
 
-  console.log(form)
 
   return (
     <SafeAreaView className='bg-white h-full'>
