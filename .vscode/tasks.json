@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "android",
+			"path": "mobile-client-app",
+			"problemMatcher": [],
+			"label": "npm: android - mobile-client-app",
+			"detail": "expo run:android"
+		}
+	]
+}

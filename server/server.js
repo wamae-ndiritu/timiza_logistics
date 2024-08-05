@@ -6,7 +6,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 const userRouter = require('./routes/Users');
 const invoiceRouter = require("./routes/Invoices.js");
-const deliveryRouter = require("./routes/DeliveryNote.js");
+const deliveryRouter = require("./routes/DeliveryNote");
 const { connectDatabase } = require("./config/db");
 
 
@@ -14,7 +14,9 @@ const { connectDatabase } = require("./config/db");
 connectDatabase();
 
 // Middleware
-app.use(express.json()); // For parsing application/json
+// Increase the limit to 10mb (for example)
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cors())
 
 

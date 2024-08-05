@@ -5,6 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const DeliveryNote = require("../models/DeliveryNoteModel");
 const multer = require("multer");
+const { verify } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -21,9 +22,13 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-router.post("/upload", upload.single("document"), async (req, res) => {
-  const filePath = req.file.path;
-  console.log(filePath)
+router.post("/upload", async (req, res) => {
+  const { document } = req.body;
+  const { name, type, content } = document;
+
+  // Save the Base64 content to a file
+  const filePath = `uploads/${Date.now()}-${name}`;
+  fs.writeFileSync(filePath, content, { encoding: "base64" });
 
   try {
     const form = new FormData();
@@ -54,53 +59,81 @@ router.post("/upload", upload.single("document"), async (req, res) => {
 
 router.get("/status/:jobId", async (req, res) => {
   const jobId = req.params.jobId;
+  const pollInterval = 5000; // Interval between polls in milliseconds
+  const maxRetries = 3; // Maximum number of retries
 
   try {
-    const response = await axios.get(
-      `https://api.mindee.net/v1/products/wamae/delivery_note/v1/documents/queue/${jobId}`,
-      {
-        headers: {
-          Authorization: `Token ${MINDEE_OCR_API_KEY}`,
-        },
+    let attempts = 0;
+    let response;
+    let status = "";
+
+    // Polling loop
+    while (status !== "completed" && attempts < maxRetries) {
+      response = await axios.get(
+        `https://api.mindee.net/v1/products/wamae/delivery_note/v1/documents/queue/${jobId}`,
+        {
+          headers: {
+            Authorization: `Token ${MINDEE_OCR_API_KEY}`,
+          },
+        }
+      );
+
+      status = response.data.job.status;
+
+      if (status !== "completed") {
+        attempts++;
+        console.log(
+          `Job status: ${status}. Attempt ${attempts}/${maxRetries}. Retrying in ${
+            pollInterval / 1000
+          } seconds...`
+        );
+        await new Promise((resolve) => setTimeout(resolve, pollInterval)); // Wait before retrying
       }
-    );
+    }
 
-    const data = response.data;
-    const {
-      date,
-      delivery_notes_number,
-      number_of_delivery_notes,
-      driver_name,
-      loaders_names,
-      transporter_name,
-      transporter_sequence_route,
-      vehicle_registration_no,
-      total,
-    } = data.document.inference.prediction;
+    if (status !== "completed") {
+      return res.status(400).json({ message: "Job did not complete in time" });
+    }
 
-    // Create a new DeliveryNote document
-    const deliveryNote = new DeliveryNote({
-      date: date?.value || "",
-      vehicleRegistrationNumber: vehicle_registration_no?.value || "",
-      transporterName: transporter_name?.value || "",
-      driverName: driver_name?.value || "",
-      loadersName: loaders_names?.map((loader) => loader.value) || [],
-      transporterSequenceRoute: transporter_sequence_route?.value || "",
-      numberOfDeliveryNotes: number_of_delivery_notes?.value || "",
-      deliveryNotesNumber:
-        delivery_notes_number?.map((note) => parseInt(note.value, 10)) || [],
-      total: total?.value || "",
-    });
-
-    // Save the document to the database
-    await deliveryNote.save();
-
-    res.status(200).json({ message: "Data saved successfully", deliveryNote });
+    res.status(200).json(response.data.document.inference.prediction);
   } catch (error) {
     console.error("Error retrieving job status:", error);
     res
       .status(500)
       .json({ message: "Error retrieving job status", error: error.message });
+  }
+});
+
+router.post("/create", verify, async (req, res) => {
+  const {
+    date,
+    vehicleRegistrationNumber,
+    transporterName,
+    driverName,
+    loadersName,
+    transporterSequenceRoute,
+    numberOfDeliveryNotes,
+    deliveryNotesNumber,
+    total,
+  } = req.body;
+  try {
+    const deliveryNote = new DeliveryNote({
+      user: req.user._id,
+      date,
+      vehicleRegistrationNumber,
+      transporterName,
+      driverName,
+      loadersName,
+      transporterSequenceRoute,
+      numberOfDeliveryNotes,
+      deliveryNotesNumber,
+      total,
+    });
+
+    await deliveryNote.save();
+    res.status(201).json(deliveryNote);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 

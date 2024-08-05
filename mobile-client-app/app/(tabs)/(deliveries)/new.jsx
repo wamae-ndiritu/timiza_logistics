@@ -14,6 +14,7 @@ import CustomButton from "../../../components/CustomButton";
 import { Link } from "expo-router";
 import FormField from "../../../components/FormField";
 import axios from 'axios'
+import { extractFileText } from "../../../lib/redux/actions/deliveryActions";
 
 const NewDelivery = () => {
   const [form, setForm] = useState({
@@ -29,7 +30,6 @@ const NewDelivery = () => {
   });
   const [file, setFile] = useState(null);
 
-
   const openPicker = async () => {
     const result = await DocumentPicker.getDocumentAsync({
       type: ["image/png", "image/jpg", "image/jpeg"],
@@ -37,6 +37,7 @@ const NewDelivery = () => {
 
     if (!result.canceled) {
       setFile(result.assets[0]);
+      await extractFileText(result.assets[0]);
     }
   };
 
@@ -46,39 +47,12 @@ const submit = async () => {
     return;
   }
 
-  // Create form data
-  const formData = new FormData();
-  formData.append("file", {
-    uri: file.uri,
-    type: file.type,
-    name: file.name,
-  });
-
   try {
-    // Send the file to your backend
-    const response = await axios.post(
-      "http://192.168.174.91:3000/api/v1/deliveries/upload",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-
-    // Assuming backend response includes jobId for processing
-    const { jobId } = response.data;
-
-    const statusResponse = await axios.get(
-      `http://192.168.174.91:3000/api/v1/deliveries/status/${jobId}`
-    );
-    console.log(statusResponse.data);
-
-    alert("File uploaded successfully!");
+    await extractFileText(file);
   } catch (error) {
-    console.error("Error uploading file:", error);
-    alert("Error uploading file. Please try again.");
+    console.log(error)
   }
+ 
 };
   return (
     <SafeAreaView className='bg-white h-full'>

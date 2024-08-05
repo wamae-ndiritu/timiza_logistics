@@ -8,9 +8,7 @@ import {
   userRegister,
   userUpdate,
 } from "../slices/users";
-
-// const END_POINT = "http://192.168.88.203:3000/api/v1";
-const END_POINT = "http://192.168.174.91:3000/api/v1";
+import { END_POINT } from "../../baseUrl";
 
 export const login = (userForm) => async (dispatch) => {
   try {
