@@ -95,7 +95,30 @@ router.get("/status/:jobId", async (req, res) => {
       return res.status(400).json({ message: "Job did not complete in time" });
     }
 
-    res.status(200).json(response.data.document.inference.prediction);
+     const {
+       date,
+       delivery_notes_number,
+       number_of_delivery_notes,
+       driver_name,
+       loaders_names,
+       transporter_name,
+       transporter_sequence_route,
+       vehicle_registration_no,
+       total,
+     } = response.data.document.inference.prediction;
+
+    res.status(200).json({
+      date: date?.value || "",
+      vehicleRegistrationNumber: vehicle_registration_no?.value || "",
+      transporterName: transporter_name?.value || "",
+      driverName: driver_name?.value || "",
+      loadersName: loaders_names?.map((loader) => loader.value) || [],
+      transporterSequenceRoute: transporter_sequence_route?.value || "",
+      numberOfDeliveryNotes: number_of_delivery_notes?.value || "",
+      deliveryNotesNumber:
+        delivery_notes_number?.map((note) => parseInt(note.value, 10)) || [],
+      total: total?.value || "",
+    });
   } catch (error) {
     console.error("Error retrieving job status:", error);
     res

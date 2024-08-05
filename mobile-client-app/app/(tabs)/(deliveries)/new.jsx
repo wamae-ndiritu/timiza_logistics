@@ -1,33 +1,30 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  ScrollView,
-} from "react-native";
+import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { icons } from "../../../constants";
 import CustomButton from "../../../components/CustomButton";
 import { Link } from "expo-router";
 import FormField from "../../../components/FormField";
-import axios from 'axios'
 import { extractFileText } from "../../../lib/redux/actions/deliveryActions";
 
 const NewDelivery = () => {
   const [form, setForm] = useState({
-    vehicleRegistrationNumber: '',
-    date: '',
-    transporterName: '',
-    driverName: '',
-    loadersName: '',
-    transporterSequenceRoute: '',
-    deliveryNotesNumber: '',
-    numberOfDeliveryNotes: '',
-    total: ''
+    vehicleRegistrationNumber: "",
+    date: "",
+    transporterName: "",
+    driverName: "",
+    loadersName: [],
+    transporterSequenceRoute: "",
+    deliveryNotesNumber: [],
+    numberOfDeliveryNotes: 0,
+    total: "",
   });
+  const [deliveryNotesNumber, setDeliveryNotesNumber] = useState("");
+  const [loadersName, setLoadersName] = useState("");
+  const [readingFile, setReadingFile] = useState(false);
+  const [fileErr, setFileErr] = useState(null);
   const [file, setFile] = useState(null);
 
   const openPicker = async () => {
@@ -37,23 +34,66 @@ const NewDelivery = () => {
 
     if (!result.canceled) {
       setFile(result.assets[0]);
-      await extractFileText(result.assets[0]);
+      setReadingFile(true);
+      setFileErr(null);
+      try {
+        const data = await extractFileText(result.assets[0]);
+        console.log(data);
+        setForm(data);
+      } catch (error) {
+        setFileErr(error.message);
+      } finally {
+        setReadingFile(false);
+      }
     }
   };
 
-const submit = async () => {
-  if (!file) {
-    alert("Please select a file first.");
-    return;
-  }
+  const readArrayString = (attr) => {
+    if (Array.isArray(form[attr])) {
+      return form[attr].join(", ");
+    }
+    return "";
+  };
 
-  try {
-    await extractFileText(file);
-  } catch (error) {
-    console.log(error)
-  }
- 
-};
+  const convertStringToArray = (str, type = "str") => {
+    let res = str
+      .split(",")
+      .map((item) => item.trim())
+      .filter((item) => item !== ""); // Remove empty strings from split result
+    // Trim spaces and split the string by commas,
+    if (type === "number") {
+      res = res.map(Number);
+    }
+    return res;
+  };
+
+  // Update formatted strings
+  useEffect(() => {
+    setDeliveryNotesNumber(readArrayString("deliveryNotesNumber"));
+    setLoadersName(readArrayString("loadersName"));
+  }, [form.deliveryNotesNumber, form.loadersName]);
+
+  // Update form state based on local state
+  useEffect(() => {
+    setForm((prev) => ({
+      ...prev,
+      deliveryNotesNumber: convertStringToArray(deliveryNotesNumber, "number"),
+      loadersName: convertStringToArray(loadersName, "str"),
+    }));
+  }, [deliveryNotesNumber, loadersName]);
+
+  const submit = async () => {
+    if (!file) {
+      alert("Please select a file first.");
+      return;
+    }
+
+    try {
+      await extractFileText(file);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <SafeAreaView className='bg-white h-full'>
       <View className='px-4 z-[99] bg-secondary w-full h-16 flex-row justify-between items-center'>
@@ -94,9 +134,20 @@ const submit = async () => {
               </View>
             )}
           </TouchableOpacity>
+          {readingFile ? (
+            <Text className='px-2 py-0.5 text-base text-green-500 font-pregular'>
+              Loading...
+            </Text>
+          ) : (
+            fileErr && (
+              <Text className='px-2 py-0.5 text-base text-red-500 font-pregular'>
+                {fileErr}
+              </Text>
+            )
+          )}
           <FormField
             title='Delivery Date'
-            placeholder='20-07-2024'
+            placeholder='Enter date e.g 20-07-2024'
             value={form.date}
             handleChangeText={(e) => setForm({ ...form, date: e })}
             otherStyles='mt-4 mb-3 bg-slate'
@@ -105,7 +156,7 @@ const submit = async () => {
           />
           <FormField
             title='Transporter Name'
-            placeholder='TIMIZA'
+            placeholder='Enter transporter company name'
             value={form.transporterName}
             handleChangeText={(e) => setForm({ ...form, transporterName: e })}
             otherStyles='mt-4 mb-3 bg-slate'
@@ -114,7 +165,7 @@ const submit = async () => {
           />
           <FormField
             title='Vehicle Registration No'
-            placeholder='KAD 344A'
+            placeholder='Enter vehicle registration'
             value={form.vehicleRegistrationNumber}
             handleChangeText={(e) =>
               setForm({ ...form, vehicleRegistrationNumber: e })
@@ -125,7 +176,7 @@ const submit = async () => {
           />
           <FormField
             title='Driver Name'
-            placeholder='Walter Mugo'
+            placeholder='Enter name'
             value={form.driverName}
             handleChangeText={(e) => setForm({ ...form, driverName: e })}
             otherStyles='mb-2 bg-slate'
@@ -134,16 +185,16 @@ const submit = async () => {
           />
           <FormField
             title='Loaders Name'
-            placeholder='Ken Opondo, Martin Shikuku'
-            value={form.loadersName}
-            handleChangeText={(e) => setForm({ ...form, loadersName: e })}
+            placeholder='Enter names separated by comma'
+            value={loadersName}
+            handleChangeText={(e) => setLoadersName(e)}
             otherStyles='mb-2 bg-slate'
             textStyles='font-pregular text-md'
             inputStyles='bg-slate-50'
           />
           <FormField
             title='Transporter Sequence Route'
-            placeholder='KAMAKIS'
+            placeholder='Enter sequence route'
             value={form.transporterSequenceRoute}
             handleChangeText={(e) =>
               setForm({ ...form, transporterSequenceRoute: e })
@@ -155,7 +206,7 @@ const submit = async () => {
           <FormField
             title='Number of  Delivery Notes'
             placeholder='1, 2 etc'
-            value={form.numberOfDeliveryNotes}
+            value={form.numberOfDeliveryNotes.toString()}
             handleChangeText={(e) =>
               setForm({ ...form, numberOfDeliveryNotes: e })
             }
@@ -165,22 +216,18 @@ const submit = async () => {
           />
           <FormField
             title='Delivery Notes Number'
-            placeholder='654896, 4598760'
-            value={form.deliveryNotesNumber}
-            handleChangeText={(e) =>
-              setForm({ ...form, deliveryNotesNumber: e })
-            }
+            placeholder='Enter numbers separated by commas'
+            value={deliveryNotesNumber}
+            handleChangeText={(e) => setDeliveryNotesNumber(e)}
             otherStyles='mb-2 bg-slate'
             textStyles='font-pregular text-md'
             inputStyles='bg-slate-50'
           />
           <FormField
             title='Total Charges'
-            placeholder='5000 etc'
-            value={form.deliveryNotesNumber}
-            handleChangeText={(e) =>
-              setForm({ ...form, deliveryNotesNumber: e })
-            }
+            placeholder='Enter charges'
+            value={form.total}
+            handleChangeText={(e) => setForm({ ...form, total: e })}
             otherStyles='mb-2 bg-slate'
             textStyles='font-pregular text-md'
             inputStyles='bg-slate-50'
