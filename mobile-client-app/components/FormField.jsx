@@ -11,6 +11,7 @@ const FormField = ({
   textStyles="",
   inputStyles="",
   type="text",
+  editable=true,
   ...props
 }) => {
   const [showPasssord, setShowPassword] = useState(false);
@@ -34,6 +35,7 @@ const FormField = ({
             (title === "Password" || type === "password") && !showPasssord
           }
           cursorColor='#7b7b8b'
+          editable={editable}
         />
         {title === "Password" && (
           <TouchableOpacity onPress={() => setShowPassword(!showPasssord)}>

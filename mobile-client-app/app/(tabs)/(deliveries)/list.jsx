@@ -1,7 +1,7 @@
-import { View, Text, ScrollView, FlatList, RefreshControl, Image } from 'react-native'
+import { View, Text, ScrollView, FlatList, RefreshControl, Image, TouchableOpacity } from 'react-native'
 import React, { useCallback, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import {useDispatch, useSelector} from "react-redux";
 import { useFocusEffect } from "@react-navigation/native";
@@ -37,7 +37,7 @@ const DeliveryList = () => {
           Add New
         </Link>
       </View>
-      <View className="mx-2 my-1">
+      <View className='mx-2 my-1'>
         {loading ? (
           <Text className='px-2 text-base text-green-500 font-pregular py-0.5'>
             Fetching deliveries...
@@ -58,7 +58,10 @@ const DeliveryList = () => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         renderItem={({ item }) => (
-          <View className='p-2 my-2 border border-gray-300 rounded mx-2 flex-row space-x-2'>
+          <TouchableOpacity
+            className='p-2 my-2 border border-gray-300 rounded mx-2 flex-row space-x-2'
+            onPress={() => router.push(`/view-delivery/${item._id}`)}
+          >
             <Image
               source={{ uri: item.fileRef }}
               className='h-[100px] w-1/2'
@@ -89,7 +92,7 @@ const DeliveryList = () => {
                 </View>
               </View>
             </View>
-          </View>
+          </TouchableOpacity>
         )}
         ListEmptyComponent={() => (
           <EmptyState

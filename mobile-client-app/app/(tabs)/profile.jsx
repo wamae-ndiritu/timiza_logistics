@@ -19,10 +19,7 @@ import { router } from "expo-router";
 import { logoutUser, resetUserState } from "../../lib/redux/slices/users";
 import CustomButton from "../../components/CustomButton";
 import { getUserProfile, updateProfile } from "../../lib/redux/actions/userActions";
-import ActivityIndicatorModal from "../../components/ActivityIndicatorModal";
 import ErrorModal from "../../components/ErrorModal";
-import { convertImageToBase64, uploadImageToCloudinary } from "../../lib/cloudinary";
-
 const Profile = () => {
   const dispatch = useDispatch();
   const { userData, error, profile, updateSuccess, loading } = useSelector((state) => state.user);
@@ -31,7 +28,6 @@ const Profile = () => {
     nationalIdFront: null,
     nationalIdBack: null,
   });
-  const [uploading, setUploading] = useState(false);
   const [uploadingFront, setUploadingFront] = useState(false);
   const [uploadingBack, setUploadingBack] = useState(false);
   const [uploadErrFront, setUploadErrFront] = useState(null);

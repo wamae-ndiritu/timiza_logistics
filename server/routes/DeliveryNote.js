@@ -194,4 +194,19 @@ router.get('/', verify, async (req, res) => {
   }
 });
 
+
+// Get delivery by ID
+router.get("/:id", verify, async (req, res) => {
+  const { id } = req.params;
+  try {
+    const deliveryNote = await DeliveryNote.findById(id);
+    if (!deliveryNote) {
+      return res.status(404).json({ message: "Delivery note not found" });
+    }
+    res.status(200).json(deliveryNote);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

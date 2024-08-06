@@ -6,6 +6,7 @@ import {
   deliveryActionFail,
   deliveryActionStart,
   getDeliveriesSuccess,
+  getDeliverySuccess,
 } from "../slices/deliverySlices";
 
 export const extractFileText = async (file) => {
@@ -82,6 +83,29 @@ export const listDeliveries = () => async (dispatch, getState) => {
     const { data } = await axios.get(`${END_POINT}/deliveries/`, config);
     dispatch(getDeliveriesSuccess(data));
   } catch (error) {
+    const message = error?.response
+      ? error.response?.data.message || error.response?.data.error
+      : error.message;
+    dispatch(deliveryActionFail(message));
+  }
+};
+
+export const getDeliveryById = (deliveryId) => async (dispatch, getState) => {
+  try {
+    const {
+      user: { userData },
+    } = getState();
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userData?.token}`,
+        "Content-Type": "application/json",
+      },
+    };
+    dispatch(deliveryActionStart());
+    const { data } = await axios.get(`${END_POINT}/deliveries/${deliveryId}`, config);
+    dispatch(getDeliverySuccess(data));
+  } catch (error) {
+    console.log(error)
     const message = error?.response
       ? error.response?.data.message || error.response?.data.error
       : error.message;
