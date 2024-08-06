@@ -10,8 +10,8 @@ const TabBar = ({ links }) => {
         <Link
           href={link.route}
           key={link.id}
-          className={`text-lg w-24 px-2 py-0.5 rounded text-center ${
-            link.route === pathname ? "bg-orange text-white" : "bg-primary text-gray-600"
+          className={`text-lg w-20 h-6 px-1 py-0.5 rounded text-center text-sm ${
+            link.route === pathname ? "bg-white text-green-500" : "bg-primary"
           }`}
         >
           {link.title}

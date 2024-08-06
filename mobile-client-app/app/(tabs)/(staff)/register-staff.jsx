@@ -69,7 +69,7 @@ const RegisterStaff = () => {
       <HeaderComponent
         title='Create Staff'
         inputPlaceHolder='Search staff'
-        containerStyles='py-2'
+        containerStyles='py-2 pt-4'
         links={links}
       />
       <ScrollView class=''>

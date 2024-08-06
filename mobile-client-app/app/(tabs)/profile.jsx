@@ -18,20 +18,24 @@ import { icons } from "../../constants";
 import { router } from "expo-router";
 import { logoutUser, resetUserState } from "../../lib/redux/slices/users";
 import CustomButton from "../../components/CustomButton";
-import { uploadFiles } from "../../lib/firebase";
 import { getUserProfile, updateProfile } from "../../lib/redux/actions/userActions";
 import ActivityIndicatorModal from "../../components/ActivityIndicatorModal";
 import ErrorModal from "../../components/ErrorModal";
+import { uploadImageToCloudinary } from "../../lib/cloudinary";
 
 const Profile = () => {
   const dispatch = useDispatch();
-  const { userData, error, profile, updateSuccess } = useSelector((state) => state.user);
+  const { userData, error, profile, updateSuccess, loading } = useSelector((state) => state.user);
 
   const [form, setForm] = useState({
     nationalIdFront: null,
     nationalIdBack: null,
   });
   const [uploading, setUploading] = useState(false);
+  const [uploadingFront, setUploadingFront] = useState(false);
+  const [uploadingBack, setUploadingBack] = useState(false);
+  const [uploadErrFront, setUploadErrFront] = useState(null);
+  const [uploadErrBack, setUploadErrBack] = useState(null);
 
   const logout = () => {
     dispatch(logoutUser());
@@ -39,18 +43,42 @@ const Profile = () => {
   };
 
   const openPicker = async (side) => {
+    setUploadErrFront(null);
+    setUploadErrBack(null);
     const result = await ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
     });
-
+    
     if (!result.canceled) {
       if (side === "front") {
         setForm({ ...form, nationalIdFront: result.assets[0] });
+        setUploadingFront(true);
+       try {
+         const response = await uploadImageToCloudinary(result.assets[0]);
+         console.log(response)
+         setForm({ ...form, nationalIdFront: { uri: response.secure_url } });
+       } catch (error) {
+        console.log(error)
+        setUploadErrFront(error.message);
+       } finally{
+        setUploadingFront(false);
+       }
       } else {
         setForm({ ...form, nationalIdBack: result.assets[0] });
+        setUploadingBack(true);
+         try {
+          const response = await uploadImageToCloudinary(result.assets[0]);
+          setForm({ ...form, nationalIdFront: { uri: response.secure_url } });
+          console.log(response);
+         } catch (error) {
+          console.log(error)
+          setUploadErrBack(error.message);
+         }finally{
+          setUploadingBack(false);
+         }
       }
     }
   };
@@ -61,11 +89,7 @@ const Profile = () => {
       Alert.alert("Please select both front and back images");
       return;
     }
-    setUploading(true);
-    const res = await uploadFiles(form);
-    console.log(res)
-      dispatch(updateProfile(res));
-    setUploading(false);
+    dispatch(updateProfile({nationalIdFront: form.nationalIdFront.uri, nationalIdBack: form.nationalIdBack.uri}));
   };
 
 
@@ -161,7 +185,9 @@ const Profile = () => {
           >
             {form.nationalIdFront ? (
               <Image
-                source={{ uri: form.nationalIdFront.uri || form.nationalIdFront }}
+                source={{
+                  uri: form.nationalIdFront.uri || form.nationalIdFront,
+                }}
                 resizeMode='cover'
                 className='w-full h-full rounded-xl border-[1px]'
               />
@@ -177,6 +203,17 @@ const Profile = () => {
               </View>
             )}
           </TouchableOpacity>
+          {uploadingFront ? (
+            <Text className='px-2 text-base text-green-500 font-pregular py-0.5'>
+              Uploading image...
+            </Text>
+          ) : (
+            uploadErrFront && (
+              <Text className='px-2 text-base text-red-500 font-pregular bg-red-100 py-1 rounded'>
+                {uploadErrFront}
+              </Text>
+            )
+          )}
         </View>
         <View className='mt-7 space-y-2'>
           <Text className='text-base text-gray-600 font-pmedium'>
@@ -204,22 +241,30 @@ const Profile = () => {
               </View>
             )}
           </TouchableOpacity>
+          {uploadingBack ? (
+            <Text className='px-2 text-base text-green-500 font-pregular py-0.5'>
+              Uploading image...
+            </Text>
+          ) : (
+            uploadErrBack && (
+              <Text className='px-2 text-base text-red-500 font-pregular bg-red-100 py-1 rounded'>
+                {uploadErrBack}
+              </Text>
+            )
+          )}
         </View>
         {/* <PdfUploader /> */}
         <CustomButton
-          title='Update Profile'
+          title={
+            uploadErrFront || uploadErrFront || loading ? "Please wait..." : "Update Profile"
+          }
           handlePress={submit}
           containerStyles='my-7 bg-orange rounded min-h-[45px]'
           textStyles='text-white font-psemibold text-xl'
+          isLoading={uploadErrFront || uploadErrFront || loading}
         />
       </ScrollView>
       <StatusBar backgroundColor='#2A7353' style='light' />
-      <ActivityIndicatorModal
-        visible={uploading}
-        transparent={true}
-        onClose={() => setUploading(false)}
-        description='Uploading documents...'
-      />
       <ErrorModal
         visible={error ? true : false}
         onClose={() => {

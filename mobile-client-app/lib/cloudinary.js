@@ -18,6 +18,9 @@ export const uploadImageToCloudinary = async (file) => {
     });
     return data;
   } catch (error) {
-    throw error;
+    const message = error?.response
+      ? error.response?.data.message || error.response?.data.error
+      : error.message;
+    throw new Error(message);
   }
 };

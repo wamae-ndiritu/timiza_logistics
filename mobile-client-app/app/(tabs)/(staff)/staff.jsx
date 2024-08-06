@@ -16,7 +16,7 @@ import { resetUserState } from "../../../lib/redux/slices/users";
 
 const Staff = () => {
   const dispatch = useDispatch();
-  const { usersList, loading } = useSelector((state) => state.user);
+  const { usersList, loading, error } = useSelector((state) => state.user);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -41,7 +41,7 @@ const Staff = () => {
     <SafeAreaView className='h-full'>
       <HeaderComponent
         title='Staff'
-        inputPlaceHolder='Type National ID and enter..'
+        inputPlaceHolder='Type National ID...'
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         isSearching={isSearching}
@@ -49,10 +49,23 @@ const Staff = () => {
         handleSearchSubmit={() =>
           dispatch(listUsers((type = ""), (search = searchQuery)))
         }
-        containerStyles='pt-10 pb-3'
+        containerStyles='pt-14 pb-3'
         showSearch={true}
         links={links}
       />
+      <View className="mt-2">
+        {loading ? (
+          <Text className='px-2 text-base text-green-500 font-pregular py-0.5'>
+            Fetching users...
+          </Text>
+        ) : (
+          error && (
+            <Text className='px-2 text-base text-red-500 font-pregular bg-red-100 py-1 rounded'>
+              {error}
+            </Text>
+          )
+        )}
+      </View>
       <FlatList
         className=''
         data={usersList}
@@ -94,11 +107,6 @@ const Staff = () => {
             subtitle='Click Add Staff to add both Drivers and Loaders'
           />
         )}
-      />
-      <ActivityIndicatorModal
-        visible={loading}
-        onClose={() => dispatch(resetUserState())}
-        description='Fetching users...'
       />
     </SafeAreaView>
   );

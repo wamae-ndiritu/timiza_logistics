@@ -33,10 +33,10 @@ const HeaderComponent = ({
                   onSubmitEditing={handleSearchSubmit}
                   placeholder={inputPlaceHolder}
                   placeholderTextColor='#888'
-                  className='bg-white text-black rounded-l-full pl-4 py-1 w-48'
+                  className='bg-white text-black text-lg rounded-l-full pl-4 py-1 w-48 h-10'
                 />
                 <TouchableOpacity
-                className="bg-orange h-8 w-8 flex-row items-center rounded-r-full"
+                className="bg-orange h-10 w-10 flex-row items-center rounded-r-full"
                   onPress={() => {
                     setIsSearching(false);
                     setSearchQuery("");
@@ -45,16 +45,16 @@ const HeaderComponent = ({
                   <Image
                     source={icons.close}
                     resizeMode='contain'
-                    className='h-4 w-4 ml-2'
+                    className='h-6 w-6 ml-2'
                   />
                 </TouchableOpacity>
               </View>
             ) : (
-              <TouchableOpacity onPress={() => setIsSearching(true)} className='border-[1px] border-gray-300 px-2 h-8 w-12 flex-row items-center justify-center bg-orange rounded-full'>
+              <TouchableOpacity onPress={() => setIsSearching(true)} className='px-2 h-8 w-12 flex-row items-center justify-center rounded-full'>
                 <Image
                   source={icons.search}
                   resizeMode='contain'
-                  className='h-6 w-6'
+                  className='h-8 w-8'
                 />
               </TouchableOpacity>
             )}

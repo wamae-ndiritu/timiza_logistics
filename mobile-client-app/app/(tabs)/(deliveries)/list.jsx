@@ -7,6 +7,7 @@ import {useDispatch, useSelector} from "react-redux";
 import { useFocusEffect } from "@react-navigation/native";
 import { listDeliveries } from '../../../lib/redux/actions/deliveryActions';
 import moment from "moment"
+import EmptyState from '../../../components/EmptyState';
 
 const DeliveryList = () => {
   const dispatch = useDispatch();
