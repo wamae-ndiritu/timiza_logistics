@@ -21,7 +21,7 @@ import CustomButton from "../../components/CustomButton";
 import { getUserProfile, updateProfile } from "../../lib/redux/actions/userActions";
 import ActivityIndicatorModal from "../../components/ActivityIndicatorModal";
 import ErrorModal from "../../components/ErrorModal";
-import { uploadImageToCloudinary } from "../../lib/cloudinary";
+import { convertImageToBase64, uploadImageToCloudinary } from "../../lib/cloudinary";
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -58,10 +58,8 @@ const Profile = () => {
         setUploadingFront(true);
        try {
          const response = await uploadImageToCloudinary(result.assets[0]);
-         console.log(response)
          setForm({ ...form, nationalIdFront: { uri: response.secure_url } });
        } catch (error) {
-        console.log(error)
         setUploadErrFront(error.message);
        } finally{
         setUploadingFront(false);
@@ -71,10 +69,8 @@ const Profile = () => {
         setUploadingBack(true);
          try {
           const response = await uploadImageToCloudinary(result.assets[0]);
-          setForm({ ...form, nationalIdFront: { uri: response.secure_url } });
-          console.log(response);
+          setForm({ ...form, nationalIdBack: { uri: response.secure_url } });
          } catch (error) {
-          console.log(error)
           setUploadErrBack(error.message);
          }finally{
           setUploadingBack(false);
@@ -82,7 +78,6 @@ const Profile = () => {
       }
     }
   };
-
 
   const submit = async () => {
     if (!form.nationalIdFront || !form.nationalIdBack) {
@@ -225,7 +220,7 @@ const Profile = () => {
           >
             {form.nationalIdBack ? (
               <Image
-                source={{ uri: form.nationalIdBack.uri }}
+                source={{ uri: form.nationalIdBack.uri  || form.nationalIdBack}}
                 resizeMode='cover'
                 className='w-full h-full rounded-xl border-[1px]'
               />
