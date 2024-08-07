@@ -5,23 +5,25 @@ import {
   Button,
   StyleSheet,
   ActivityIndicator,
-  TextInput,
-  ScrollView,
+  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import * as Location from "expo-location";
 import axios from "axios";
 import RNPickerSelect from "react-native-picker-select";
+import { useRoute, useNavigation } from "@react-navigation/native";
+import { router } from "expo-router";
 
 const TrackTrip = () => {
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
-  const [destination, setDestination] = useState(null);
   const [tripId, setTripId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [driver, setDriver] = useState(null);
   const [loaders, setLoaders] = useState(null);
+  const route = useRoute();
+  const { destination } = route.params || {};
 
   // Get the driver's current location
   useEffect(() => {
@@ -68,10 +70,6 @@ const TrackTrip = () => {
     };
   }, [tripId]);
 
-  const handleMapPress = (e) => {
-    setDestination(e.nativeEvent.coordinate);
-  };
-
   const handleStartTrip = async () => {
     if (location && destination && driver && loaders) {
       try {
@@ -111,18 +109,16 @@ const TrackTrip = () => {
     <SafeAreaView className='h-[100vh]'>
       <View style={styles.container}>
         {isLoading ? (
-          <ActivityIndicator size='large' color='#0000ff' />
+          <ActivityIndicator size='large' color='#0000ff' className='my-auto' />
         ) : (
           <>
             <MapView
-              // style={styles.map}
-              className='h-[60vh]'
-              onPress={handleMapPress}
+              className='h-[100vh]'
               initialRegion={{
                 latitude: location ? location.coords.latitude : 37.78825,
                 longitude: location ? location.coords.longitude : -122.4324,
-                latitudeDelta: 0.005, // Zoomed in more to show nearby places
-                longitudeDelta: 0.005,
+                latitudeDelta: 0.08,
+                longitudeDelta: 0.08,
               }}
               provider={PROVIDER_GOOGLE}
               showsUserLocation
@@ -141,37 +137,16 @@ const TrackTrip = () => {
                 <Marker coordinate={destination} title='Destination' />
               )}
             </MapView>
-            <ScrollView style={styles.form}>
-              <Text style={styles.text}>Current Location: {text}</Text>
-              <Text style={styles.label}>Set Destination</Text>
-              <TextInput
-                style={styles.input}
-                placeholder='Tap on the map to set destination'
-                value={
-                  destination
-                    ? `Latitude: ${destination.latitude}, Longitude: ${destination.longitude}`
-                    : ""
-                }
-                editable={false}
-              />
-              <Text style={styles.label}>Select Driver</Text>
-              <RNPickerSelect
-                onValueChange={(value) => setDriver(value)}
-                items={[
-                  { label: "Driver 1", value: "driver1" },
-                  { label: "Driver 2", value: "driver2" },
-                ]}
-              />
-              <Text style={styles.label}>Select Loaders</Text>
-              <RNPickerSelect
-                onValueChange={(value) => setLoaders(value)}
-                items={[
-                  { label: "Loader 1", value: "loader1" },
-                  { label: "Loader 2", value: "loader2" },
-                ]}
-              />
-              <Button title='Start Trip' onPress={handleStartTrip} />
-            </ScrollView>
+            <View style={styles.overlay} className="bg-white p-8">
+              <TouchableOpacity
+                style={styles.button}
+                className="bg-secondary"
+                onPress={() => router.push('/destination-search')}
+
+              >
+                <Text style={styles.buttonText}>Search Destination</Text>
+              </TouchableOpacity>
+            </View>
           </>
         )}
       </View>
@@ -183,27 +158,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  overlay: {
+    position: "absolute",
+    bottom: 20,
+    left: 20,
+    right: 20,
+    alignItems: "center",
+  },
+  button: {
+    padding: 15,
+    borderRadius: 10,
+    width: "100%",
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
   map: {
     flex: 1,
-  },
-  form: {
-    padding: 10,
-    backgroundColor: "white",
-  },
-  text: {
-    marginVertical: 10,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginVertical: 5,
-  },
-  input: {
-    height: 40,
-    borderColor: "gray",
-    borderWidth: 1,
-    paddingHorizontal: 10,
-    marginBottom: 10,
   },
 });
 

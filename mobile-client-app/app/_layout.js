@@ -45,10 +45,8 @@ const RootLayout = () => {
           name='edit-delivery/[id]'
           options={{ headerShown: false }}
         />
-        <Stack.Screen
-          name='add-trip'
-          options={{ headerShown: false }}
-        />
+        <Stack.Screen name='add-trip' options={{ headerShown: false }} />
+        <Stack.Screen name='destination-search' options={{ headerShown: false }} />
       </Stack>
     </Provider>
   );
