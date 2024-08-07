@@ -9,12 +9,12 @@ import {
 import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-import { icons, images } from "../../constants";
+import Icon from "react-native-vector-icons/Feather";
 import { useSelector } from "react-redux";
-import DashboardCard from "../../components/DashboardCard";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
+import { images } from "../../constants";
 
-const Home = () => {
+const DriverHome = () => {
   const { userData } = useSelector((state) => state.user);
   const router = useRouter();
 
@@ -61,10 +61,8 @@ const Home = () => {
   };
 
   const data = [
-    { id: 0, title: "Trips", stats: 15, icon: icons.tripTruck },
-    { id: 1, title: "Drivers", stats: 5, icon: icons.driver },
-    { id: 2, title: "Loaders", stats: 3, icon: icons.loader },
-    { id: 3, title: "Vehicles", stats: 10, icon: icons.deliveryTruck },
+    { id: 0, title: "Add Trip", icon: "plus" },
+    { id: 1, title: "Trip History", icon: "clock" },
   ];
 
   return (
@@ -86,11 +84,7 @@ const Home = () => {
       <View className='mx-4 mt-6'>
         <View className='bg-orange p-4 rounded-lg flex-row items-center space-x-4'>
           <View className='bg-primary p-2 rounded-full'>
-            <Image
-              source={icons.schedule}
-              className='h-14 w-14'
-              resizeMode='contain'
-            />
+            <Icon name='calendar' size={40} color='#fff' />
           </View>
           <View>
             <Text className='text-white text-lg'>
@@ -109,16 +103,18 @@ const Home = () => {
         <FlatList
           data={data}
           keyExtractor={(item) => item.id.toString()}
-          key={(item) => `${item.id}`}
-          numColumns={2}
-          columnWrapperStyle={{ justifyContent: "space-between" }}
           renderItem={({ item }) => (
-            <DashboardCard
-              title={item.title}
-              stats={item.stats}
-              icon={item.icon}
-              containerStyles='mb-4 p-4 bg-white border border-gray-300 rounded-lg flex-1 mx-1'
-            />
+            <TouchableOpacity
+              onPress={() =>
+                router.push(`/${item.title.replace(" ", "").toLowerCase()}`)
+              }
+              className='mb-4 p-4 bg-white border border-gray-300 rounded-lg flex-row items-center space-x-4'
+            >
+              <Icon name={item.icon} size={24} color='#000' />
+              <Text className='text-lg font-semibold text-gray-700'>
+                {item.title}
+              </Text>
+            </TouchableOpacity>
           )}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -130,4 +126,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default DriverHome;

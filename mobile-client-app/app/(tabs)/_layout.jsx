@@ -44,11 +44,11 @@ const TabsLayout = () => {
         screenOptions={{
           tabBarShowLabel: false,
           tabBarActiveTintColor: "#F8981D",
-          tabBarInactiveTintColor: "#CDCDE0",
+          tabBarInactiveTintColor: "#FFFFFF",
           tabBarStyle: {
             backgroundColor: "#2A7353",
             borderTopWidth: 1,
-            borderTopColor: "#232533",
+            borderTopColor: "#f9fafb",
             height: 60,
           },
         }}
@@ -58,6 +58,7 @@ const TabsLayout = () => {
           options={{
             title: "Home",
             headerShown: false,
+            href: isAdmin ? "/home" : "/userhome",
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
                 icon={icons.home}
@@ -73,7 +74,23 @@ const TabsLayout = () => {
           options={{
             title: "Deliveries",
             headerShown: false,
-            href: '/list',
+            href: "/list",
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icons.deliveryTruck}
+                color={color}
+                name='Deliveries'
+                focused={focused}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name='userhome'
+          options={{
+            title: "Home",
+            headerShown: false,
+            href: null,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
                 icon={icons.deliveryTruck}

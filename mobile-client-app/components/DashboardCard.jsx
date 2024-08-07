@@ -14,7 +14,7 @@ const DashboardCard = ({ title, stats, containerStyles, textStyles, icon=null })
         <Text className={`text-xl font-psemibold text-black-300 ${textStyles}`}>
           {title}
         </Text>
-        <Text className={`text-2xl font-pbold text-primary text-white`}>
+        <Text className={`text-2xl font-pbold text-secondary`}>
           {stats}
         </Text>
       </View>
