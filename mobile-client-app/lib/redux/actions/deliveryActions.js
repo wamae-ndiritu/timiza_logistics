@@ -3,8 +3,10 @@ import { END_POINT } from "../../baseUrl";
 import * as FileSystem from "expo-file-system";
 import {
   createDeliverySuccess,
+  deleteDeliverySuccess,
   deliveryActionFail,
   deliveryActionStart,
+  getDeliveriesStart,
   getDeliveriesSuccess,
   getDeliverySuccess,
   updateDeliverySuccess,
@@ -81,6 +83,7 @@ export const listDeliveries = () => async (dispatch, getState) => {
       },
     };
     dispatch(deliveryActionStart());
+    dispatch(getDeliveriesStart());
     const { data } = await axios.get(`${END_POINT}/deliveries/`, config);
     dispatch(getDeliveriesSuccess(data));
   } catch (error) {
@@ -140,3 +143,30 @@ export const updateDelivery = (deliveryId, deliveryData) => async (dispatch, get
     dispatch(deliveryActionFail(message));
   }
 };
+
+// delete delivery note
+export const deleteDelivery =
+  (deliveryId, deliveryData) => async (dispatch, getState) => {
+    try {
+      const {
+        user: { userData },
+      } = getState();
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userData?.token}`,
+          "Content-Type": "application/json",
+        },
+      };
+      dispatch(deliveryActionStart());
+      await axios.delete(
+        `${END_POINT}/deliveries/${deliveryId}`,
+        config
+      );
+      dispatch(deleteDeliverySuccess());
+    } catch (error) {
+      const message = error?.response
+        ? error.response?.data.message || error.response?.data.error
+        : error.message;
+      dispatch(deliveryActionFail(message));
+    }
+  };

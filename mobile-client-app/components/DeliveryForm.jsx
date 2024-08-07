@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, Image, ScrollView, Alert } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import React, { useEffect, useRef, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -8,7 +8,7 @@ import { icons } from "../constants";
 import CustomButton from "./CustomButton";
 import { Link, router } from "expo-router";
 import FormField from "./FormField";
-import { extractFileText } from "../lib/redux/actions/deliveryActions";
+import { deleteDelivery, extractFileText } from "../lib/redux/actions/deliveryActions";
 import { uploadImageToCloudinary } from "../lib/cloudinary";
 import { resetDeliveryState } from "../lib/redux/slices/deliverySlices";
 import ActionButton from "./ActionButton";
@@ -128,7 +128,24 @@ const DeliveryForm = ({ mode = "new", initialData = {}, onSubmit }) => {
     }
   };
 
-  const handleDelete = () => {};
+  const handleDelete = () => {
+    // confirm action
+    Alert.alert("Warning!", "You're about to delete the Delivery Note. This action cannot be undone.", [
+      {
+        text: "Cancel",
+        onPress: () => {return;},
+        style: "cancel",
+      },
+      { text: "OK", onPress: () => {
+        if (initialData?._id) {
+          dispatch(deleteDelivery(initialData?._id));
+          router.push('/list')
+        }
+      } },
+    ]);
+  };
+
+
   const handleEdit = () => {
     router.push(`/edit-delivery/${initialData?._id}`)
   };
@@ -191,7 +208,7 @@ const DeliveryForm = ({ mode = "new", initialData = {}, onSubmit }) => {
                 className='bg-white border-[1px] border-gray-300 p-1 h-48 rounded-lg'
                 onPress={openPicker}
               >
-                {((file || initialData) && mode === "edit") ? (
+                {(file || (initialData && mode === "edit")) ? (
                   <Image
                     source={{
                       uri: file?.uri || initialData.fileRef,

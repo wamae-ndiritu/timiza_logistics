@@ -259,7 +259,33 @@ router.put("/:id", verify, async (req, res) => {
 
     res.status(200).json(deliveryNote);
   } catch (error) {
-    console.error("Error updating delivery note:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+// Delete a delivery note
+router.delete("/:id", verify, async (req, res) => {
+  const { id } = req.params;
+  const userRole = req.user.role;
+
+  try {
+    // Check if the user is an admin
+    if (userRole !== 'admin') {
+      return res.status(403).json({ message: "You are not authorized to delete this delivery note" });
+    }
+
+    // Find and delete the delivery note by ID
+    const deliveryNote = await DeliveryNote.findByIdAndDelete(id);
+
+    // Check if the delivery note exists
+    if (!deliveryNote) {
+      return res.status(404).json({ message: "Delivery note not found" });
+    }
+
+    res.status(200).json({ message: "Delivery note deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting delivery note:", error);
     res.status(500).json({ error: error.message });
   }
 });

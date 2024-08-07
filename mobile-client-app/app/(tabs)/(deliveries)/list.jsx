@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, FlatList, RefreshControl, Image, TouchableOpacity } from 'react-native'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -11,7 +11,7 @@ import EmptyState from '../../../components/EmptyState';
 
 const DeliveryList = () => {
   const dispatch = useDispatch();
-  const {loading, deliveries, error} = useSelector((state) => state.delivery);
+  const {loading, deliveries, error, successDelete} = useSelector((state) => state.delivery);
 
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = async () => {
@@ -23,8 +23,47 @@ const DeliveryList = () => {
    useFocusEffect(
      useCallback(() => {
        dispatch(listDeliveries());
-     }, [dispatch])
+     }, [dispatch, successDelete])
    );
+
+   const renderItem = ({ item }) => (
+     <TouchableOpacity
+       className='p-2 my-2 border border-gray-300 rounded mx-2 flex-col space-x-2'
+       onPress={() => router.push(`/view-delivery/${item._id}`)}
+     >
+       <Image
+         source={{ uri: item.fileRef }}
+         className='h-[150px] w-full'
+         resizeMode='cover'
+       />
+       <View className='flex-1 relative mt-1'>
+         <Text className='bg-orange text-white px-2 py-1 text-md absolute top-0 right-0'>
+           {moment(item.createdAt).format("MMMM Do YYYY")}
+         </Text>
+         <View className='mt-3'>
+           <Text className='text-gray-600 text-base text-lg'>
+             Driver{" "}
+             <Text className='capitalize text-green-500'>
+               {item.driverName}
+             </Text>
+           </Text>
+           <Text className='text-gray-600 text-base text-lg'>
+             Loaded by{" "}
+             <Text className='capitalize text-green-500'>
+               {item.loadersName.join(", ")}
+             </Text>
+           </Text>
+           <Text className='text-gray-600 text-base text-lg'>
+             Delivery Notes No:{" "}
+             <Text className='capitalize text-orange'>
+               {item.deliveryNotesNumber.join(", ")}
+             </Text>
+           </Text>
+         </View>
+       </View>
+     </TouchableOpacity>
+   );
+
 
   return (
     <SafeAreaView className='bg-white h-full'>
@@ -38,17 +77,7 @@ const DeliveryList = () => {
         </Link>
       </View>
       <View className='mx-2 my-1'>
-        {loading ? (
-          <Text className='px-2 text-base text-green-500 font-pregular py-0.5'>
-            Fetching deliveries...
-          </Text>
-        ) : (
-          error && (
-            <Text className='px-2 text-base text-red-500 font-pregular bg-red-100 py-1 rounded'>
-              {error}
-            </Text>
-          )
-        )}
+        
       </View>
       <FlatList
         className=''
@@ -57,43 +86,7 @@ const DeliveryList = () => {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            className='p-2 my-2 border border-gray-300 rounded mx-2 flex-col space-x-2'
-            onPress={() => router.push(`/view-delivery/${item._id}`)}
-          >
-            <Image
-              source={{ uri: item.fileRef }}
-              className='h-[150px] w-full'
-              resizeMode='cover'
-            />
-            <View className='flex-1 relative mt-1'>
-              <Text className='bg-orange text-white px-2 py-1 text-md absolute top-0 right-0'>
-                {moment(item.createdAt).format("MMMM Do YYYY")}
-              </Text>
-              <View className='mt-3'>
-                <Text className='text-gray-600 text-base text-lg'>
-                  Driver{" "}
-                  <Text className='capitalize text-green-500'>
-                    {item.driverName}
-                  </Text>
-                </Text>
-                <Text className='text-gray-600 text-base text-lg'>
-                  Loaded by{" "}
-                  <Text className='capitalize text-green-500'>
-                    {item.loadersName.join(", ")}
-                  </Text>
-                </Text>
-                <Text className='text-gray-600 text-base text-lg'>
-                  Delivery Notes No: {" "}
-                  <Text className='capitalize text-orange'>
-                    {item.deliveryNotesNumber.join(", ")}
-                  </Text>
-                </Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-        )}
+        renderItem={renderItem}
         ListEmptyComponent={() => (
           <EmptyState
             title='No Deliveries'
