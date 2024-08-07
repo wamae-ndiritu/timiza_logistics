@@ -15,6 +15,7 @@ export const deliverySlice = createSlice({
     deliveryActionStart: (state) => {
       state.loading = true;
       state.error = null;
+      state.success = false;
     },
     deliveryActionFail: (state, action) => {
       state.loading = false;
@@ -36,6 +37,11 @@ export const deliverySlice = createSlice({
       state.loading = false;
       state.currentDelivery = action.payload;
     },
+    updateDeliverySuccess: (state, action) => {
+      state.loading = false;
+      state.success = true;
+      state.currentDelivery = action.payload;
+    }
   },
 });
 
@@ -45,7 +51,8 @@ export const {
     resetDeliveryState,
     createDeliverySuccess,
     getDeliveriesSuccess,
-    getDeliverySuccess
+    getDeliverySuccess,
+    updateDeliverySuccess
 } = deliverySlice.actions;
 
 export default deliverySlice.reducer;

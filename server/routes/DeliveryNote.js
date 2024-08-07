@@ -209,4 +209,59 @@ router.get("/:id", verify, async (req, res) => {
   }
 });
 
+
+// Update a delivery note
+router.put("/:id", verify, async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.id;
+
+  try {
+    // Find the delivery note by ID
+    const deliveryNote = await DeliveryNote.findById(id);
+
+    // Check if the delivery note exists
+    if (!deliveryNote) {
+      return res.status(404).json({ message: "Delivery note not found" });
+    }
+
+    // Check if the user is the owner of the delivery note
+    if (deliveryNote.user.toString() !== userId) {
+      return res.status(403).json({ message: "You are not authorized to update this delivery note" });
+    }
+
+    // Update the delivery note fields
+    const {
+      date,
+      vehicleRegistrationNumber,
+      transporterName,
+      driverName,
+      loadersName,
+      transporterSequenceRoute,
+      numberOfDeliveryNotes,
+      deliveryNotesNumber,
+      total,
+      fileRef
+    } = req.body;
+
+    if (date !== undefined) deliveryNote.date = date;
+    if (vehicleRegistrationNumber !== undefined) deliveryNote.vehicleRegistrationNumber = vehicleRegistrationNumber;
+    if (transporterName !== undefined) deliveryNote.transporterName = transporterName;
+    if (driverName !== undefined) deliveryNote.driverName = driverName;
+    if (loadersName !== undefined) deliveryNote.loadersName = loadersName;
+    if (transporterSequenceRoute !== undefined) deliveryNote.transporterSequenceRoute = transporterSequenceRoute;
+    if (numberOfDeliveryNotes !== undefined) deliveryNote.numberOfDeliveryNotes = numberOfDeliveryNotes;
+    if (deliveryNotesNumber !== undefined) deliveryNote.deliveryNotesNumber = deliveryNotesNumber;
+    if (total !== undefined) deliveryNote.total = total;
+    if (fileRef !== undefined) deliveryNote.fileRef = fileRef;
+
+    // Save the updated delivery note
+    await deliveryNote.save();
+
+    res.status(200).json(deliveryNote);
+  } catch (error) {
+    console.error("Error updating delivery note:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

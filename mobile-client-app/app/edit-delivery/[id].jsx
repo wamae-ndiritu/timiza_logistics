@@ -3,12 +3,12 @@ import React, { useEffect } from "react";
 import DeliveryForm from "../../components/DeliveryForm";
 import { useLocalSearchParams } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
-import { createDelivery, getDeliveryById } from "../../lib/redux/actions/deliveryActions";
+import { getDeliveryById, updateDelivery } from "../../lib/redux/actions/deliveryActions";
 
 const EditDeliveryScreen = () => {
   const { id } = useLocalSearchParams();
   const dispatch = useDispatch();
-  const { currentDelivery, loading, error } = useSelector(
+  const { currentDelivery, loading, error, success } = useSelector(
     (state) => state.delivery
   );
 
@@ -16,10 +16,10 @@ const EditDeliveryScreen = () => {
     if (id) {
       dispatch(getDeliveryById(id));
     }
-  }, [dispatch, id]);
+  }, [dispatch, id, success]);
 
   const handleUpdateDelivery = (formData) => {
-    dispatch(createDelivery(formData));
+    dispatch(updateDelivery(id, formData));
   };
 
   return (
@@ -34,10 +34,10 @@ const EditDeliveryScreen = () => {
         </Text>
       ) : (
         <DeliveryForm
-          key={currentDelivery?._id}
+          // key={currentDelivery?._id}
           mode='edit'
           initialData={currentDelivery}
-        //   onSubmit={}
+          onSubmit={handleUpdateDelivery}
         />
       )}
     </>
