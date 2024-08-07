@@ -11,12 +11,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import Icon from "react-native-vector-icons/Feather";
 import { useSelector } from "react-redux";
-import { useRouter } from "expo-router";
 import { images } from "../../constants";
+import { router } from "expo-router";
 
 const DriverHome = () => {
   const { userData } = useSelector((state) => state.user);
-  const router = useRouter();
 
   const [refreshing, setRefreshing] = useState(false);
   const [dateTime, setDateTime] = useState(new Date());
@@ -61,8 +60,8 @@ const DriverHome = () => {
   };
 
   const data = [
-    { id: 0, title: "Add Trip", icon: "plus" },
-    { id: 1, title: "Trip History", icon: "clock" },
+    { id: 0, title: "Add Trip", icon: "plus", route: "/add-trip" },
+    { id: 1, title: "Trip History", icon: "clock", route: "/userhome" },
   ];
 
   return (
@@ -106,7 +105,7 @@ const DriverHome = () => {
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() =>
-                router.push(`/${item.title.replace(" ", "").toLowerCase()}`)
+                router.push(item.route)
               }
               className='mb-4 p-4 bg-white border border-gray-300 rounded-lg flex-row items-center space-x-4'
             >
