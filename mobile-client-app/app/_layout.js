@@ -41,6 +41,10 @@ const RootLayout = () => {
           name='view-delivery/[id]'
           options={{ headerShown: false }}
         />
+        <Stack.Screen
+          name='edit-delivery/[id]'
+          options={{ headerShown: false }}
+        />
       </Stack>
     </Provider>
   );

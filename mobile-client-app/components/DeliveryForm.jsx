@@ -6,18 +6,17 @@ import { StatusBar } from "expo-status-bar";
 import { useDispatch, useSelector } from "react-redux";
 import { icons } from "../constants";
 import CustomButton from "./CustomButton";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import FormField from "./FormField";
-import {
-  extractFileText,
-} from "../lib/redux/actions/deliveryActions";
+import { extractFileText } from "../lib/redux/actions/deliveryActions";
 import { uploadImageToCloudinary } from "../lib/cloudinary";
 import { resetDeliveryState } from "../lib/redux/slices/deliverySlices";
-
+import ActionButton from "./ActionButton";
 
 const DeliveryForm = ({ mode = "new", initialData = {}, onSubmit }) => {
   const dispatch = useDispatch();
   const { loading, success, error } = useSelector((state) => state.delivery);
+  const { userData } = useSelector((state) => state.user);
   const [form, setForm] = useState({
     vehicleRegistrationNumber: "",
     date: "",
@@ -76,30 +75,35 @@ const DeliveryForm = ({ mode = "new", initialData = {}, onSubmit }) => {
     return res;
   };
 
-  const prevFormRef = useRef();
-  useEffect(() => {
-    prevFormRef.current = form;
-  });
-  const prevForm = prevFormRef.current;
 
   useEffect(() => {
-    if (
-      prevForm &&
-      (prevForm.deliveryNotesNumber !== form.deliveryNotesNumber ||
-        prevForm.loadersName !== form.loadersName)
-    ) {
+    if (form.deliveryNotesNumber.length > 0) {
       setDeliveryNotesNumber(readArrayString("deliveryNotesNumber"));
-      setLoadersName(readArrayString("loadersName"));
+    }
+    if (form.loadersName.length > 0){
+       setLoadersName(readArrayString("loadersName"));
     }
   }, [form.deliveryNotesNumber, form.loadersName]);
 
   // Update form state based on local state
   useEffect(() => {
-    setForm((prev) => ({
-      ...prev,
-      deliveryNotesNumber: convertStringToArray(deliveryNotesNumber, "number"),
-      loadersName: convertStringToArray(loadersName, "str"),
-    }));
+    // update the state after 3 seconds
+    const timeout = setTimeout(() => {
+      setForm((prev) => ({
+        ...prev,
+        deliveryNotesNumber: convertStringToArray(
+          deliveryNotesNumber,
+          "number"
+        ),
+        numberOfDeliveryNotes:  convertStringToArray(
+          deliveryNotesNumber,
+          "number"
+        ).length,
+        loadersName: convertStringToArray(loadersName, "str"),
+      }));
+    }, 3000);
+
+    return () => clearTimeout(timeout);
   }, [deliveryNotesNumber, loadersName]);
 
   const submit = async () => {
@@ -122,6 +126,11 @@ const DeliveryForm = ({ mode = "new", initialData = {}, onSubmit }) => {
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleDelete = () => {};
+  const handleEdit = () => {
+    router.push(`/edit-delivery/${initialData?._id}`)
   };
 
   useEffect(() => {
@@ -182,10 +191,10 @@ const DeliveryForm = ({ mode = "new", initialData = {}, onSubmit }) => {
                 className='bg-white border-[1px] border-gray-300 p-1 h-48 rounded-lg'
                 onPress={openPicker}
               >
-                {file ? (
+                {((file || initialData) && mode === "edit") ? (
                   <Image
                     source={{
-                      uri: file.uri,
+                      uri: file?.uri || initialData.fileRef,
                     }}
                     resizeMode='cover'
                     className='w-full h-full rounded-xl border-[1px]'
@@ -319,6 +328,15 @@ const DeliveryForm = ({ mode = "new", initialData = {}, onSubmit }) => {
               textStyles='text-white font-psemibold text-xl'
               isLoading={uploading || loading}
             />
+          )}
+          {mode === "view" && (
+            <View className='flex-row justify-end space-x-2'>
+              {userData?.user?.role === "admin" ? (
+                <ActionButton type='delete' handlePress={handleDelete} />
+              ) : (
+                <ActionButton type='edit' handlePress={handleEdit} />
+              )}
+            </View>
           )}
         </View>
       </ScrollView>

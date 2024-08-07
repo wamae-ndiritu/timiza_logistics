@@ -59,37 +59,37 @@ const DeliveryList = () => {
         }
         renderItem={({ item }) => (
           <TouchableOpacity
-            className='p-2 my-2 border border-gray-300 rounded mx-2 flex-row space-x-2'
+            className='p-2 my-2 border border-gray-300 rounded mx-2 flex-col space-x-2'
             onPress={() => router.push(`/view-delivery/${item._id}`)}
           >
             <Image
               source={{ uri: item.fileRef }}
-              className='h-[100px] w-1/2'
+              className='h-[150px] w-full'
               resizeMode='cover'
             />
-            <View className='flex-1 relative'>
-              <Text className='bg-green-500 text-white px-1 py-0.1 rounded text-md absolute top-0 right-0'>
+            <View className='flex-1 relative mt-1'>
+              <Text className='bg-orange text-white px-2 py-1 text-md absolute top-0 right-0'>
                 {moment(item.createdAt).format("MMMM Do YYYY")}
               </Text>
-              <View className='mt-6'>
-                <View className='w-full flex-row justify-between items-center'>
-                  <Text className='font-psemibold'>Driver:</Text>
-                  <Text className='capitalize text-gray-600 text-base'>
+              <View className='mt-3'>
+                <Text className='text-gray-600 text-base text-lg'>
+                  Driver{" "}
+                  <Text className='capitalize text-green-500'>
                     {item.driverName}
                   </Text>
-                </View>
-                <View className='w-full flex-row justify-between items-center'>
-                  <Text className='font-psemibold'>Loaders:</Text>
-                  <Text className='capitalize text-gray-600 text-base'>
+                </Text>
+                <Text className='text-gray-600 text-base text-lg'>
+                  Loaded by{" "}
+                  <Text className='capitalize text-green-500'>
                     {item.loadersName.join(", ")}
                   </Text>
-                </View>
-                <View className='w-full flex-row justify-between items-center'>
-                  <Text className='font-psemibold'>#ID:</Text>
-                  <Text className='capitalize text-gray-600 text-base'>
-                    {item.deliveryNotesNumber.join(" ")}
+                </Text>
+                <Text className='text-gray-600 text-base text-lg'>
+                  Delivery Notes No: {" "}
+                  <Text className='capitalize text-orange'>
+                    {item.deliveryNotesNumber.join(", ")}
                   </Text>
-                </View>
+                </Text>
               </View>
             </View>
           </TouchableOpacity>
