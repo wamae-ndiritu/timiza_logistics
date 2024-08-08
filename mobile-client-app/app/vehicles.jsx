@@ -29,7 +29,7 @@ const Vehicles = () => {
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
-      onPress={() => router.push(`/vehicles/${item._id}`)}
+      onPress={() => router.push(`/vehicles/view/${item._id}`)}
       className='mb-4 px-4 py-2 bg-white border border-gray-300 rounded-lg flex-row items-center space-x-2'
     >
       <View className='h-16 w-16 bg-slate-100 justify-center items-center rounded-full'>
