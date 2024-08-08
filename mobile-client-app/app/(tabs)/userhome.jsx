@@ -60,8 +60,9 @@ const DriverHome = () => {
   };
 
   const data = [
-    { id: 0, title: "Add Trip", icon: "plus", route: "/add-trip" },
-    { id: 1, title: "Trip History", icon: "clock", route: "/userhome" },
+    { id: 0, title: "Add Trip (Comming soon...)", icon: "plus", route: "/add-trip" },
+    { id: 1, title: "New Trip", icon: "plus", route: "/new-trip" },
+    { id: 2, title: "Trip History", icon: "clock", route: "/userhome" },
   ];
 
   return (
