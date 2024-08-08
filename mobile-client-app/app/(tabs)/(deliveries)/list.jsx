@@ -1,5 +1,5 @@
-import { View, Text, ScrollView, FlatList, RefreshControl, Image, TouchableOpacity } from 'react-native'
-import React, { useCallback, useEffect, useState } from 'react'
+import { View, Text, FlatList, RefreshControl, Image, TouchableOpacity } from 'react-native'
+import React, { useCallback,  useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';

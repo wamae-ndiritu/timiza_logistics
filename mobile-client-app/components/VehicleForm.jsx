@@ -17,10 +17,13 @@ import { uploadPdfToCloudinary } from "../lib/cloudinary";
 import { hasEmptyValue } from "../utils";
 import { useDispatch, useSelector } from "react-redux";
 import { resetVehicleState } from "../lib/redux/slices/vehicleSlices";
+import ActionButton from "./ActionButton";
+import { deleteVehicle } from "../lib/redux/actions/vehicleActions";
 
 const VehicleForm = ({ mode = "new", initialData = {}, onSubmit }) => {
   const dispatch = useDispatch();
   const { loading, error, success } = useSelector((state) => state.vehicle);
+  const {userData} = useSelector((state) => state.user);
   const router = useRouter();
   const [form, setForm] = useState({
     vehicleMake: "",
@@ -65,6 +68,36 @@ const VehicleForm = ({ mode = "new", initialData = {}, onSubmit }) => {
     }
     onSubmit(form);
   };
+
+   const handleDelete = () => {
+     // confirm action
+     Alert.alert(
+       "Warning!",
+       "You're about to delete the Vehicle. This action cannot be undone.",
+       [
+         {
+           text: "Cancel",
+           onPress: () => {
+             return;
+           },
+           style: "cancel",
+         },
+         {
+           text: "OK",
+           onPress: () => {
+             if (initialData?._id) {
+               dispatch(deleteVehicle(initialData?._id));
+               router.push("/vehicles");
+             }
+           },
+         },
+       ]
+     );
+   };
+
+   const handleEdit = () => {
+     router.push(`/vehicles/edit/${initialData?._id}`);
+   };
 
   useEffect(() => {
     if (success) {
@@ -220,6 +253,12 @@ const VehicleForm = ({ mode = "new", initialData = {}, onSubmit }) => {
             textStyles='text-white font-semibold text-xl'
             isLoading={uploading || loading}
           />
+        )}
+        {mode === "view" && userData?.user?.role === "admin" && (
+          <View className='flex-row justify-between mb-4 space-x-2'>
+            <ActionButton type='edit' handlePress={handleEdit} />
+            <ActionButton type='delete' handlePress={handleDelete} />
+          </View>
         )}
       </ScrollView>
       <StatusBar backgroundColor='#2A7353' style='light' />

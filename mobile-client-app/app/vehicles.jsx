@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity, FlatList, RefreshControl } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "react-native-vector-icons";
 import { useRouter } from "expo-router";
@@ -10,7 +11,7 @@ import { listVehicles } from "../lib/redux/actions/vehicleActions";
 const Vehicles = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const {vehicles} = useSelector((state) => state.vehicle);
+  const {vehicles, successUpdate, successDelete} = useSelector((state) => state.vehicle);
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -21,10 +22,11 @@ const Vehicles = () => {
   };
 
 
-
-  useEffect(() => {
-    dispatch(listVehicles());
-  }, [dispatch])
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(listVehicles());
+    }, [dispatch, successDelete, successUpdate])
+  );
 
 
   const renderItem = ({ item }) => (
