@@ -13,6 +13,7 @@ import { icons, images } from "../../constants";
 import { useSelector } from "react-redux";
 import DashboardCard from "../../components/DashboardCard";
 import { Link, useRouter } from "expo-router";
+import Icon from "react-native-vector-icons/Feather";
 
 const Home = () => {
   const { userData } = useSelector((state) => state.user);
@@ -124,6 +125,18 @@ const Home = () => {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
         />
+        <Text className='text-xl font-semibold text-gray-700 mb-4'>
+          More Actions
+        </Text>
+        <TouchableOpacity
+          onPress={() => router.push("/new-vehicle")}
+          className='mb-4 p-4 bg-white border border-gray-300 rounded-lg flex-row items-center space-x-4'
+        >
+          <Icon name='plus' size={24} color='#000' />
+          <Text className='text-lg font-semibold text-gray-700'>
+            Add Vehicle
+          </Text>
+        </TouchableOpacity>
       </View>
       <StatusBar backgroundColor='#2A7353' style='light' />
     </SafeAreaView>

@@ -1,0 +1,183 @@
+import { View, Text, ScrollView, TouchableOpacity, Image } from "react-native";
+import React, { useState } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import { Feather } from "react-native-vector-icons";
+import FormField from "./FormField";
+import CustomButton from "./CustomButton";
+import * as DocumentPicker from "expo-document-picker";
+import { StatusBar } from "expo-status-bar";
+import { generatePdfThumbnailUrl, uploadPdfToCloudinary } from "../lib/cloudinary";
+
+const VehicleForm = ({ mode = "new", initialData = {}, onSubmit }) => {
+  const router = useRouter();
+  const [form, setForm] = useState({
+    vehicleMake: "",
+    vehicleModel: "",
+    chassisNumber: "",
+    tonnageCategory: "",
+    vehicleNumberPlate: "",
+    notes: "",
+    ownerName: "",
+    ownerIdNumber: "",
+    ownerLogBook: null,
+    ...initialData,
+  });
+  const [uploading, setUploading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState(null);
+
+  const handleChange = (field, value) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const openPicker = async () => {
+    const result = await DocumentPicker.getDocumentAsync({
+      type: "application/pdf",
+    });
+
+    if (result.type !== "cancel") {
+      handleChange("ownerLogBook", result.assets[0].uri);
+      setUploading(true);
+      try {
+        const data = await uploadPdfToCloudinary(result.assets[0]);
+        handleChange("ownerLogBook", data.secure_url);
+        setPreviewUrl(data.previewUrl);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setUploading(false);
+      }
+    }
+  };
+
+  const submitForm = () => {
+    onSubmit(form);
+  };
+
+  console.log(generatePdfThumbnailUrl(form.ownerLogBook))
+
+  return (
+    <SafeAreaView className='flex-1 bg-white'>
+      <View className='px-4 bg-secondary w-full h-16 flex-row justify-between items-center z-[99]'>
+        <TouchableOpacity onPress={() => router.back()}>
+          <Feather name='arrow-left' size={24} color='white' />
+        </TouchableOpacity>
+        <Text className='text-white text-2xl font-semibold'>
+          {mode === "new"
+            ? "Add New Vehicle"
+            : mode === "edit"
+            ? "Edit Vehicle"
+            : "View Vehicle"}
+        </Text>
+        <View />
+      </View>
+      <ScrollView className='px-4 py-4'>
+        <FormField
+          title='Vehicle Make'
+          placeholder='Enter vehicle make'
+          value={form.vehicleMake}
+          handleChangeText={(e) => handleChange("vehicleMake", e)}
+          otherStyles='mb-3'
+          inputStyles='bg-slate-50'
+          editable={mode !== "view"}
+        />
+        <FormField
+          title='Vehicle Model'
+          placeholder='Enter vehicle model'
+          value={form.vehicleModel}
+          handleChangeText={(e) => handleChange("vehicleModel", e)}
+          editable={mode !== "view"}
+          otherStyles='mb-3'
+          inputStyles='bg-slate-50'
+        />
+        <FormField
+          title='Chassis Number'
+          placeholder='Enter chassis number'
+          value={form.chassisNumber}
+          handleChangeText={(e) => handleChange("chassisNumber", e)}
+          editable={mode !== "view"}
+          otherStyles='mb-3'
+          inputStyles='bg-slate-50'
+        />
+        <FormField
+          title='Tonnage Category'
+          placeholder='Enter tonnage category'
+          value={form.tonnageCategory}
+          handleChangeText={(e) => handleChange("tonnageCategory", e)}
+          editable={mode !== "view"}
+          otherStyles='mb-3'
+          inputStyles='bg-slate-50'
+        />
+        <FormField
+          title='Vehicle Number Plate'
+          placeholder='Enter number plate'
+          value={form.vehicleNumberPlate}
+          handleChangeText={(e) => handleChange("vehicleNumberPlate", e)}
+          editable={mode !== "view"}
+          otherStyles='mb-3'
+          inputStyles='bg-slate-50'
+        />
+        <FormField
+          title='Notes'
+          placeholder='Enter additional notes'
+          value={form.notes}
+          handleChangeText={(e) => handleChange("notes", e)}
+          editable={mode !== "view"}
+          otherStyles='mb-3'
+          inputStyles='bg-slate-50'
+        />
+        <FormField
+          title='Owner Name'
+          placeholder='Enter owner name'
+          value={form.ownerName}
+          handleChangeText={(e) => handleChange("ownerName", e)}
+          editable={mode !== "view"}
+          otherStyles='mb-3'
+          inputStyles='bg-slate-50'
+        />
+        <FormField
+          title='Owner ID Number'
+          placeholder='Enter owner ID number'
+          value={form.ownerIdNumber}
+          handleChangeText={(e) => handleChange("ownerIdNumber", e)}
+          editable={mode !== "view"}
+          otherStyles='mb-3'
+          inputStyles='bg-slate-50'
+        />
+        <Text className='text-gray-600 text-md mb-1'>Owner Log Book</Text>
+        <TouchableOpacity
+          className='bg-gray-200 p-4 rounded-md mb-4'
+          onPress={openPicker}
+          disabled={mode === "view"}
+        >
+          {form.ownerLogBook ? (
+            <Text className='text-blue-500 underline'>
+              {form.ownerLogBook.split("/").pop()}
+            </Text>
+            // <Image
+            //   source={{
+            //     uri: generatePdfThumbnailUrl(form.ownerLogBook),
+            //   }}
+            //   style={{ width: 150, height: 200 }}
+            // />
+          ) : (
+            <Text className='text-gray-600'>Upload Log Book (PDF)</Text>
+          )}
+          {uploading && <Text className='text-green-500'>uploading...</Text>}
+        </TouchableOpacity>
+        {mode !== "view" && (
+          <CustomButton
+            title={mode === "new" ? "Add Vehicle" : "Update Vehicle"}
+            handlePress={submitForm}
+            containerStyles='my-7 bg-orange rounded min-h-[45px]'
+            textStyles='text-white font-semibold text-xl'
+            isLoading={uploading}
+          />
+        )}
+      </ScrollView>
+      <StatusBar backgroundColor='#2A7353' style='light' />
+    </SafeAreaView>
+  );
+};
+
+export default VehicleForm;
