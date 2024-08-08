@@ -1,11 +1,12 @@
 import React from "react";
 import VehicleForm from "../components/VehicleForm";
+import {useDispatch} from "react-redux";
+import { registerVehicle } from "../lib/redux/actions/vehicleActions";
 
-const NewVehicle = ({ navigation }) => {
+const NewVehicle = () => {
+  const dispatch = useDispatch();
   const handleAddVehicle = (vehicleData) => {
-    // Implement add vehicle logic here (e.g., API call)
-    console.log(vehicleData);
-    navigation.goBack();
+    dispatch(registerVehicle(vehicleData));
   };
 
   return (

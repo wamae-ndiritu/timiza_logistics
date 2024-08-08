@@ -1,5 +1,5 @@
-import { View, Text, ScrollView, TouchableOpacity, Image } from "react-native";
-import React, { useState } from "react";
+import { View, Text, ScrollView, TouchableOpacity, Image, Alert } from "react-native";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Feather } from "react-native-vector-icons";
@@ -7,9 +7,12 @@ import FormField from "./FormField";
 import CustomButton from "./CustomButton";
 import * as DocumentPicker from "expo-document-picker";
 import { StatusBar } from "expo-status-bar";
-import { generatePdfThumbnailUrl, uploadPdfToCloudinary } from "../lib/cloudinary";
+import { uploadPdfToCloudinary } from "../lib/cloudinary";
+import { hasEmptyValue } from "../utils";
+import { useSelector } from "react-redux";
 
 const VehicleForm = ({ mode = "new", initialData = {}, onSubmit }) => {
+  const {loading, error, success} = useSelector((state) => state.vehicle)
   const router = useRouter();
   const [form, setForm] = useState({
     vehicleMake: "",
@@ -24,8 +27,6 @@ const VehicleForm = ({ mode = "new", initialData = {}, onSubmit }) => {
     ...initialData,
   });
   const [uploading, setUploading] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState(null);
-
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
@@ -41,9 +42,8 @@ const VehicleForm = ({ mode = "new", initialData = {}, onSubmit }) => {
       try {
         const data = await uploadPdfToCloudinary(result.assets[0]);
         handleChange("ownerLogBook", data.secure_url);
-        setPreviewUrl(data.previewUrl);
       } catch (error) {
-        console.error(error);
+        console.log(error);
       } finally {
         setUploading(false);
       }
@@ -51,10 +51,27 @@ const VehicleForm = ({ mode = "new", initialData = {}, onSubmit }) => {
   };
 
   const submitForm = () => {
+    if (hasEmptyValue(form)) {
+      Alert.alert("Error", "Please fill all the fields");
+      return;
+    }
     onSubmit(form);
   };
 
-  console.log(generatePdfThumbnailUrl(form.ownerLogBook))
+  useEffect(() => {
+    if (success){
+      setForm({
+    vehicleMake: "",
+    vehicleModel: "",
+    chassisNumber: "",
+    tonnageCategory: "",
+    vehicleNumberPlate: "",
+    notes: "",
+    ownerName: "",
+    ownerIdNumber: "",
+    ownerLogBook: null,})
+    }
+  }, [success])
 
   return (
     <SafeAreaView className='flex-1 bg-white'>
@@ -171,7 +188,7 @@ const VehicleForm = ({ mode = "new", initialData = {}, onSubmit }) => {
             handlePress={submitForm}
             containerStyles='my-7 bg-orange rounded min-h-[45px]'
             textStyles='text-white font-semibold text-xl'
-            isLoading={uploading}
+            isLoading={uploading || loading}
           />
         )}
       </ScrollView>
