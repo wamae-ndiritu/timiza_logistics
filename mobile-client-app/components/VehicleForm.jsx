@@ -1,4 +1,10 @@
-import { View, Text, ScrollView, TouchableOpacity, Image, Alert } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -14,7 +20,7 @@ import { resetVehicleState } from "../lib/redux/slices/vehicleSlices";
 
 const VehicleForm = ({ mode = "new", initialData = {}, onSubmit }) => {
   const dispatch = useDispatch();
-  const {loading, error, success} = useSelector((state) => state.vehicle)
+  const { loading, error, success } = useSelector((state) => state.vehicle);
   const router = useRouter();
   const [form, setForm] = useState({
     vehicleMake: "",
@@ -61,26 +67,41 @@ const VehicleForm = ({ mode = "new", initialData = {}, onSubmit }) => {
   };
 
   useEffect(() => {
-    if (success){
+    if (success) {
       setForm({
-    vehicleMake: "",
-    vehicleModel: "",
-    chassisNumber: "",
-    tonnageCategory: "",
-    vehicleNumberPlate: "",
-    notes: "",
-    ownerName: "",
-    ownerIdNumber: "",
-    ownerLogBook: null,})
+        vehicleMake: "",
+        vehicleModel: "",
+        chassisNumber: "",
+        tonnageCategory: "",
+        vehicleNumberPlate: "",
+        notes: "",
+        ownerName: "",
+        ownerIdNumber: "",
+        ownerLogBook: null,
+      });
+      const timeout = setTimeout(() => {
+        dispatch(resetVehicleState());
+        router.push("/vehicles");
+      }, 5000);
+
+      return () => clearTimeout(timeout);
     }
-    const timeout = setTimeout(() => {
-      dispatch(resetVehicleState());
-      router.push('/vehicles')
-    }, 5000);
 
-    return () => clearTimeout(timeout);
-
-  }, [success])
+    if (error){
+      setForm({
+        vehicleMake: "",
+        vehicleModel: "",
+        chassisNumber: "",
+        tonnageCategory: "",
+        vehicleNumberPlate: "",
+        notes: "",
+        ownerName: "",
+        ownerIdNumber: "",
+        ownerLogBook: null,
+      });
+      Alert.alert("Error", error.message);
+    }
+  }, [success]);
 
   return (
     <SafeAreaView className='flex-1 bg-white'>
@@ -180,13 +201,13 @@ const VehicleForm = ({ mode = "new", initialData = {}, onSubmit }) => {
             <Text className='text-blue-500 underline'>
               {form.ownerLogBook.split("/").pop()}
             </Text>
+          ) : (
             // <Image
             //   source={{
             //     uri: generatePdfThumbnailUrl(form.ownerLogBook),
             //   }}
             //   style={{ width: 150, height: 200 }}
             // />
-          ) : (
             <Text className='text-gray-600'>Upload Log Book (PDF)</Text>
           )}
           {uploading && <Text className='text-green-500'>uploading...</Text>}
