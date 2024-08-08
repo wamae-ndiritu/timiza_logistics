@@ -137,6 +137,15 @@ const Home = () => {
             Add Vehicle
           </Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => router.push("/vehicles")}
+          className='mb-4 p-4 bg-white border border-gray-300 rounded-lg flex-row items-center space-x-4'
+        >
+          <Icon name='truck' size={24} color='#000' />
+          <Text className='text-lg font-semibold text-gray-700'>
+            Vehicles
+          </Text>
+        </TouchableOpacity>
       </View>
       <StatusBar backgroundColor='#2A7353' style='light' />
     </SafeAreaView>

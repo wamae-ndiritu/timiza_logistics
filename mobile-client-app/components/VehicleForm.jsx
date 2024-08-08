@@ -9,9 +9,11 @@ import * as DocumentPicker from "expo-document-picker";
 import { StatusBar } from "expo-status-bar";
 import { uploadPdfToCloudinary } from "../lib/cloudinary";
 import { hasEmptyValue } from "../utils";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { resetVehicleState } from "../lib/redux/slices/vehicleSlices";
 
 const VehicleForm = ({ mode = "new", initialData = {}, onSubmit }) => {
+  const dispatch = useDispatch();
   const {loading, error, success} = useSelector((state) => state.vehicle)
   const router = useRouter();
   const [form, setForm] = useState({
@@ -71,6 +73,13 @@ const VehicleForm = ({ mode = "new", initialData = {}, onSubmit }) => {
     ownerIdNumber: "",
     ownerLogBook: null,})
     }
+    const timeout = setTimeout(() => {
+      dispatch(resetVehicleState());
+      router.push('/vehicles')
+    }, 5000);
+
+    return () => clearTimeout(timeout);
+
   }, [success])
 
   return (

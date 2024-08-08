@@ -15,55 +15,55 @@ export const vehicleSlice = createSlice({
   initialState,
   reducers: {
     vehicleActionStart: (state) => {
-        state.loading = true;
-        state.success = false;
-        state.successDelete = false;
-        state.successUpdate = false;
-        state.error = null;
+      state.loading = true;
+      state.success = false;
+      state.successDelete = false;
+      state.successUpdate = false;
+      state.error = null;
     },
     vehicleActionFail: (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
+      state.loading = false;
+      state.error = action.payload;
     },
     resetVehicleState: (state) => {
-        state.success = false;
-        state.successDelete= false;
-        state.successUpdate = false;
-        state.error = null;
+      state.success = false;
+      state.successDelete = false;
+      state.successUpdate = false;
+      state.error = null;
     },
     registerVehicleSuccess: (state) => {
-        state.loading = false;
-        state.success = true;
+      state.loading = false;
+      state.success = true;
     },
     getVehiclesSuccess: (state, action) => {
-        state.loading = false;
-        state.vehicles = action.payload;
+      state.loading = false;
+      state.vehicles = action.payload;
     },
     getVehicleSuccess: (state, action) => {
-        state.loading = false;
-        state.currentVehicle = action.payload;
+      state.loading = false;
+      state.currentVehicle = action.payload;
     },
     updateVehicleSuccess: (state, action) => {
-        state.loading = false;
-        state.currentVehicle = action.payload;
-        state.successUpdate = true;
+      state.loading = false;
+      state.currentVehicle = action.payload;
+      state.successUpdate = true;
     },
     deleteVehicleSuccess: (state) => {
-        state.loading = false;
-        state.successDelete = true;
-    }
+      state.loading = false;
+      state.successDelete = true;
+    },
   },
 });
 
 export const {
-    vehicleActionStart,
-    vehicleActionFail,
-    resetVehicleState,
-    registerVehicleSuccess,
-    getVehiclesSuccess,
-    getVehicleSuccess,
-    updateVehicleSuccess,
-    deleteVehicleSuccess
+  vehicleActionStart,
+  vehicleActionFail,
+  resetVehicleState,
+  registerVehicleSuccess,
+  getVehiclesSuccess,
+  getVehicleSuccess,
+  updateVehicleSuccess,
+  deleteVehicleSuccess,
 } = vehicleSlice.actions;
 
 export default vehicleSlice.reducer;

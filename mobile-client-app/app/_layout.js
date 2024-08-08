@@ -52,6 +52,7 @@ const RootLayout = () => {
         />
         <Stack.Screen name='new-trip' options={{ headerShown: false }} />
         <Stack.Screen name='new-vehicle' options={{ headerShown: false }} />
+        <Stack.Screen name='vehicles' options={{ headerShown: false }} />
       </Stack>
     </Provider>
   );
