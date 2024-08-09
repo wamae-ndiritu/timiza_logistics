@@ -20,10 +20,11 @@ import { logoutUser, resetUserState } from "../../lib/redux/slices/users";
 import CustomButton from "../../components/CustomButton";
 import { getUserProfile, updateProfile } from "../../lib/redux/actions/userActions";
 import Loading from "../../components/Loading";
+import { uploadImageToCloudinary } from "../../lib/cloudinary";
 
 const Profile = () => {
   const dispatch = useDispatch();
-  const { userData, error, profile, updateSuccess, loading } = useSelector((state) => state.user);
+  const { userData, profile, updateSuccess, loading } = useSelector((state) => state.user);
 
   const [form, setForm] = useState({
     nationalIdFront: null,
@@ -84,13 +85,16 @@ const Profile = () => {
     dispatch(updateProfile({nationalIdFront: form.nationalIdFront.uri, nationalIdBack: form.nationalIdBack.uri}));
   };
 
+  console.log(userData);
+  console.log(profile);
+
 
   useFocusEffect(
     useCallback(() => {
-      if (userData?.user?.role !== "admin"){
-        dispatch(getUserProfile());
-      }
-    }, [dispatch])
+      dispatch(getUserProfile());
+      // if (userData?.user?.role !== "admin"){
+      // }
+    }, [dispatch, userData?.user?.role])
   );
 
   useEffect(() => {

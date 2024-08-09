@@ -252,13 +252,19 @@ router.get("/:id", verify, async (req, res) => {
 // User get their profile
 router.get("/profile", verify, async (req, res) => {
   const type = req.user.role;
+
+  console.log(type)
   try {
     let user;
 
     if (type === "driver") {
+      console.log("Driver found...");
       user = await Driver.findOne({ user: req.user.id }).populate("user");
+      console.log(user);
     } else if (type === "loader") {
+      console.log("Laoder found...");
       user = await Loader.findOne({ user: req.user.id }).populate("user");
+      console.log(user)
     } else {
       const user = User.findById(req.user.id);
       return res.status(200).json(user);
@@ -282,6 +288,7 @@ router.get("/profile", verify, async (req, res) => {
 
     res.status(200).json(profile);
   } catch (error) {
+    console.log(error)
     res.status(500).json({ error: error.message });
   }
 });

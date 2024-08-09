@@ -132,6 +132,7 @@ export const updateProfile =
         );
         dispatch(getProfile(data))
       } catch (error) {
+        console.log(error)
         const message = error?.response
           ? error.response?.data.message || error.response?.data.error
           : error.message;
