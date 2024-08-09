@@ -20,21 +20,12 @@ const DeliveryViewScreen = () => {
 
   return (
     <>
-      {loading ? (
-        <Text className='px-2 text-base text-green-500 font-pregular py-0.5'>
-          Please wait...
-        </Text>
-      ) : error ? (
-        <Text className='px-2 text-base text-red-500 font-pregular py-0.5'>
-          {error}
-        </Text>
-      ) : (
         <DeliveryForm
           key={currentDelivery?._id}
           mode='view'
+          title="View Delivery"
           initialData={currentDelivery}
         />
-      )}
     </>
   );
 };

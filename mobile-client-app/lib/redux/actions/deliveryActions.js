@@ -49,7 +49,7 @@ export const extractFileText = async (file) => {
   }
 };
 
-export const createDelivery = (deliveryData) => async (dispatch, getState) => {
+export const createDelivery = (tripId, deliveryData) => async (dispatch, getState) => {
   try {
     const {
       user: { userData },
@@ -61,7 +61,7 @@ export const createDelivery = (deliveryData) => async (dispatch, getState) => {
       },
     };
     dispatch(deliveryActionStart());
-    await axios.post(`${END_POINT}/deliveries/create`, deliveryData, config);
+    await axios.post(`${END_POINT}/deliveries/create/${tripId}`, deliveryData, config);
     dispatch(createDeliverySuccess());
   } catch (error) {
     const message = error?.response

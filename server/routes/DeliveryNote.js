@@ -6,6 +6,7 @@ const path = require("path");
 const DeliveryNote = require("../models/DeliveryNoteModel");
 const multer = require("multer");
 const { verify } = require("../middleware/auth");
+const Trip = require("../models/TripModel");
 
 const router = express.Router();
 
@@ -127,7 +128,7 @@ router.get("/status/:jobId", async (req, res) => {
   }
 });
 
-router.post("/create", verify, async (req, res) => {
+router.post("/create/:tripId", verify, async (req, res) => {
   const {
     date,
     vehicleRegistrationNumber,
@@ -140,7 +141,11 @@ router.post("/create", verify, async (req, res) => {
     total,
     fileRef,
   } = req.body;
+
+  const { tripId } = req.params;
+
   try {
+    // Create the delivery note
     const deliveryNote = new DeliveryNote({
       user: req.user.id,
       date,
@@ -152,15 +157,32 @@ router.post("/create", verify, async (req, res) => {
       numberOfDeliveryNotes,
       deliveryNotesNumber,
       total,
-      fileRef
+      fileRef,
     });
 
     await deliveryNote.save();
-    res.status(201).json(deliveryNote);
+
+    // Find the respective trip and update it with the new delivery note
+    const trip = await Trip.findById(tripId);
+    if (!trip) {
+      return res.status(404).json({ message: "Trip not found." });
+    }
+
+    trip.deliveryNote = deliveryNote._id;
+    await trip.save();
+
+    res
+      .status(201)
+      .json({
+        message: "Delivery Note created and Trip updated successfully.",
+        deliveryNote,
+      });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: error.message });
   }
 });
+
 
 
 // Route to get deliveries

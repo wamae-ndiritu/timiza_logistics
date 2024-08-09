@@ -6,7 +6,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import React, { useEffect } from "react";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
 import { getTripById } from "../../../lib/redux/actions/tripActions";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -27,8 +27,11 @@ const TripViewScreen = () => {
   }, [dispatch, id, successUpdate]);
 
   const handleAttachDeliveryNote = () => {
-    // Implement navigation to attach delivery note screen
-    // Example: router.push(`/trips/${id}/attach-delivery-note`);
+    if (currentTrip?.deliveryNote){
+      router.push(`/view-delivery/${currentTrip?.deliveryNote?._id}`);
+    } else {
+      router.push(`/trips/${id}/attach-delivery-note`);
+    }
   };
 
   if (loading) {
@@ -145,10 +148,21 @@ const TripViewScreen = () => {
           onPress={handleAttachDeliveryNote}
           className='mt-4 p-4 bg-orange-500 rounded-lg flex-row items-center justify-center'
         >
-          <Icon name='file-plus' size={20} color='white' />
-          <Text className='ml-2 text-white text-lg font-semibold'>
-            Attach Delivery Note
-          </Text>
+          {currentTrip?.deliveryNote ? (
+            <>
+              <Icon name='check-square' size={20} color='white' />
+              <Text className='ml-2 text-white text-lg font-semibold'>
+                View Delivery Note
+              </Text>
+            </>
+          ) : (
+            <>
+              <Icon name='file-plus' size={20} color='white' />
+              <Text className='ml-2 text-white text-lg font-semibold'>
+                Attach Delivery Note
+              </Text>
+            </>
+          )}
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
