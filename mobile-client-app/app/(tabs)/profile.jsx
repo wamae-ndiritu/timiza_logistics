@@ -19,7 +19,7 @@ import { router } from "expo-router";
 import { logoutUser, resetUserState } from "../../lib/redux/slices/users";
 import CustomButton from "../../components/CustomButton";
 import { getUserProfile, updateProfile } from "../../lib/redux/actions/userActions";
-import ErrorModal from "../../components/ErrorModal";
+
 const Profile = () => {
   const dispatch = useDispatch();
   const { userData, error, profile, updateSuccess, loading } = useSelector((state) => state.user);
@@ -86,7 +86,9 @@ const Profile = () => {
 
   useFocusEffect(
     useCallback(() => {
-      dispatch(getUserProfile());
+      if (userData?.user?.role !== "admin"){
+        dispatch(getUserProfile());
+      }
     }, [dispatch])
   );
 
@@ -256,14 +258,6 @@ const Profile = () => {
         />
       </ScrollView>
       <StatusBar backgroundColor='#2A7353' style='light' />
-      <ErrorModal
-        visible={error ? true : false}
-        onClose={() => {
-          dispatch(resetUserState());
-          router.push("/profile");
-        }}
-        description={error}
-      />
     </SafeAreaView>
   );
 };
