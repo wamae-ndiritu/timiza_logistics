@@ -138,3 +138,22 @@ export const updateProfile =
         dispatch(userActionFail(message));
       }
     };
+
+  // Get user by Id
+    export const getUserById = async (userId, token) => {
+      try {
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        };
+        const { data } = await axios.get(`${END_POINT}/users/${userId}`, config);
+        return data;
+      } catch (error) {
+        const message = error?.response
+          ? error.response?.data.message || error.response?.data.error
+          : error.message;
+          throw new Error(message)
+      }
+    };

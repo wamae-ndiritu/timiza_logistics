@@ -20,6 +20,7 @@ import { resetVehicleState } from "../lib/redux/slices/vehicleSlices";
 import ActionButton from "./ActionButton";
 import { deleteVehicle } from "../lib/redux/actions/vehicleActions";
 import Icon from "react-native-vector-icons/Feather";
+import { getUserById } from "../lib/redux/actions/userActions";
 
 const VehicleForm = ({ mode = "new", initialData = {}, onSubmit }) => {
   const dispatch = useDispatch();
@@ -39,6 +40,9 @@ const VehicleForm = ({ mode = "new", initialData = {}, onSubmit }) => {
     ...initialData,
   });
   const [uploading, setUploading] = useState(false);
+  const [driver, setDriver] = useState(null);
+  const [loaders, setLoaders] = useState([]);
+
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
@@ -55,7 +59,7 @@ const VehicleForm = ({ mode = "new", initialData = {}, onSubmit }) => {
         const data = await uploadPdfToCloudinary(result.assets[0]);
         handleChange("ownerLogBook", data.secure_url);
       } catch (error) {
-        console.log(error);
+        Alert.alert("Error", error.message)
       } finally {
         setUploading(false);
       }
@@ -136,6 +140,36 @@ const VehicleForm = ({ mode = "new", initialData = {}, onSubmit }) => {
       Alert.alert("Error", error.message);
     }
   }, [success]);
+
+
+  useEffect(() => {
+     const fetchVehicleStaff = async () => {
+       try {
+         // Fetch driver data
+         if (initialData?.currentDriver) {
+           const driverData = await getUserById(
+             initialData?.currentDriver,
+             userData?.token
+           );
+           setDriver(driverData);
+         }
+
+         // Fetch loaders data
+         if (initialData?.currentLoaders.length > 0) {
+           const loaderDataArray = await Promise.all(
+             initialData.currentLoaders.map((loaderId) =>
+               getUserById(loaderId, userData?.token)
+             )
+           );
+           setLoaders(loaderDataArray);
+         }
+       } catch (error) {
+         Alert.alert("Error", error.message)
+       }
+     };
+
+     fetchVehicleStaff();
+  }, [initialData?.currentDriver]);
 
   return (
     <SafeAreaView className='flex-1 bg-white'>
@@ -257,11 +291,47 @@ const VehicleForm = ({ mode = "new", initialData = {}, onSubmit }) => {
         )}
         {mode === "view" && userData?.user?.role === "admin" && (
           <>
+            <Text className='text-xl text-gray-800 mb-2'>Assigned Driver</Text>
+            <TouchableOpacity
+              // onPress={() => setSelectedDriver()}
+              className={`mb-4 p-4 border bg-slate-200 border-gray-300 rounded-lg flex-row items-center space-x-4`}
+            >
+              <Feather name='user' size={24} color='#000' />
+              {driver ? (
+                <Text className={`text-lg font-semibold text-secondary`}>
+                  {driver.fullName}
+                </Text>
+              ) : (
+                <Text className={`text-lg font-semibold text-red-500`}>
+                  No Assigned Driver
+                </Text>
+              )}
+            </TouchableOpacity>
+            <Text className='text-xl text-gray-800 mb-2'>Assigned Loaders</Text>
+            <TouchableOpacity
+              // onPress={() => setSelectedDriver()}
+              className={`mb-4 p-4 border bg-slate-200 border-gray-300 rounded-lg flex-row items-center space-x-4`}
+            >
+              <Feather name='users' size={24} color='#000' />
+              {loaders.length > 0 ? (
+                <View className='flex-row space-x-4 items-start'>
+                  {loaders.map((loader) => (
+                    <Text className={`text-lg font-semibold text-secondary`} key={loader._id}>
+                      {loader.fullName}
+                    </Text>
+                  ))}
+                </View>
+              ) : (
+                <Text className={`text-lg font-semibold text-red-500`}>
+                  No Assigned Loaders
+                </Text>
+              )}
+            </TouchableOpacity>
             <TouchableOpacity
               onPress={() => router.push(`/vehicles/staff/${initialData?._id}`)}
               className='mb-4 p-4 bg-white border border-gray-300 rounded-lg flex-row items-center space-x-4'
             >
-              <Icon name="user-check" size={24} color='#000' />
+              <Icon name='user-check' size={24} color='#000' />
               <Text className='text-lg font-semibold text-gray-700'>
                 Assign Staff to Vehicle
               </Text>

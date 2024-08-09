@@ -6,7 +6,7 @@ const ActionButton = ({ type = "edit", handlePress }) => {
   return (
     <TouchableOpacity
       className={`w-1/2 mb-4 p-4 bg-white border border-gray-300 rounded-lg flex-row items-center space-x-4 ${
-        type === "edit" ? "bg-green-600" : type === "delete" && "bg-red-600"
+        type === "edit" ? "bg-secondary" : type === "delete" && "bg-red-500"
       }`}
       onPress={handlePress}
     >

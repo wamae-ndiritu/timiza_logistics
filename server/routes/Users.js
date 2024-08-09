@@ -234,6 +234,21 @@ router.get("/", isAdmin, async (req, res) => {
   res.status(200).json(usersList);
 });
 
+// Get a user by ID
+router.get("/:id", verify, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // User get their profile
 router.get("/profile", verify, async (req, res) => {
   const type = req.user.role;
@@ -245,7 +260,8 @@ router.get("/profile", verify, async (req, res) => {
     } else if (type === "loader") {
       user = await Loader.findOne({ user: req.user.id }).populate("user");
     } else {
-      return res.status(400).json({ message: "Invalid user type!" });
+      const user = User.findById(req.user.id);
+      return res.status(200).json(user);
     }
 
     if (!user) {
