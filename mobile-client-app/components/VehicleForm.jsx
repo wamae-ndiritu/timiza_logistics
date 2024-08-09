@@ -143,33 +143,37 @@ const VehicleForm = ({ mode = "new", initialData = {}, onSubmit }) => {
 
 
   useEffect(() => {
-     const fetchVehicleStaff = async () => {
-       try {
-         // Fetch driver data
-         if (initialData?.currentDriver) {
-           const driverData = await getUserById(
-             initialData?.currentDriver,
-             userData?.token
-           );
-           setDriver(driverData);
-         }
+    const fetchVehicleStaff = async () => {
+      try {
+        // Fetch driver data
+        if (initialData?.currentDriver) {
+          const driverData = await getUserById(
+            initialData?.currentDriver,
+            userData?.token
+          );
+          setDriver(driverData);
+        }
 
-         // Fetch loaders data
-         if (initialData?.currentLoaders.length > 0) {
-           const loaderDataArray = await Promise.all(
-             initialData.currentLoaders.map((loaderId) =>
-               getUserById(loaderId, userData?.token)
-             )
-           );
-           setLoaders(loaderDataArray);
-         }
-       } catch (error) {
-         Alert.alert("Error", error.message)
-       }
-     };
+        // Fetch loaders data
+        if (initialData?.currentLoaders?.length > 0) {
+          const loaderDataArray = await Promise.all(
+            initialData.currentLoaders.map((loaderId) =>
+              getUserById(loaderId, userData?.token)
+            )
+          );
+          setLoaders(loaderDataArray);
+        }
+      } catch (error) {
+        Alert.alert("Error", error.message);
+      }
+    };
 
-     fetchVehicleStaff();
-  }, [initialData?.currentDriver]);
+    fetchVehicleStaff();
+  }, [
+    initialData?.currentDriver,
+    initialData?.currentLoaders,
+    userData?.token,
+  ]);
 
   return (
     <SafeAreaView className='flex-1 bg-white'>
