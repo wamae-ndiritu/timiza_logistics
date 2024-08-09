@@ -4,12 +4,18 @@ import { useNavigation } from "@react-navigation/native";
 import { icons } from "../constants";
 import { StatusBar } from "expo-status-bar";
 import { router } from "expo-router";
+import {useSelector} from "react-redux";
 
 const NotAuthorizedScreen = () => {
+  const {userData} = useSelector((state) => state.user);
   const navigation = useNavigation();
 
   const handleGoBack = () => {
-    router.replace('/home');
+    if (userData?.user?.role === "admin"){
+      router.replace('/home');
+    } else {
+     router.replace("/userhome"); 
+    }
   };
 
   return (

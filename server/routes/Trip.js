@@ -104,4 +104,50 @@ router.get("/", verify, async (req, res) => {
 });
 
 
+// Get trip by ID
+router.get("/:id", verify, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    const userRole = req.user.role;
+
+    let trip;
+
+    if (userRole === "admin") {
+      // If the user is an admin, fetch the trip by ID
+      trip = await Trip.findById(id)
+        .populate("vehicle")
+        .populate("driver", "fullName email")
+        .populate("loaders", "fullName email")
+        .populate("deliveryNote");
+    } else {
+      // If the user is not an admin, fetch the trip only if the user is related to it
+      trip = await Trip.findOne({
+        _id: id,
+        // $or: [
+        //   { "vehicle.currentDriver": userId },
+        //   { "vehicle.currentLoaders": { $in: [userId] } },
+        // ],
+      })
+        .populate("vehicle")
+        .populate("driver", "fullName email")
+        .populate("loaders", "fullName email")
+        .populate("deliveryNote");
+
+      // If no trip is found or user is not related to the trip, deny access
+      if (!trip) {
+        return res.status(403).json({
+          message: "You do not have access to this trip.",
+        });
+      }
+    }
+
+    res.status(200).json(trip);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "An error occurred while retrieving the trip." });
+  }
+});
+
+
 module.exports = router;
