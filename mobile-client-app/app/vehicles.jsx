@@ -7,11 +7,13 @@ import { useRouter } from "expo-router";
 import Icon from "react-native-vector-icons/Feather";
 import { useDispatch, useSelector } from "react-redux";
 import { listVehicles } from "../lib/redux/actions/vehicleActions";
+import TopBar from "../components/TopBar";
+import Loading from "../components/Loading";
 
 const Vehicles = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const {vehicles, successUpdate, successDelete} = useSelector((state) => state.vehicle);
+  const {vehicles, successUpdate, successDelete, loading} = useSelector((state) => state.vehicle);
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -53,22 +55,20 @@ const Vehicles = () => {
 
   return (
     <SafeAreaView className='flex-1 bg-white'>
-      <View className='px-4 bg-secondary w-full h-16 flex-row justify-between items-center z-[99]'>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Feather name='arrow-left' size={24} color='white' />
-        </TouchableOpacity>
-        <Text className='text-white text-2xl font-semibold'>Vehicles</Text>
-        <View />
-      </View>
-      <FlatList
-        data={vehicles}
-        keyExtractor={(item) => item._id}
-        renderItem={renderItem}
-        contentContainerStyle={{ padding: 16 }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      />
+      <TopBar title='Vehicles' />
+      {loading ? (
+        <Loading />
+      ) : (
+        <FlatList
+          data={vehicles}
+          keyExtractor={(item) => item._id}
+          renderItem={renderItem}
+          contentContainerStyle={{ padding: 16 }}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        />
+      )}
     </SafeAreaView>
   );
 };

@@ -16,6 +16,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import TopBar from "../../components/TopBar";
 import Geocoder from "react-native-geocoding";
 import { GOOGLE_API_KEY } from "@env";
+import Loading from "../../components/Loading";
 
 // Initialize Geocoder with your API key
 Geocoder.init(GOOGLE_API_KEY);
@@ -23,7 +24,7 @@ Geocoder.init(GOOGLE_API_KEY);
 const Trips = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { trips, success } = useSelector((state) => state.trip);
+  const { trips, success, loading } = useSelector((state) => state.trip);
 
   const [refreshing, setRefreshing] = useState(false);
   const [locations, setLocations] = useState({});
@@ -109,15 +110,19 @@ const Trips = () => {
   return (
     <SafeAreaView className='flex-1 bg-white'>
       <TopBar title='Trips' />
-      <FlatList
-        data={trips}
-        keyExtractor={(item) => item._id}
-        renderItem={renderItem}
-        contentContainerStyle={{ padding: 16 }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      />
+      {loading ? (
+        <Loading />
+      ) : (
+        <FlatList
+          data={trips}
+          keyExtractor={(item) => item._id}
+          renderItem={renderItem}
+          contentContainerStyle={{ padding: 16 }}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        />
+      )}
     </SafeAreaView>
   );
 };

@@ -19,6 +19,7 @@ import { router } from "expo-router";
 import { logoutUser, resetUserState } from "../../lib/redux/slices/users";
 import CustomButton from "../../components/CustomButton";
 import { getUserProfile, updateProfile } from "../../lib/redux/actions/userActions";
+import Loading from "../../components/Loading";
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -125,138 +126,146 @@ const Profile = () => {
           />
         </TouchableOpacity>
       </View>
-      <ScrollView className='px-4'>
-        <View className='w-full flex-row space-x-3 items-center mt-5'>
-          <AvatarWithInitials
-            name={userData?.fullName || userData?.user?.role}
-          />
-          <View className='w-[70%]'>
-            <View className='flex-row justify-between items-center'>
-              <Text className='text-gray-500 capitalize text-xl font-pregular'>
-                {userData?.fullName || userData?.user?.role}
-              </Text>
-              <Text
-                className={`w-20 text-center py-0.5 rounded text-sm text-white capitalize ${
-                  userData?.user?.role === "driver"
-                    ? "bg-orange-500"
-                    : "bg-green-500"
-                }`}
-              >
-                {userData?.user?.role}
+      {loading ? (
+        <Loading />
+      ) : (
+        <ScrollView className='px-4'>
+          <View className='w-full flex-row space-x-3 items-center mt-5'>
+            <AvatarWithInitials
+              name={userData?.fullName || userData?.user?.role}
+            />
+            <View className='w-[70%]'>
+              <View className='flex-row justify-between items-center'>
+                <Text className='text-gray-500 capitalize text-xl font-pregular'>
+                  {userData?.fullName || userData?.user?.role}
+                </Text>
+                <Text
+                  className={`w-20 text-center py-0.5 rounded text-sm text-white capitalize ${
+                    userData?.user?.role === "driver"
+                      ? "bg-orange-500"
+                      : "bg-green-500"
+                  }`}
+                >
+                  {userData?.user?.role}
+                </Text>
+              </View>
+              <Text className='text-gray-500 text-lg font-pregular'>
+                {userData?.user?.email}
               </Text>
             </View>
-            <Text className='text-gray-500 text-lg font-pregular'>
-              {userData?.user?.email}
-            </Text>
           </View>
-        </View>
-        <View className='bg-white p-2'>
-          <View className='border-b-[1px] border-dotted border-secondary py-2 flex-row justify-end'>
-            <Text className='capitalize text-gray-600 text-lg'>
-              Joined{" "}
-              <Text className='text-indigo-500 font-pregular'>
-                {moment(userData?.user?.createdAt).format("MMMM Do YYYY")}
+          <View className='bg-white p-2'>
+            <View className='border-b-[1px] border-dotted border-secondary py-2 flex-row justify-end'>
+              <Text className='capitalize text-gray-600 text-lg'>
+                Joined{" "}
+                <Text className='text-indigo-500 font-pregular'>
+                  {moment(userData?.user?.createdAt).format("MMMM Do YYYY")}
+                </Text>
               </Text>
+            </View>
+            <View className='flex-row justify-between items-center py-1'>
+              <Text className='font-pmedium'>ID NO</Text>
+              <Text className='text-gray-600'>{userData?.nationalId}</Text>
+            </View>
+            <View className='flex-row justify-between items-center py-1'>
+              <Text className='font-pmedium'>Contact</Text>
+              <Text className='text-gray-600'>{userData?.phoneNumber}</Text>
+            </View>
+          </View>
+          <View className='mt-7 space-y-2'>
+            <Text className='text-base text-gray-600 font-pregular'>
+              Upload ID (Front-Side)
             </Text>
-          </View>
-          <View className='flex-row justify-between items-center py-1'>
-            <Text className='font-pmedium'>ID NO</Text>
-            <Text className='text-gray-600'>{userData?.nationalId}</Text>
-          </View>
-          <View className='flex-row justify-between items-center py-1'>
-            <Text className='font-pmedium'>Contact</Text>
-            <Text className='text-gray-600'>{userData?.phoneNumber}</Text>
-          </View>
-        </View>
-        <View className='mt-7 space-y-2'>
-          <Text className='text-base text-gray-600 font-pregular'>
-            Upload ID (Front-Side)
-          </Text>
-          <TouchableOpacity
-            className='bg-white border-[1px] border-gray-300 p-1 h-48 rounded-lg'
-            onPress={() => openPicker("front")}
-          >
-            {form.nationalIdFront ? (
-              <Image
-                source={{
-                  uri: form.nationalIdFront.uri || form.nationalIdFront,
-                }}
-                resizeMode='cover'
-                className='w-full h-full rounded-xl border-[1px]'
-              />
-            ) : (
-              <View className='bg-primary h-full w-full rounded items-center justify-center'>
-                <View className='border-[1px] border-gray-300 border-dotted p-3 rounded-full'>
-                  <Image
-                    source={icons.camera}
-                    className='h-8 w-8'
-                    resizeMode='contain'
-                  />
+            <TouchableOpacity
+              className='bg-white border-[1px] border-gray-300 p-1 h-48 rounded-lg'
+              onPress={() => openPicker("front")}
+            >
+              {form.nationalIdFront ? (
+                <Image
+                  source={{
+                    uri: form.nationalIdFront.uri || form.nationalIdFront,
+                  }}
+                  resizeMode='cover'
+                  className='w-full h-full rounded-xl border-[1px]'
+                />
+              ) : (
+                <View className='bg-primary h-full w-full rounded items-center justify-center'>
+                  <View className='border-[1px] border-gray-300 border-dotted p-3 rounded-full'>
+                    <Image
+                      source={icons.camera}
+                      className='h-8 w-8'
+                      resizeMode='contain'
+                    />
+                  </View>
                 </View>
-              </View>
-            )}
-          </TouchableOpacity>
-          {uploadingFront ? (
-            <Text className='px-2 text-base text-green-500 font-pregular py-0.5'>
-              Uploading image...
-            </Text>
-          ) : (
-            uploadErrFront && (
-              <Text className='px-2 text-base text-red-500 font-pregular bg-red-100 py-1 rounded'>
-                {uploadErrFront}
+              )}
+            </TouchableOpacity>
+            {uploadingFront ? (
+              <Text className='px-2 text-base text-green-500 font-pregular py-0.5'>
+                Uploading image...
               </Text>
-            )
-          )}
-        </View>
-        <View className='mt-7 space-y-2'>
-          <Text className='text-base text-gray-600 font-pmedium'>
-            Upload ID (Back-Side)
-          </Text>
-          <TouchableOpacity
-            className='bg-white border-[1px] border-gray-300 p-1 h-48 rounded-lg'
-            onPress={() => openPicker("back")}
-          >
-            {form.nationalIdBack ? (
-              <Image
-                source={{ uri: form.nationalIdBack.uri  || form.nationalIdBack}}
-                resizeMode='cover'
-                className='w-full h-full rounded-xl border-[1px]'
-              />
             ) : (
-              <View className='bg-primary h-full w-full rounded items-center justify-center'>
-                <View className='border-[1px] border-gray-300 border-dotted p-3 rounded-full'>
-                  <Image
-                    source={icons.camera}
-                    className='h-8 w-8'
-                    resizeMode='contain'
-                  />
-                </View>
-              </View>
+              uploadErrFront && (
+                <Text className='px-2 text-base text-red-500 font-pregular bg-red-100 py-1 rounded'>
+                  {uploadErrFront}
+                </Text>
+              )
             )}
-          </TouchableOpacity>
-          {uploadingBack ? (
-            <Text className='px-2 text-base text-green-500 font-pregular py-0.5'>
-              Uploading image...
+          </View>
+          <View className='mt-7 space-y-2'>
+            <Text className='text-base text-gray-600 font-pmedium'>
+              Upload ID (Back-Side)
             </Text>
-          ) : (
-            uploadErrBack && (
-              <Text className='px-2 text-base text-red-500 font-pregular bg-red-100 py-1 rounded'>
-                {uploadErrBack}
+            <TouchableOpacity
+              className='bg-white border-[1px] border-gray-300 p-1 h-48 rounded-lg'
+              onPress={() => openPicker("back")}
+            >
+              {form.nationalIdBack ? (
+                <Image
+                  source={{
+                    uri: form.nationalIdBack.uri || form.nationalIdBack,
+                  }}
+                  resizeMode='cover'
+                  className='w-full h-full rounded-xl border-[1px]'
+                />
+              ) : (
+                <View className='bg-primary h-full w-full rounded items-center justify-center'>
+                  <View className='border-[1px] border-gray-300 border-dotted p-3 rounded-full'>
+                    <Image
+                      source={icons.camera}
+                      className='h-8 w-8'
+                      resizeMode='contain'
+                    />
+                  </View>
+                </View>
+              )}
+            </TouchableOpacity>
+            {uploadingBack ? (
+              <Text className='px-2 text-base text-green-500 font-pregular py-0.5'>
+                Uploading image...
               </Text>
-            )
-          )}
-        </View>
-        {/* <PdfUploader /> */}
-        <CustomButton
-          title={
-            uploadErrFront || uploadErrFront || loading ? "Please wait..." : "Update Profile"
-          }
-          handlePress={submit}
-          containerStyles='my-7 bg-orange rounded min-h-[45px]'
-          textStyles='text-white font-psemibold text-xl'
-          isLoading={uploadErrFront || uploadErrFront || loading}
-        />
-      </ScrollView>
+            ) : (
+              uploadErrBack && (
+                <Text className='px-2 text-base text-red-500 font-pregular bg-red-100 py-1 rounded'>
+                  {uploadErrBack}
+                </Text>
+              )
+            )}
+          </View>
+          {/* <PdfUploader /> */}
+          <CustomButton
+            title={
+              uploadErrFront || uploadErrFront || loading
+                ? "Please wait..."
+                : "Update Profile"
+            }
+            handlePress={submit}
+            containerStyles='my-7 bg-orange rounded min-h-[45px]'
+            textStyles='text-white font-psemibold text-xl'
+            isLoading={uploadErrFront || uploadErrFront || loading}
+          />
+        </ScrollView>
+      )}
       <StatusBar backgroundColor='#2A7353' style='light' />
     </SafeAreaView>
   );

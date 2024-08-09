@@ -21,6 +21,7 @@ const NewVehicle = () => {
         ownerName: "",
         ownerIdNumber: "",
       }}
+      title="Add Vehicle"
       onSubmit={handleAddVehicle}
       isEdit={false}
     />

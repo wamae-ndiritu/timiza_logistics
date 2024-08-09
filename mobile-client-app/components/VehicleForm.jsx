@@ -21,8 +21,10 @@ import ActionButton from "./ActionButton";
 import { deleteVehicle } from "../lib/redux/actions/vehicleActions";
 import Icon from "react-native-vector-icons/Feather";
 import { getUserById } from "../lib/redux/actions/userActions";
+import TopBar from "./TopBar";
+import Loading from "./Loading";
 
-const VehicleForm = ({ mode = "new", initialData = {}, onSubmit }) => {
+const VehicleForm = ({ mode = "new", title="View Vehicle", initialData = {}, onSubmit }) => {
   const dispatch = useDispatch();
   const { loading, error, success } = useSelector((state) => state.vehicle);
   const {userData} = useSelector((state) => state.user);
@@ -120,7 +122,7 @@ const VehicleForm = ({ mode = "new", initialData = {}, onSubmit }) => {
       const timeout = setTimeout(() => {
         dispatch(resetVehicleState());
         router.push("/vehicles");
-      }, 5000);
+      }, 3000);
 
       return () => clearTimeout(timeout);
     }
@@ -177,176 +179,177 @@ const VehicleForm = ({ mode = "new", initialData = {}, onSubmit }) => {
 
   return (
     <SafeAreaView className='flex-1 bg-white'>
-      <View className='px-4 bg-secondary w-full h-16 flex-row justify-between items-center z-[99]'>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Feather name='arrow-left' size={24} color='white' />
-        </TouchableOpacity>
-        <Text className='text-white text-2xl font-semibold'>
-          {mode === "new"
-            ? "Add New Vehicle"
-            : mode === "edit"
-            ? "Edit Vehicle"
-            : "View Vehicle"}
-        </Text>
-        <View />
-      </View>
-      <ScrollView className='px-4 py-4'>
-        <FormField
-          title='Vehicle Make'
-          placeholder='Enter vehicle make'
-          value={form.vehicleMake}
-          handleChangeText={(e) => handleChange("vehicleMake", e)}
-          otherStyles='mb-3'
-          inputStyles='bg-slate-50'
-          editable={mode !== "view"}
-        />
-        <FormField
-          title='Vehicle Model'
-          placeholder='Enter vehicle model'
-          value={form.vehicleModel}
-          handleChangeText={(e) => handleChange("vehicleModel", e)}
-          editable={mode !== "view"}
-          otherStyles='mb-3'
-          inputStyles='bg-slate-50'
-        />
-        <FormField
-          title='Chassis Number'
-          placeholder='Enter chassis number'
-          value={form.chassisNumber}
-          handleChangeText={(e) => handleChange("chassisNumber", e)}
-          editable={mode !== "view"}
-          otherStyles='mb-3'
-          inputStyles='bg-slate-50'
-        />
-        <FormField
-          title='Tonnage Category'
-          placeholder='Enter tonnage category'
-          value={form.tonnageCategory}
-          handleChangeText={(e) => handleChange("tonnageCategory", e)}
-          editable={mode !== "view"}
-          otherStyles='mb-3'
-          inputStyles='bg-slate-50'
-        />
-        <FormField
-          title='Vehicle Number Plate'
-          placeholder='Enter number plate'
-          value={form.vehicleNumberPlate}
-          handleChangeText={(e) => handleChange("vehicleNumberPlate", e)}
-          editable={mode !== "view"}
-          otherStyles='mb-3'
-          inputStyles='bg-slate-50'
-        />
-        <FormField
-          title='Notes'
-          placeholder='Enter additional notes'
-          value={form.notes}
-          handleChangeText={(e) => handleChange("notes", e)}
-          editable={mode !== "view"}
-          otherStyles='mb-3'
-          inputStyles='bg-slate-50'
-        />
-        <FormField
-          title='Owner Name'
-          placeholder='Enter owner name'
-          value={form.ownerName}
-          handleChangeText={(e) => handleChange("ownerName", e)}
-          editable={mode !== "view"}
-          otherStyles='mb-3'
-          inputStyles='bg-slate-50'
-        />
-        <FormField
-          title='Owner ID Number'
-          placeholder='Enter owner ID number'
-          value={form.ownerIdNumber}
-          handleChangeText={(e) => handleChange("ownerIdNumber", e)}
-          editable={mode !== "view"}
-          otherStyles='mb-3'
-          inputStyles='bg-slate-50'
-        />
-        <Text className='text-gray-600 text-md mb-1'>Owner Log Book</Text>
-        <TouchableOpacity
-          className='bg-gray-200 p-4 rounded-md mb-4'
-          onPress={openPicker}
-          disabled={mode === "view"}
-        >
-          {form.ownerLogBook ? (
-            <Text className='text-blue-500 underline'>
-              {form.ownerLogBook.split("/").pop()}
-            </Text>
-          ) : (
-            // <Image
-            //   source={{
-            //     uri: generatePdfThumbnailUrl(form.ownerLogBook),
-            //   }}
-            //   style={{ width: 150, height: 200 }}
-            // />
-            <Text className='text-gray-600'>Upload Log Book (PDF)</Text>
-          )}
-          {uploading && <Text className='text-green-500'>uploading...</Text>}
-        </TouchableOpacity>
-        {mode !== "view" && (
-          <CustomButton
-            title={mode === "new" ? "Add Vehicle" : "Update Vehicle"}
-            handlePress={submitForm}
-            containerStyles='my-7 bg-orange rounded min-h-[45px]'
-            textStyles='text-white font-semibold text-xl'
-            isLoading={uploading || loading}
+      <TopBar title={title} />
+      {loading ? (
+        <Loading />
+      ) : (
+        <ScrollView className='px-4 py-4'>
+          <FormField
+            title='Vehicle Make'
+            placeholder='Enter vehicle make'
+            value={form.vehicleMake}
+            handleChangeText={(e) => handleChange("vehicleMake", e)}
+            otherStyles='mb-3'
+            inputStyles='bg-slate-50'
+            editable={mode !== "view"}
           />
-        )}
-        {mode === "view" && userData?.user?.role === "admin" && (
-          <>
-            <Text className='text-xl text-gray-800 mb-2'>Assigned Driver</Text>
-            <TouchableOpacity
-              // onPress={() => setSelectedDriver()}
-              className={`mb-4 p-4 border bg-slate-200 border-gray-300 rounded-lg flex-row items-center space-x-4`}
-            >
-              <Feather name='user' size={24} color='#000' />
-              {driver ? (
-                <Text className={`text-lg font-semibold text-secondary`}>
-                  {driver.fullName}
-                </Text>
-              ) : (
-                <Text className={`text-lg font-semibold text-red-500`}>
-                  No Assigned Driver
-                </Text>
-              )}
-            </TouchableOpacity>
-            <Text className='text-xl text-gray-800 mb-2'>Assigned Loaders</Text>
-            <TouchableOpacity
-              // onPress={() => setSelectedDriver()}
-              className={`mb-4 p-4 border bg-slate-200 border-gray-300 rounded-lg flex-row items-center space-x-4`}
-            >
-              <Feather name='users' size={24} color='#000' />
-              {loaders.length > 0 ? (
-                <View className='flex-row space-x-4 items-start'>
-                  {loaders.map((loader) => (
-                    <Text className={`text-lg font-semibold text-secondary`} key={loader._id}>
-                      {loader.fullName}
-                    </Text>
-                  ))}
-                </View>
-              ) : (
-                <Text className={`text-lg font-semibold text-red-500`}>
-                  No Assigned Loaders
-                </Text>
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => router.push(`/vehicles/staff/${initialData?._id}`)}
-              className='mb-4 p-4 bg-white border border-gray-300 rounded-lg flex-row items-center space-x-4'
-            >
-              <Icon name='user-check' size={24} color='#000' />
-              <Text className='text-lg font-semibold text-gray-700'>
-                Assign Staff to Vehicle
+          <FormField
+            title='Vehicle Model'
+            placeholder='Enter vehicle model'
+            value={form.vehicleModel}
+            handleChangeText={(e) => handleChange("vehicleModel", e)}
+            editable={mode !== "view"}
+            otherStyles='mb-3'
+            inputStyles='bg-slate-50'
+          />
+          <FormField
+            title='Chassis Number'
+            placeholder='Enter chassis number'
+            value={form.chassisNumber}
+            handleChangeText={(e) => handleChange("chassisNumber", e)}
+            editable={mode !== "view"}
+            otherStyles='mb-3'
+            inputStyles='bg-slate-50'
+          />
+          <FormField
+            title='Tonnage Category'
+            placeholder='Enter tonnage category'
+            value={form.tonnageCategory}
+            handleChangeText={(e) => handleChange("tonnageCategory", e)}
+            editable={mode !== "view"}
+            otherStyles='mb-3'
+            inputStyles='bg-slate-50'
+          />
+          <FormField
+            title='Vehicle Number Plate'
+            placeholder='Enter number plate'
+            value={form.vehicleNumberPlate}
+            handleChangeText={(e) => handleChange("vehicleNumberPlate", e)}
+            editable={mode !== "view"}
+            otherStyles='mb-3'
+            inputStyles='bg-slate-50'
+          />
+          <FormField
+            title='Notes'
+            placeholder='Enter additional notes'
+            value={form.notes}
+            handleChangeText={(e) => handleChange("notes", e)}
+            editable={mode !== "view"}
+            otherStyles='mb-3'
+            inputStyles='bg-slate-50'
+          />
+          <FormField
+            title='Owner Name'
+            placeholder='Enter owner name'
+            value={form.ownerName}
+            handleChangeText={(e) => handleChange("ownerName", e)}
+            editable={mode !== "view"}
+            otherStyles='mb-3'
+            inputStyles='bg-slate-50'
+          />
+          <FormField
+            title='Owner ID Number'
+            placeholder='Enter owner ID number'
+            value={form.ownerIdNumber}
+            handleChangeText={(e) => handleChange("ownerIdNumber", e)}
+            editable={mode !== "view"}
+            otherStyles='mb-3'
+            inputStyles='bg-slate-50'
+          />
+          <Text className='text-gray-600 text-md mb-1'>Owner Log Book</Text>
+          <TouchableOpacity
+            className='bg-gray-200 p-4 rounded-md mb-4'
+            onPress={openPicker}
+            disabled={mode === "view"}
+          >
+            {form.ownerLogBook ? (
+              <Text className='text-blue-500 underline'>
+                {form.ownerLogBook.split("/").pop()}
               </Text>
-            </TouchableOpacity>
-            <View className='flex-row justify-between mb-4 space-x-2'>
-              <ActionButton type='edit' handlePress={handleEdit} />
-              <ActionButton type='delete' handlePress={handleDelete} />
-            </View>
-          </>
-        )}
-      </ScrollView>
+            ) : (
+              // <Image
+              //   source={{
+              //     uri: generatePdfThumbnailUrl(form.ownerLogBook),
+              //   }}
+              //   style={{ width: 150, height: 200 }}
+              // />
+              <Text className='text-gray-600'>Upload Log Book (PDF)</Text>
+            )}
+            {uploading && <Text className='text-green-500'>uploading...</Text>}
+          </TouchableOpacity>
+          {mode !== "view" && (
+            <CustomButton
+              title={mode === "new" ? "Add Vehicle" : "Update Vehicle"}
+              handlePress={submitForm}
+              containerStyles='my-7 bg-orange rounded min-h-[45px]'
+              textStyles='text-white font-semibold text-xl'
+              isLoading={uploading || loading}
+            />
+          )}
+          {mode === "view" && userData?.user?.role === "admin" && (
+            <>
+              <Text className='text-xl text-gray-800 mb-2'>
+                Assigned Driver
+              </Text>
+              <TouchableOpacity
+                // onPress={() => setSelectedDriver()}
+                className={`mb-4 p-4 border bg-slate-200 border-gray-300 rounded-lg flex-row items-center space-x-4`}
+              >
+                <Feather name='user' size={24} color='#000' />
+                {driver ? (
+                  <Text className={`text-lg font-semibold text-secondary`}>
+                    {driver.fullName}
+                  </Text>
+                ) : (
+                  <Text className={`text-lg font-semibold text-red-500`}>
+                    No Assigned Driver
+                  </Text>
+                )}
+              </TouchableOpacity>
+              <Text className='text-xl text-gray-800 mb-2'>
+                Assigned Loaders
+              </Text>
+              <TouchableOpacity
+                // onPress={() => setSelectedDriver()}
+                className={`mb-4 p-4 border bg-slate-200 border-gray-300 rounded-lg flex-row items-center space-x-4`}
+              >
+                <Feather name='users' size={24} color='#000' />
+                {loaders.length > 0 ? (
+                  <View className='flex-row space-x-4 items-start'>
+                    {loaders.map((loader) => (
+                      <Text
+                        className={`text-lg font-semibold text-secondary`}
+                        key={loader._id}
+                      >
+                        {loader.fullName}
+                      </Text>
+                    ))}
+                  </View>
+                ) : (
+                  <Text className={`text-lg font-semibold text-red-500`}>
+                    No Assigned Loaders
+                  </Text>
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() =>
+                  router.push(`/vehicles/staff/${initialData?._id}`)
+                }
+                className='mb-4 p-4 bg-white border border-gray-300 rounded-lg flex-row items-center space-x-4'
+              >
+                <Icon name='user-check' size={24} color='#000' />
+                <Text className='text-lg font-semibold text-gray-700'>
+                  Assign Staff to Vehicle
+                </Text>
+              </TouchableOpacity>
+              <View className='flex-row justify-between mb-4 space-x-2'>
+                <ActionButton type='edit' handlePress={handleEdit} />
+                <ActionButton type='delete' handlePress={handleDelete} />
+              </View>
+            </>
+          )}
+        </ScrollView>
+      )}
       <StatusBar backgroundColor='#2A7353' style='light' />
     </SafeAreaView>
   );

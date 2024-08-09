@@ -11,11 +11,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { listUsers } from "../../../lib/redux/actions/userActions";
 import { resetVehicleState } from "../../../lib/redux/slices/vehicleSlices";
 import CustomButton from "../../../components/CustomButton";
+import TopBar from "../../../components/TopBar";
+import Loading from "../../../components/Loading";
 
 const AssignVehicleStaffScreen = () => {
   const { id } = useLocalSearchParams();
   const dispatch = useDispatch();
-  const { currentVehicle, loading, success } = useSelector(
+  const { currentVehicle, loading, successUpdate } = useSelector(
     (state) => state.vehicle
   );
   const { usersList } = useSelector((state) => state.user);
@@ -26,7 +28,7 @@ const AssignVehicleStaffScreen = () => {
     if (id) {
       dispatch(getVehicleById(id));
     }
-  }, [dispatch, id, success]);
+  }, [dispatch, id, successUpdate]);
 
   useEffect(() => {
     dispatch(listUsers());
@@ -49,97 +51,95 @@ const AssignVehicleStaffScreen = () => {
   };
 
   useEffect(() => {
-    if (success) {
+    if (successUpdate) {
       const timeout = setTimeout(() => {
         dispatch(resetVehicleState());
       }, 5000);
 
       return () => clearTimeout(timeout);
     }
-  }, [dispatch, success]);
+  }, [dispatch, successUpdate]);
 
   return (
     <SafeAreaView className='flex-1 bg-white'>
-      <View className='px-4 bg-secondary w-full h-16 flex-row justify-between items-center z-[99]'>
-        <TouchableOpacity onPress={() => router.back()}>
-          <Feather name='arrow-left' size={24} color='white' />
-        </TouchableOpacity>
-        <Text className='text-white text-2xl font-semibold'>
-          Assign Staff to {currentVehicle?.vehicleNumberPlate}
-        </Text>
-        <View />
-      </View>
-      <ScrollView className='px-4 py-4'>
-        {success && (
-          <Text className='bg-green-200 text-green-800 text-lg py-3 px-4 mb-3'>
-            Staff assigned to vehicle successfully!
-          </Text>
-        )}
-        <Text className='text-xl font-semibold text-gray-800 mb-2'>
-          Select Driver
-        </Text>
-        {usersList
-          .filter((user) => user.user?.role === "driver")
-          .map((driver) => (
-            <TouchableOpacity
-              key={driver._id}
-              onPress={() => setSelectedDriver(driver?.user?._id)}
-              className={`mb-4 p-4 border ${
-                selectedDriver === driver?.user?._id
-                  ? "bg-slate-200"
-                  : "bg-white"
-              } border-gray-300 rounded-lg flex-row items-center space-x-4`}
-            >
-              <Feather name='user' size={24} color='#000' />
-              <Text
-                className={`text-lg font-semibold ${
-                  selectedDriver === driver?.user?._id
-                    ? "text-secondary"
-                    : "text-gray-700"
-                }`}
-              >
-                {driver.fullName}
+      <TopBar title={`Assign Staff to ${currentVehicle?.vehicleNumberPlate}`} />
+      {loading ? (
+        <Loading />
+      ) : (
+        <>
+          <ScrollView className='px-4 py-4'>
+            {successUpdate && (
+              <Text className='bg-green-200 text-green-800 text-lg py-3 px-4 mb-3'>
+                Staff assigned to vehicle successfully!
               </Text>
-            </TouchableOpacity>
-          ))}
+            )}
+            <Text className='text-xl font-semibold text-gray-800 mb-2'>
+              Select Driver
+            </Text>
+            {usersList
+              .filter((user) => user.user?.role === "driver")
+              .map((driver) => (
+                <TouchableOpacity
+                  key={driver._id}
+                  onPress={() => setSelectedDriver(driver?.user?._id)}
+                  className={`mb-4 p-4 border ${
+                    selectedDriver === driver?.user?._id
+                      ? "bg-slate-200"
+                      : "bg-white"
+                  } border-gray-300 rounded-lg flex-row items-center space-x-4`}
+                >
+                  <Feather name='user' size={24} color='#000' />
+                  <Text
+                    className={`text-lg font-semibold ${
+                      selectedDriver === driver?.user?._id
+                        ? "text-secondary"
+                        : "text-gray-700"
+                    }`}
+                  >
+                    {driver.fullName}
+                  </Text>
+                </TouchableOpacity>
+              ))}
 
-        <Text className='text-xl font-semibold text-gray-800 mt-6 mb-2'>
-          Select Loaders
-        </Text>
-        {usersList
-          .filter((user) => user.user?.role === "loader")
-          .map((loader) => (
-            <TouchableOpacity
-              key={loader._id}
-              onPress={() => toggleLoaderSelection(loader?.user?._id)}
-              className={`mb-4 p-4 border ${
-                selectedLoaders.includes(loader?.user?._id)
-                  ? "bg-slate-200"
-                  : "bg-white"
-              } border-gray-300 rounded-lg flex-row items-center space-x-4`}
-            >
-              <Feather name='users' size={24} color='#000' />
-              <Text
-                className={`text-lg font-semibold ${
-                  selectedLoaders.includes(loader?.user?._id)
-                    ? "text-secondary"
-                    : "text-gray-700"
-                }`}
-              >
-                {loader.fullName}
-              </Text>
-            </TouchableOpacity>
-          ))}
-      </ScrollView>
-      <View className='p-4'>
-        <CustomButton
-          title='Save'
-          handlePress={handleUpdateVehicle}
-          containerStyles='my-7 bg-orange rounded min-h-[45px]'
-          textStyles='text-white font-semibold text-xl'
-          isLoading={loading}
-        />
-      </View>
+            <Text className='text-xl font-semibold text-gray-800 mt-6 mb-2'>
+              Select Loaders
+            </Text>
+            {usersList
+              .filter((user) => user.user?.role === "loader")
+              .map((loader) => (
+                <TouchableOpacity
+                  key={loader._id}
+                  onPress={() => toggleLoaderSelection(loader?.user?._id)}
+                  className={`mb-4 p-4 border ${
+                    selectedLoaders.includes(loader?.user?._id)
+                      ? "bg-slate-200"
+                      : "bg-white"
+                  } border-gray-300 rounded-lg flex-row items-center space-x-4`}
+                >
+                  <Feather name='users' size={24} color='#000' />
+                  <Text
+                    className={`text-lg font-semibold ${
+                      selectedLoaders.includes(loader?.user?._id)
+                        ? "text-secondary"
+                        : "text-gray-700"
+                    }`}
+                  >
+                    {loader.fullName}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+          </ScrollView>
+          <View className='p-4'>
+            <CustomButton
+              title='Save'
+              handlePress={handleUpdateVehicle}
+              containerStyles='my-7 bg-orange rounded min-h-[45px]'
+              textStyles='text-white font-semibold text-xl'
+              isLoading={loading}
+            />
+          </View>
+        </>
+      )}
     </SafeAreaView>
   );
 };

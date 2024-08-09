@@ -9,6 +9,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { startTrip } from "../lib/redux/actions/tripActions";
 import { router } from "expo-router";
 import { resetTripState } from "../lib/redux/slices/tripSlices";
+import Loading from "../components/Loading";
+import Error from "../components/Error";
 
 const NewTrip = () => {
   const dispatch = useDispatch();
@@ -69,35 +71,42 @@ const NewTrip = () => {
   }, [dispatch, error]);
 
   return (
-    <SafeAreaView>
+    <SafeAreaView className="flex-1">
       <TopBar title='New Trip' />
-      <ScrollView className='px-4 py-4'>
-        <FormField
-          title='Start Location'
-          placeholder='Enter start location coordinates (longitude, latitude)'
-          value={startLocation}
-          handleChangeText={(e) => handleChange("startLocation", e)}
-          otherStyles='mb-3'
-          inputStyles='bg-slate-50'
-          editable={false} // Disabling editing since location is auto-filled
-        />
+      {loading ? (
+        <Loading />
+      ) : error ? (
+        <Error>{error}</Error>
+      ) : (
+        <ScrollView className='px-4 py-4'>
+          {error && <Error>{error}</Error>}
+          <FormField
+            title='Start Location'
+            placeholder='Enter start location coordinates (longitude, latitude)'
+            value={startLocation}
+            handleChangeText={(e) => handleChange("startLocation", e)}
+            otherStyles='mb-3'
+            inputStyles='bg-slate-50'
+            editable={false} // Disabling editing since location is auto-filled
+          />
 
-        <FormField
-          title='Destination'
-          placeholder='Enter nearest town or centre'
-          value={destination}
-          handleChangeText={(e) => handleChange("destination", e)}
-          otherStyles='mb-3'
-          inputStyles='bg-slate-50'
-        />
+          <FormField
+            title='Destination'
+            placeholder='Enter nearest town or centre'
+            value={destination}
+            handleChangeText={(e) => handleChange("destination", e)}
+            otherStyles='mb-3'
+            inputStyles='bg-slate-50'
+          />
 
-        <CustomButton
-          title='Start Trip'
-          handlePress={submitForm}
-          containerStyles='my-7 bg-orange rounded min-h-[45px]'
-          textStyles='text-white font-semibold text-xl'
-        />
-      </ScrollView>
+          <CustomButton
+            title='Start Trip'
+            handlePress={submitForm}
+            containerStyles='my-7 bg-orange rounded min-h-[45px]'
+            textStyles='text-white font-semibold text-xl'
+          />
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 };

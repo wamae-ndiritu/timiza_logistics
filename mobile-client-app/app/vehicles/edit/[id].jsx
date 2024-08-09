@@ -8,7 +8,7 @@ import VehicleForm from "../../../components/VehicleForm";
 const EditVehicleScreen = () => {
   const { id } = useLocalSearchParams();
   const dispatch = useDispatch();
-  const { currentVehicle, loading, error, successUpdate } = useSelector(
+  const { currentVehicle, successUpdate } = useSelector(
     (state) => state.vehicle
   );
 
@@ -24,22 +24,14 @@ const EditVehicleScreen = () => {
 
   return (
     <>
-      {loading ? (
-        <Text className='px-2 text-base text-green-500 font-pregular py-0.5'>
-          Please wait...
-        </Text>
-      ) : error ? (
-        <Text className='px-2 text-base text-red-500 font-pregular py-0.5'>
-          {error}
-        </Text>
-      ) : (
+
       <VehicleForm
           mode='edit'
+          title="Edit Vehicle"
           initialData={currentVehicle}
           onSubmit={handleUpdateDelivery}
         />
-      )}
-    </>
+        </>
   );
 };
 
