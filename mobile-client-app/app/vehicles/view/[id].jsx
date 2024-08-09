@@ -1,5 +1,6 @@
 import { Text } from "react-native";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import { useLocalSearchParams } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
 import { getVehicleById } from "../../../lib/redux/actions/vehicleActions";
@@ -8,15 +9,15 @@ import VehicleForm from "../../../components/VehicleForm";
 const VehicleViewScreen = () => {
   const { id } = useLocalSearchParams();
   const dispatch = useDispatch();
-  const { currentVehicle, loading, error } = useSelector(
+  const { currentVehicle, loading, error, success } = useSelector(
     (state) => state.vehicle
   );
 
-  useEffect(() => {
-    if (id) {
+  useFocusEffect(
+    useCallback(() => {
       dispatch(getVehicleById(id));
-    }
-  }, [dispatch, id]);
+    }, [dispatch, id, success])
+  );
 
   return (
     <>

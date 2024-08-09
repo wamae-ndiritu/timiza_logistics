@@ -1,24 +1,31 @@
 import React from "react";
-import { TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import Icon from "react-native-vector-icons/Feather";
 
 const ActionButton = ({ type = "edit", handlePress }) => {
   return (
     <TouchableOpacity
-      className={`w-20 h-12 rounded-lg flex-row items-center justify-center mb-3 py-2 ${
+      className={`w-1/2 mb-4 p-4 bg-white border border-gray-300 rounded-lg flex-row items-center space-x-4 ${
         type === "edit" ? "bg-green-600" : type === "delete" && "bg-red-600"
       }`}
       onPress={handlePress}
     >
-      <View>
-        {type === "edit" ? (
+      {type === "edit" ? (
+        <>
           <Icon name='edit' size={24} color='white' />
-        ) : (
-          type === "delete" && <Icon name='trash-2' size={24} color='white' />
-        )}
-      </View>
+          <Text className='text-white text-lg font-semibold'>Edit</Text>
+        </>
+      ) : (
+        type === "delete" && (
+          <>
+            <Icon name='trash-2' size={24} color='white' />
+            <Text className='text-white text-lg font-semibold'>Delete</Text>
+          </>
+        )
+      )}
     </TouchableOpacity>
   );
 };
+
 
 export default ActionButton;

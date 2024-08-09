@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { resetVehicleState } from "../lib/redux/slices/vehicleSlices";
 import ActionButton from "./ActionButton";
 import { deleteVehicle } from "../lib/redux/actions/vehicleActions";
+import Icon from "react-native-vector-icons/Feather";
 
 const VehicleForm = ({ mode = "new", initialData = {}, onSubmit }) => {
   const dispatch = useDispatch();
@@ -255,10 +256,21 @@ const VehicleForm = ({ mode = "new", initialData = {}, onSubmit }) => {
           />
         )}
         {mode === "view" && userData?.user?.role === "admin" && (
-          <View className='flex-row justify-between mb-4 space-x-2'>
-            <ActionButton type='edit' handlePress={handleEdit} />
-            <ActionButton type='delete' handlePress={handleDelete} />
-          </View>
+          <>
+            <TouchableOpacity
+              onPress={() => router.push(`/vehicles/staff/${initialData?._id}`)}
+              className='mb-4 p-4 bg-white border border-gray-300 rounded-lg flex-row items-center space-x-4'
+            >
+              <Icon name="user-check" size={24} color='#000' />
+              <Text className='text-lg font-semibold text-gray-700'>
+                Assign Staff to Vehicle
+              </Text>
+            </TouchableOpacity>
+            <View className='flex-row justify-between mb-4 space-x-2'>
+              <ActionButton type='edit' handlePress={handleEdit} />
+              <ActionButton type='delete' handlePress={handleDelete} />
+            </View>
+          </>
         )}
       </ScrollView>
       <StatusBar backgroundColor='#2A7353' style='light' />

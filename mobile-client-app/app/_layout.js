@@ -61,6 +61,10 @@ const RootLayout = () => {
           name='vehicles/edit/[id]'
           options={{ headerShown: false }}
         />
+        <Stack.Screen
+          name='vehicles/staff/[id]'
+          options={{ headerShown: false }}
+        />
       </Stack>
     </Provider>
   );

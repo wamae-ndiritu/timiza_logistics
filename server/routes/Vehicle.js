@@ -1,6 +1,7 @@
 const express = require("express");
 const { isAdmin, verify } = require("../middleware/auth");
 const Vehicle = require("../models/VehicleModel");
+const User = require("../models/User");
 
 const router = express.Router();
 
@@ -84,7 +85,7 @@ router.put("/:id", verify, isAdmin, async (req, res) => {
 });
 
 // Delete vehicle by ID (Admin only)
-router.delete("/:id", verify, isAdmin, async (req, res) => {
+router.delete("/:id", isAdmin, async (req, res) => {
   try {
     const deletedVehicle = await Vehicle.findByIdAndDelete(req.params.id);
     if (!deletedVehicle) {
@@ -95,6 +96,61 @@ router.delete("/:id", verify, isAdmin, async (req, res) => {
     res.status(500).json({ message: "Error deleting vehicle", error: error.message });
   }
 });
+
+// Assign a driver and/or loaders to a vehicle
+router.post("/:id/assign-staff", isAdmin, async (req, res) => {
+  try {
+    const { driver, loaders } = req.body;
+
+    const vehicle = await Vehicle.findById(req.params.id);
+    if (!vehicle) return res.status(404).json({ message: "Vehicle not found" });
+
+    console.log("Vehicle found...")
+
+    // Handle driver assignment
+    if (driver) {
+      const driverData = await User.findById(driver);
+      if (!driverData) return res.status(404).json({ message: "Driver not found" });
+
+      console.log("Driver found...")
+      // Add the current driver to driver history if it exists and is not already in history
+      if (vehicle.currentDriver && !vehicle.driverHistory.includes(vehicle.currentDriver)) {
+        vehicle.driverHistory.push(vehicle.currentDriver);
+      }
+
+      // Assign the new driver
+      vehicle.currentDriver = driverData._id;
+    }
+
+    // Handle loaders assignment
+    if (loaders && loaders.length > 0) {
+      const loaderData = await User.find({ _id: { $in: loaders } });
+      if (loaderData.length !== loaders.length) return res.status(404).json({ message: "One or more loaders not found" });
+
+      // Add the current loaders to loader history if they exist and are not already in history
+      if (vehicle.currentLoaders && vehicle.currentLoaders.length > 0) {
+        vehicle.currentLoaders.forEach((loader) => {
+          if (!vehicle.loaderHistory.includes(loader)) {
+            vehicle.loaderHistory.push(loader);
+          }
+        });
+      }
+
+      // Assign the new loaders
+      vehicle.currentLoaders = loaders;
+    }
+
+    // Save the vehicle with updated driver and loader assignments
+    await vehicle.save();
+
+    console.log(vehicle)
+
+    res.status(200).json({ message: "Staff assigned successfully", vehicle });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+});
+
 
 module.exports = router;
 
