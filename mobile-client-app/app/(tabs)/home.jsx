@@ -14,6 +14,7 @@ import { useSelector } from "react-redux";
 import DashboardCard from "../../components/DashboardCard";
 import { Link, useRouter } from "expo-router";
 import Icon from "react-native-vector-icons/Feather";
+import AdminRoute from "../../components/AdminRoute";
 
 const Home = () => {
   const { userData } = useSelector((state) => state.user);
@@ -69,86 +70,88 @@ const Home = () => {
   ];
 
   return (
-    <SafeAreaView className='bg-white flex-1'>
-      <View className='bg-secondary py-4'>
-        <View className='flex-row justify-between items-center px-4'>
-          <Image
-            source={images.logoHorizontal}
-            className='w-44 h-10'
-            resizeMode='contain'
+    <AdminRoute>
+      <SafeAreaView className='bg-white flex-1'>
+        <View className='bg-secondary py-4'>
+          <View className='flex-row justify-between items-center px-4'>
+            <Image
+              source={images.logoHorizontal}
+              className='w-44 h-10'
+              resizeMode='contain'
+            />
+            <TouchableOpacity onPress={() => router.push("/profile")}>
+              <Text className='text-xl font-semibold text-orange capitalize'>
+                Hi, {userData?.fullName || userData?.user?.role}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        <View className='mx-4 mt-6'>
+          <View className='bg-orange p-4 rounded-lg flex-row items-center space-x-4'>
+            <View className='bg-primary p-2 rounded-full'>
+              <Image
+                source={icons.schedule}
+                className='h-14 w-14'
+                resizeMode='contain'
+              />
+            </View>
+            <View>
+              <Text className='text-white text-lg'>
+                {formatDateTime(dateTime)}
+              </Text>
+              <Text className='text-secondary text-xl font-bold'>
+                {dateTime.toLocaleTimeString()}
+              </Text>
+            </View>
+          </View>
+        </View>
+        <View className='my-6 mx-4'>
+          <Text className='text-xl font-semibold text-gray-700 mb-4'>
+            Dashboard
+          </Text>
+          <FlatList
+            data={data}
+            keyExtractor={(item) => item.id.toString()}
+            key={(item) => `${item.id}`}
+            numColumns={2}
+            columnWrapperStyle={{ justifyContent: "space-between" }}
+            renderItem={({ item }) => (
+              <DashboardCard
+                title={item.title}
+                stats={item.stats}
+                icon={item.icon}
+                containerStyles='mb-4 p-4 bg-white border border-gray-300 rounded-lg flex-1 mx-1'
+              />
+            )}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
           />
-          <TouchableOpacity onPress={() => router.push("/profile")}>
-            <Text className='text-xl font-semibold text-orange capitalize'>
-              Hi, {userData?.fullName || userData?.user?.role}
+          <Text className='text-xl font-semibold text-gray-700 mb-4'>
+            More Actions
+          </Text>
+          <TouchableOpacity
+            onPress={() => router.push("/new-vehicle")}
+            className='mb-4 p-4 bg-white border border-gray-300 rounded-lg flex-row items-center space-x-4'
+          >
+            <Icon name='plus' size={24} color='#000' />
+            <Text className='text-lg font-semibold text-gray-700'>
+              Add Vehicle
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.push("/vehicles")}
+            className='mb-4 p-4 bg-white border border-gray-300 rounded-lg flex-row items-center space-x-4'
+          >
+            <Icon name='truck' size={24} color='#000' />
+            <Text className='text-lg font-semibold text-gray-700'>
+              Vehicles
             </Text>
           </TouchableOpacity>
         </View>
-      </View>
-      <View className='mx-4 mt-6'>
-        <View className='bg-orange p-4 rounded-lg flex-row items-center space-x-4'>
-          <View className='bg-primary p-2 rounded-full'>
-            <Image
-              source={icons.schedule}
-              className='h-14 w-14'
-              resizeMode='contain'
-            />
-          </View>
-          <View>
-            <Text className='text-white text-lg'>
-              {formatDateTime(dateTime)}
-            </Text>
-            <Text className='text-secondary text-xl font-bold'>
-              {dateTime.toLocaleTimeString()}
-            </Text>
-          </View>
-        </View>
-      </View>
-      <View className='my-6 mx-4'>
-        <Text className='text-xl font-semibold text-gray-700 mb-4'>
-          Dashboard
-        </Text>
-        <FlatList
-          data={data}
-          keyExtractor={(item) => item.id.toString()}
-          key={(item) => `${item.id}`}
-          numColumns={2}
-          columnWrapperStyle={{ justifyContent: "space-between" }}
-          renderItem={({ item }) => (
-            <DashboardCard
-              title={item.title}
-              stats={item.stats}
-              icon={item.icon}
-              containerStyles='mb-4 p-4 bg-white border border-gray-300 rounded-lg flex-1 mx-1'
-            />
-          )}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-        />
-        <Text className='text-xl font-semibold text-gray-700 mb-4'>
-          More Actions
-        </Text>
-        <TouchableOpacity
-          onPress={() => router.push("/new-vehicle")}
-          className='mb-4 p-4 bg-white border border-gray-300 rounded-lg flex-row items-center space-x-4'
-        >
-          <Icon name='plus' size={24} color='#000' />
-          <Text className='text-lg font-semibold text-gray-700'>
-            Add Vehicle
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => router.push("/vehicles")}
-          className='mb-4 p-4 bg-white border border-gray-300 rounded-lg flex-row items-center space-x-4'
-        >
-          <Icon name='truck' size={24} color='#000' />
-          <Text className='text-lg font-semibold text-gray-700'>
-            Vehicles
-          </Text>
-        </TouchableOpacity>
-      </View>
-      <StatusBar backgroundColor='#2A7353' style='light' />
-    </SafeAreaView>
+        <StatusBar backgroundColor='#2A7353' style='light' />
+      </SafeAreaView>
+    </AdminRoute>
   );
 };
 

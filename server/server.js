@@ -7,6 +7,7 @@ const port = process.env.PORT || 3000;
 const userRouter = require('./routes/Users');
 const invoiceRouter = require("./routes/Invoices.js");
 const deliveryRouter = require("./routes/DeliveryNote");
+const tripRouter = require("./routes/Trip");
 const vehicleRouter = require("./routes/Vehicle");
 const { connectDatabase } = require("./config/db");
 
@@ -25,6 +26,7 @@ app.use(cors())
 app.use('/api/v1/users', userRouter);
 app.use("/api/v1/deliveries", deliveryRouter);
 app.use("/api/v1/vehicles", vehicleRouter);
+app.use("/api/v1/trips", tripRouter);
 
 // Start server
 app.listen(port, '0.0.0.0', () => {

@@ -1,6 +1,6 @@
 import { View, Text, Image } from "react-native";
-import { Redirect, router, Tabs } from "expo-router";
-
+import { router, Tabs } from "expo-router";
+import Icon from "react-native-vector-icons/Feather";
 import { icons } from "../../constants";
 import { useSelector } from "react-redux";
 import { useEffect } from "react";
@@ -8,12 +8,7 @@ import { useEffect } from "react";
 const TabIcon = ({ icon, color, name, focused }) => {
   return (
     <View className='items-center justify-center gap-2'>
-      <Image
-        source={icon}
-        resizeMode='contain'
-        tintColor={color}
-        className='w-6 h-6'
-      />
+      <Icon name={icon} size={24} color={color} />
       <Text
         className={`${focused ? "font-psemibold" : "font-pregular"} text-xs`}
         style={{ color: color }}
@@ -44,9 +39,9 @@ const TabsLayout = () => {
         screenOptions={{
           tabBarShowLabel: false,
           tabBarActiveTintColor: "#F8981D",
-          tabBarInactiveTintColor: "#FFFFFF",
+          tabBarInactiveTintColor: "#2A7353",
           tabBarStyle: {
-            backgroundColor: "#2A7353",
+            backgroundColor: "#FFFFFF",
             borderTopWidth: 1,
             borderTopColor: "#f9fafb",
             height: 60,
@@ -61,7 +56,7 @@ const TabsLayout = () => {
             href: isAdmin ? "/home" : "/userhome",
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
-                icon={icons.home}
+                icon='home'
                 color={color}
                 name='Home'
                 focused={focused}
@@ -70,16 +65,15 @@ const TabsLayout = () => {
           }}
         />
         <Tabs.Screen
-          name='(deliveries)'
+          name='trip'
           options={{
-            title: "Deliveries",
+            title: "Trips",
             headerShown: false,
-            href: "/list",
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
-                icon={icons.deliveryTruck}
+                icon='truck'
                 color={color}
-                name='Deliveries'
+                name='Trips'
                 focused={focused}
               />
             ),
@@ -93,7 +87,7 @@ const TabsLayout = () => {
             href: null,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
-                icon={icons.deliveryTruck}
+                icon='truck'
                 color={color}
                 name='Deliveries'
                 focused={focused}
@@ -109,9 +103,9 @@ const TabsLayout = () => {
             href: isAdmin ? "/staff" : null,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
-                icon={icons.driver}
+                icon='users'
                 color={color}
-                name='Staff'
+                name='Staffs'
                 focused={focused}
               />
             ),
@@ -122,9 +116,10 @@ const TabsLayout = () => {
           options={{
             title: "Account",
             headerShown: false,
+            href: !isAdmin ? "/profile" : null,
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
-                icon={icons.profile}
+                icon='user'
                 color={color}
                 name='Account'
                 focused={focused}

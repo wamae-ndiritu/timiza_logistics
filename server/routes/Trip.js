@@ -6,35 +6,49 @@ const User = require("../models/User");
 
 const router = express.Router();
 
-// POST /trips - Create a new trip
+// POST /trips/create - Create a new trip
 router.post("/create", verify, async (req, res) => {
   try {
-    const { vehicleId, driverId, loaderIds, startTime, startLocation } = req.body;
+    const { startLocation, expectedDestination } = req.body;
 
     // Validate input data
-    if (!vehicleId || !driverId || !loaderIds || !startTime || !startLocation) {
-      return res.status(400).json({ message: "All fields are required." });
+    if (!startLocation || !startLocation.coordinates || !expectedDestination) {
+      return res
+        .status(400)
+        .json({
+          message: "Start location and expected destination are required.",
+        });
     }
 
-    // Ensure vehicle, driver, and loaders exist
-    const vehicle = await Vehicle.findById(vehicleId);
-    const driver = await User.findById(driverId);
-    const loaders = await User.find({ _id: { $in: loaderIds } });
+    // Get the current user from the request (set by verify middleware)
+    const userId = req.user.id;
+    const userRole = req.user.role;
 
-    if (!vehicle || !driver || loaders.length !== loaderIds.length) {
-      return res.status(404).json({ message: "Invalid vehicle, driver, or loaders." });
+    // Fetch the vehicle assigned to the current driver or loader
+    let vehicle;
+    if (userRole === "driver") {
+      vehicle = await Vehicle.findOne({ currentDriver: userId });
+    } else if (userRole === "loader") {
+      vehicle = await Vehicle.findOne({ currentLoaders: { $in: [userId] } });
+    }
+
+    if (!vehicle) {
+      return res
+        .status(404)
+        .json({ message: "No vehicle found for the current user." });
     }
 
     // Create a new Trip instance
     const trip = new Trip({
       vehicle: vehicle._id,
-      driver: driver._id,
-      loaders: loaders.map(loader => loader._id),
-      startTime: new Date(startTime),
+      driver: vehicle.currentDriver,
+      loaders: vehicle.currentLoaders,
+      startTime: new Date(), // Start time is set when the trip is created
       startLocation: {
         type: "Point",
         coordinates: startLocation.coordinates, // [longitude, latitude]
       },
+      expectedDestination, // Add expected destination
     });
 
     // Save the trip to the database
@@ -47,7 +61,45 @@ router.post("/create", verify, async (req, res) => {
     res.status(201).json(trip);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "An error occurred while creating the trip." });
+    res
+      .status(500)
+      .json({ message: "An error occurred while creating the trip." });
+  }
+});
+
+// Get trips
+router.get("/", verify, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const userRole = req.user.role;
+    let trips;
+
+    if (userRole === "admin") {
+      // If the user is an admin, list all trips
+      trips = await Trip.find()
+        .populate("vehicle")
+        .populate("driver", "fullName email")
+        .populate("loaders", "fullName email")
+        .populate("deliveryNote");
+    } else {
+      // If the user is not an admin, list only their trips
+      const vehicles = await Vehicle.find({
+        $or: [{ currentDriver: userId }, { currentLoaders: { $in: [userId] } }],
+      });
+
+      const vehicleIds = vehicles.map((vehicle) => vehicle._id);
+
+      trips = await Trip.find({ vehicle: { $in: vehicleIds } })
+        .populate("vehicle")
+        .populate("driver", "fullName email")
+        .populate("loaders", "fullName email")
+        .populate("deliveryNote");
+    }
+
+    res.status(200).json(trips);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "An error occurred while listing trips." });
   }
 });
 

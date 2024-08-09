@@ -25,7 +25,8 @@ const tripSchema = new mongoose.Schema(
       type: { type: String, enum: ["Point"] },
       coordinates: { type: [Number] }, // [longitude, latitude]
     },
-    timeSpent: { type: Number }, // Time spent in minutes or hours
+    expectedDestination: { type: String, required: true }, 
+    timeSpent: { type: Number },
     deliveryNote: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "DeliveryNote",
