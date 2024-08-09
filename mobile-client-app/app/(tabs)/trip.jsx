@@ -53,7 +53,7 @@ const Trips = () => {
             const address = response.results[0]?.formatted_address;
             locationsData[trip._id] = address || "Unknown Location";
           } catch (error) {
-            console.error("Error fetching location:", error);
+            // console.error("Error fetching location:", error);
             locationsData[trip._id] = "Unknown Location";
           }
         }
@@ -76,9 +76,13 @@ const Trips = () => {
         <Icon name='map-pin' size={28} color='#F8981D' />
       </View>
       <View>
-        <Text className='text-lg font-semibold text-gray-700'>
-          {locations[item._id] || "Loading..."}
-        </Text>
+        <View className="flex-row flex-wrap w-[95%]">
+          <Text className='text-lg font-semibold text-gray-700'>
+            {item.startLocation
+              ? `${item.startLocation.coordinates[1]}, ${item.startLocation.coordinates[0]} - ${item.expectedDestination}`
+              : "Unknown Location"}
+          </Text>
+        </View>
         <View className='w-full pr-5 flex-row space-x-4'>
           <Text className='text-sm text-gray-500'>
             {item.vehicle.vehicleNumberPlate}
