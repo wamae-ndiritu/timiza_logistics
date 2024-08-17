@@ -1,5 +1,6 @@
 import axios from "axios";
 import {
+  forgotPassReqSuccess,
   getProfile,
   userActionFail,
   userActionStart,
@@ -95,13 +96,12 @@ export const updateProfile =
       if (type === 'documents'){
         await axios.put(`${END_POINT}/users/profile/documents`, userForm, config);
       }
-      if (type === 'password'){
-        await axios.put(
-          `${END_POINT}/users/profile`,
-          userForm,
-          config
-        );
+      if (type === 'forgot_password'){
+        await axios.put(`${END_POINT}/users/verify-otp`, userForm);
       }
+       if (type === "password") {
+         await axios.put(`${END_POINT}/users/profile`, userForm, config);
+       }
       dispatch(userUpdate());
     } catch (error) {
       const message = error?.response
@@ -156,5 +156,22 @@ export const updateProfile =
           ? error.response?.data.message || error.response?.data.error
           : error.message;
           throw new Error(message)
+      }
+    };
+
+    // Reset password
+    export const forgotPasswordRequest = (userForm) => async (dispatch) => {
+      try {
+        dispatch(userActionStart());
+        const {data} = await axios.post(
+          `${END_POINT}/users/send-reset-password`,
+          userForm
+        );
+        dispatch(forgotPassReqSuccess(data._id));
+      } catch (error) {
+        const message = error?.response
+          ? error.response?.data.message || error.response?.data.error
+          : error.message;
+        dispatch(userActionFail(message));
       }
     };

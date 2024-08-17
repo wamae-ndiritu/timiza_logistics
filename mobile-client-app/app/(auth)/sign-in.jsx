@@ -5,7 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { icons, images } from "../../constants";
 import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton";
-import { router } from "expo-router";
+import { Link, router } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../../lib/redux/actions/userActions";
 import ActivityIndicatorModal from "../../components/ActivityIndicatorModal";
@@ -52,7 +52,7 @@ const SignIn = () => {
             <Message
               description={error}
               icon={icons.warning}
-              descriptionStyles="text-lg text-red-400"
+              descriptionStyles='text-lg text-red-400'
             />
           )}
           <FormField
@@ -77,6 +77,14 @@ const SignIn = () => {
             textStyles='text-white-100 text-xl text-white'
             isLoading={loading}
           />
+          <View className="mt-2 flex-row justify-end" >
+            <Link
+              href='/forgot-password'
+              className='text-pink-500 underline font-semibold'
+            >
+              Forgot Password?
+            </Link>
+          </View>
         </View>
       </ScrollView>
       <ActivityIndicatorModal

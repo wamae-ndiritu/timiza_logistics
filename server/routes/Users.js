@@ -4,13 +4,18 @@ const User = require("../models/User");
 const Driver = require("../models/Driver");
 const Loader = require("../models/Loader");
 const { isAdmin, verify } = require("../middleware/auth");
-const { generateRandomPassword, sendEmail } = require("../helpers");
+const {
+  generateRandomPassword,
+  sendEmail,
+  generateOTP,
+} = require("../helpers");
+const PasswordReset = require("../models/PasswordResetModel");
+const { createTestAccount } = require("nodemailer");
 
 const router = express.Router();
 
 // User login
 router.post("/login", async (req, res) => {
-  console.log("Login....")
   const { email, password } = req.body;
 
   try {
@@ -254,7 +259,7 @@ router.get("/:id", verify, async (req, res) => {
 router.get("/profile", verify, async (req, res) => {
   const type = req.user.role;
 
-  console.log(type)
+  console.log(type);
   try {
     let user;
 
@@ -265,7 +270,7 @@ router.get("/profile", verify, async (req, res) => {
     } else if (type === "loader") {
       console.log("Laoder found...");
       user = await Loader.findOne({ user: req.user.id }).populate("user");
-      console.log(user)
+      console.log(user);
     } else {
       const user = User.findById(req.user.id);
       return res.status(200).json(user);
@@ -289,7 +294,7 @@ router.get("/profile", verify, async (req, res) => {
 
     res.status(200).json(profile);
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -327,6 +332,97 @@ router.put("/profile", verify, async (req, res) => {
     await user.save();
 
     res.status(200).json({ message: "Password updated successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// User reset password
+router.post("/send-reset-password", async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // Find the user by ID
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({
+          message:
+            "User with the provided email was not found. Please try again using another email!",
+        });
+    }
+
+    const otp = generateOTP();
+
+    const newPasswordReset = new PasswordReset({
+      user: user._id,
+      otp,
+    });
+
+    await newPasswordReset.save();
+
+    // Send OTP to the provided email
+    await sendEmail(
+      email,
+      "One-Time-Password",
+      `Hi ${user.fullName},\nA request to reset your password has been made. Your reset code is ${otp}. This code expire in 10 minutes. Please ignore this if you didn't request a password reset.`
+    );
+
+    res
+      .status(200)
+      .json(user);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Verify OTP
+router.put("/verify-otp", async (req, res) => {
+  const { otp, user, newPassword, confirmPassword } = req.body;
+
+  try {
+    // Find the user by ID
+    const reset = await PasswordReset.findOne({ user });
+
+    if (!reset) {
+      return res
+        .status(404)
+        .json({ message: "You don't have an active password reset request" });
+    }
+
+    const isOTPMatching = await reset.compareOtp(otp);
+    if (!isOTPMatching) {
+      return res.status(400).json({ message: "Invalid OTP!" });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res
+        .status(400)
+        .json({ message: "New password and confirm password do not match" });
+    }
+
+    const account = await User.findById(user);
+    if (!account) {
+      return res
+        .status(404)
+        .json({ message: "An error occured!" });
+    }
+
+    // Set the new password (it will be hashed by the pre-save hook)
+    account.password = newPassword;
+    account.isDefaultPassword = false;
+
+    await account.save();
+
+    await PasswordReset.findOneAndDelete({user: account._id});
+
+    res.status(200).json({
+      message: "Password reset successful!",
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: error.message });

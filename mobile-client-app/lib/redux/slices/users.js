@@ -8,6 +8,8 @@ const initialState = {
   updateSuccess: false,
   usersList: [],
   profile: null,
+  resetPass: false,
+  activeUser: null,
 }
 
 export const userSlice = createSlice({
@@ -18,6 +20,7 @@ export const userSlice = createSlice({
       state.loading = true;
       state.error = null;
       state.updateSuccess = false;
+      state.resetPass = false;
     },
     userActionFail: (state, action) => {
       state.loading = false;
@@ -39,10 +42,16 @@ export const userSlice = createSlice({
       state.loading = false;
       state.updateSuccess = true;
     },
+    forgotPassReqSuccess: (state, action) => {
+      state.loading = false;
+      state.resetPass = true;
+      state.activeUser = action.payload;
+    },
     resetUserState: (state) => {
       state.error = null;
       state.success = false;
       state.updateSuccess = false;
+      state.resetPass = false;
     },
     getProfile: (state, action) => {
       state.loading = false;
@@ -55,6 +64,6 @@ export const userSlice = createSlice({
 });
 
 
-export const { userActionStart, userActionFail, userLogin, userRegister, resetUserState, userList, logoutUser, userUpdate, getProfile } = userSlice.actions;
+export const { userActionStart, userActionFail, userLogin, userRegister, resetUserState, userList, logoutUser, userUpdate, getProfile, forgotPassReqSuccess } = userSlice.actions;
 
 export default userSlice.reducer;
