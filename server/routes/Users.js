@@ -10,6 +10,7 @@ const router = express.Router();
 
 // User login
 router.post("/login", async (req, res) => {
+  console.log("Login....")
   const { email, password } = req.body;
 
   try {

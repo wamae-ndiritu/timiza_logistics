@@ -85,9 +85,6 @@ const Profile = () => {
     dispatch(updateProfile({nationalIdFront: form.nationalIdFront.uri, nationalIdBack: form.nationalIdBack.uri}));
   };
 
-  console.log(userData);
-  console.log(profile);
-
 
   useFocusEffect(
     useCallback(() => {

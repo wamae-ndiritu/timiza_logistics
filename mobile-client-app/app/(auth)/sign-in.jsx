@@ -31,14 +31,13 @@ const SignIn = () => {
 
   useFocusEffect(
     useCallback(() => {
-      if (userData && userData.user.role !== "admin" && userData.user.isDefaultPassword) {
+      if (userData && userData?.user?.role !== "admin" && userData?.user?.isDefaultPassword) {
         router.push(`/reset-password/${form.password}`);
       }
         setSubmitting(loading);
 
     }, [dispatch, userData, router, loading])
   );
-
 
   return (
     <SafeAreaView className='bg-secondary h-full flex-row justify-center items-center px-4'>

@@ -190,7 +190,7 @@ const DeliveryForm = ({ mode = "new", title="View Delivery", initialData = {}, o
                 {error}
               </Text>
             )}
-            {mode !== "view" && (
+            {/* {mode !== "view" && (
               <>
                 <Text className='text-base text-gray-600 font-pregular'>
                   Scan Delivery Note (Below fields will autofill)
@@ -231,7 +231,7 @@ const DeliveryForm = ({ mode = "new", title="View Delivery", initialData = {}, o
                   )
                 )}
               </>
-            )}
+            )} */}
             <FormField
               title='Delivery Date'
               placeholder='Enter date e.g 20-07-2024'

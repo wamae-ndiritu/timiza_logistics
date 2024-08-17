@@ -98,7 +98,7 @@ const Trips = () => {
               {`${item.endLocation.coordinates[1]}, ${item.endLocation.coordinates[0]}`}
             </Text>
           ) : (
-            <Text className='w-16 text-sm bg-slate-200 px-2 py-0.5 rounded-full text-green-600'>
+            <Text className='w-20 text-sm text-center bg-slate-200 px-2 py-0.5 rounded-full text-green-600'>
               Ongoing
             </Text>
           )}

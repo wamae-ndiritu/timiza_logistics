@@ -1,7 +1,6 @@
 import { View, Text, Image } from "react-native";
 import { router, Tabs } from "expo-router";
 import Icon from "react-native-vector-icons/Feather";
-import { icons } from "../../constants";
 import { useSelector } from "react-redux";
 import { useEffect } from "react";
 

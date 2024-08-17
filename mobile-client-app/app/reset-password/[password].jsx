@@ -11,7 +11,6 @@ import { router, useLocalSearchParams } from "expo-router";
 import { updateProfile } from "../../lib/redux/actions/userActions";
 import { resetUserState } from "../../lib/redux/slices/users";
 import Message from "../../components/Message";
-import ActivityIndicatorModal from "../../components/ActivityIndicatorModal";
 
 const ResetPassword = () => {
   const dispatch = useDispatch();
@@ -40,7 +39,7 @@ const ResetPassword = () => {
         );
         const interval = setInterval(() => {
           dispatch(resetUserState());
-          router.push("/home");
+          router.push("/userhome");
         }, 3000);
 
         return () => clearInterval(interval);
@@ -98,11 +97,6 @@ const ResetPassword = () => {
         </View>
       </ScrollView>
       <StatusBar backgroundColor='#2A7353' style='light' />
-      <ActivityIndicatorModal
-        visible={updating}
-        onClose={() => dispatch(resetUserState())}
-        description='Updating password...'
-      />
     </SafeAreaView>
   );
 };
