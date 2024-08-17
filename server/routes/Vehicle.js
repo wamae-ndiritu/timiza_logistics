@@ -47,7 +47,7 @@ router.post("/create", isAdmin, async (req, res) => {
 // Get all vehicles (Admin only)
 router.get("/", isAdmin, async (req, res) => {
   try {
-    const vehicles = await Vehicle.find();
+    const vehicles = await Vehicle.find().sort({createdAt: -1});
     res.status(200).json(vehicles);
   } catch (error) {
     res.status(500).json({ message: "Error retrieving vehicles", error: error.message });
