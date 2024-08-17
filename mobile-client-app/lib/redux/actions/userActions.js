@@ -14,7 +14,6 @@ export const login = (userForm) => async (dispatch) => {
   try {
     dispatch(userActionStart());
     const { data } = await axios.post(`${END_POINT}/users/login`, userForm);
-    console.log(data)
     dispatch(userLogin(data));
   } catch (error) {
     const message = error?.response

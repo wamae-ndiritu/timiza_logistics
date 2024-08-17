@@ -26,12 +26,13 @@ const tripSchema = new mongoose.Schema(
       coordinates: { type: [Number] }, // [longitude, latitude]
     },
     expectedDestination: { type: String, required: true }, 
-    timeSpent: { type: Number },
+    timeSpent: { type: String },
     deliveryNote: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "DeliveryNote",
       default: null, // Initially null until a delivery note is added
     },
+    invoiceNumber: {type: String, default: null},
   },
   { timestamps: true }
 );
@@ -39,9 +40,21 @@ const tripSchema = new mongoose.Schema(
 // Middleware to calculate time spent on the trip before saving
 tripSchema.pre("save", function (next) {
   if (this.startTime && this.endTime) {
-    const duration =
-      (new Date(this.endTime) - new Date(this.startTime)) / 1000 / 60; // in minutes
-    this.timeSpent = duration;
+    // Calculate the duration in minutes and round to the nearest minute
+    let durationInMinutes = Math.round(
+      (new Date(this.endTime) - new Date(this.startTime)) / 1000 / 60
+    );
+
+    // Check if the duration is more than 60 minutes
+    if (durationInMinutes >= 60) {
+      // Convert to hours and minutes
+      const hours = Math.floor(durationInMinutes / 60);
+      const minutes = durationInMinutes % 60;
+      this.timeSpent = `${hours} hour(s) and ${minutes} minute(s)`;
+    } else {
+      // If less than 60 minutes, keep it in minutes
+      this.timeSpent = `${durationInMinutes} minute(s)`;
+    }
   }
   next();
 });

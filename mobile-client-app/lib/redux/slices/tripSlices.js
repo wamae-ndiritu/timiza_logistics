@@ -8,6 +8,7 @@ const initialState = {
   success: false,
   successDelete: false,
   successUpdate: false,
+  completed: false,
 };
 
 export const tripSlice = createSlice({
@@ -20,6 +21,7 @@ export const tripSlice = createSlice({
       state.successDelete = false;
       state.successUpdate = false;
       state.error = null;
+      state.completed = false;
     },
     tripActionFail: (state, action) => {
       state.loading = false;
@@ -30,10 +32,15 @@ export const tripSlice = createSlice({
       state.successDelete = false;
       state.successUpdate = false;
       state.error = null;
+      state.completed = false;
     },
     createTripSuccess: (state) => {
       state.loading = false;
       state.success = true;
+    },
+    completeTripSuccess: (state) => {
+      state.loading = false;
+      state.completed = true;
     },
     getTripsSuccess: (state, action) => {
       state.loading = false;
@@ -52,7 +59,8 @@ export const {
   resetTripState,
   createTripSuccess,
   getTripsSuccess,
-  getTripSuccess
+  getTripSuccess,
+  completeTripSuccess,
 } = tripSlice.actions;
 
 export default tripSlice.reducer;

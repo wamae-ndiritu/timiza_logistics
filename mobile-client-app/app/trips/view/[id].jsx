@@ -1,40 +1,78 @@
-import {
-  ScrollView,
-  View,
-  Text,
-  TouchableOpacity,
-  ActivityIndicator,
-} from "react-native";
-import React, { useEffect } from "react";
+import { ScrollView, View, Text, TouchableOpacity } from "react-native";
+import React, { useEffect, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
-import { getTripById } from "../../../lib/redux/actions/tripActions";
+import {
+  completeTrip,
+  getTripById,
+} from "../../../lib/redux/actions/tripActions";
 import { SafeAreaView } from "react-native-safe-area-context";
 import TopBar from "../../../components/TopBar";
 import Icon from "react-native-vector-icons/Feather";
 import Loading from "../../../components/Loading";
 import Error from "../../../components/Error";
+import * as Location from "expo-location";
+import { resetTripState } from "../../../lib/redux/slices/tripSlices";
 
 const TripViewScreen = () => {
   const { id } = useLocalSearchParams();
   const dispatch = useDispatch();
-  const { currentTrip, loading, error, successUpdate } = useSelector(
+  const { currentTrip, loading, error, successUpdate, completed } = useSelector(
     (state) => state.trip
   );
+
+  const [endLocation, setEndLocation] = useState("");
 
   useEffect(() => {
     if (id) {
       dispatch(getTripById(id));
     }
-  }, [dispatch, id, successUpdate]);
+  }, [dispatch, id, successUpdate, completed]);
 
   const handleAttachDeliveryNote = () => {
-    if (currentTrip?.deliveryNote){
+    if (currentTrip?.deliveryNote) {
       router.push(`/view-delivery/${currentTrip?.deliveryNote?._id}`);
     } else {
       router.push(`/trips/${id}/attach-delivery-note`);
     }
   };
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        setErrorMsg("Permission to access location was denied");
+        Alert.alert(
+          "Permission Denied",
+          "Cannot access location. Please enable location services."
+        );
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setEndLocation(
+        `${location.coords.longitude},${location.coords.latitude}`
+      );
+    })();
+  }, []);
+
+  const handleFinishTrip = () => {
+    dispatch(
+      completeTrip(id, {
+        endLocation: { coordinates: endLocation.split(",").map(Number) },
+      })
+    );
+  };
+
+  useEffect(() => {
+    if (completed) {
+      const timeout = setTimeout(() => {
+        dispatch(resetTripState());
+      }, 5000);
+
+      return () => clearTimeout(timeout);
+    }
+  });
 
   return (
     <SafeAreaView className='flex-1 bg-white'>
@@ -45,6 +83,11 @@ const TripViewScreen = () => {
         <Error>{error}</Error>
       ) : (
         <ScrollView contentContainerStyle={{ padding: 16 }}>
+          {completed && (
+            <Text className='p-4 bg-green-200 mb-3 text-green-700'>
+              Your trip has been marked as completed!
+            </Text>
+          )}
           {/* Trip Information */}
           <View className='mb-4 p-4 bg-gray-100 rounded-lg'>
             <Text className='text-xl font-semibold text-gray-700 mb-2'>
@@ -73,9 +116,7 @@ const TripViewScreen = () => {
             </Text>
             <Text className='text-sm text-gray-600'>
               Time Spent:{" "}
-              {currentTrip?.timeSpent
-                ? `${currentTrip.timeSpent} hours`
-                : "Ongoing"}
+              {currentTrip?.timeSpent ? `${currentTrip.timeSpent}` : "Ongoing"}
             </Text>
           </View>
 
@@ -147,12 +188,23 @@ const TripViewScreen = () => {
             ) : (
               <>
                 <Icon name='file-plus' size={20} color='white' />
-                <Text className='ml-2 text-white text-lg font-semibold'>
+                <Text className='ml-2 text-white text-xl font-semibold'>
                   Attach Delivery Note
                 </Text>
               </>
             )}
           </TouchableOpacity>
+          {currentTrip?.endLocation?.coordinates.length < 1 && (
+            <TouchableOpacity
+              onPress={handleFinishTrip}
+              className='mt-4 p-4 bg-green-500 rounded-lg flex-row items-center px-8'
+            >
+              <Icon name='clock' size={28} color='white' />
+              <Text className='ml-2 text-white text-xl font-semibold'>
+                Finish Trip
+              </Text>
+            </TouchableOpacity>
+          )}
         </ScrollView>
       )}
     </SafeAreaView>

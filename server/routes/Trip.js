@@ -1,5 +1,5 @@
 const express = require("express");
-const { isAdmin, verify } = require("../middleware/auth");
+const { verify } = require("../middleware/auth");
 const Vehicle = require("../models/VehicleModel");
 const Trip = require("../models/TripModel");
 const User = require("../models/User");
@@ -9,7 +9,7 @@ const router = express.Router();
 // POST /trips/create - Create a new trip
 router.post("/create", verify, async (req, res) => {
   try {
-    const { startLocation, expectedDestination } = req.body;
+    const { startLocation, expectedDestination, invoiceNumber } = req.body;
 
     // Validate input data
     if (!startLocation || !startLocation.coordinates || !expectedDestination) {
@@ -43,12 +43,13 @@ router.post("/create", verify, async (req, res) => {
       vehicle: vehicle._id,
       driver: vehicle.currentDriver,
       loaders: vehicle.currentLoaders,
-      startTime: new Date(), // Start time is set when the trip is created
+      startTime: new Date(),
       startLocation: {
         type: "Point",
         coordinates: startLocation.coordinates, // [longitude, latitude]
       },
-      expectedDestination, // Add expected destination
+      expectedDestination,
+      invoiceNumber,
     });
 
     // Save the trip to the database
@@ -67,6 +68,46 @@ router.post("/create", verify, async (req, res) => {
   }
 });
 
+// Complete a trip
+router.post("/complete/:tripId", verify, async (req, res) => {
+  try {
+    const { tripId } = req.params;
+    const { endLocation } = req.body;
+
+    // Validate input data
+    if (!endLocation || !endLocation.coordinates) {
+      return res.status(400).json({
+        message: "End location is required.",
+      });
+    }
+
+    // Find the trip by ID
+    const trip = await Trip.findById(tripId);
+
+    if (!trip) {
+      return res.status(404).json({ message: "Trip not found." });
+    }
+
+    // Ensure the trip is not already completed
+    if (trip.endTime) {
+      return res.status(400).json({ message: "Trip is already completed." });
+    }
+
+    // Set the end time and end location
+    trip.endTime = new Date();
+    trip.endLocation = {
+      type: "Point",
+      coordinates: endLocation.coordinates, // [longitude, latitude]
+    };
+
+    await trip.save();
+
+    res.status(200).json(trip);
+  } catch (error) {
+    res.status(500).json({ message: "An error occurred while completing the trip." });
+  }
+});
+
 // Get trips
 router.get("/", verify, async (req, res) => {
   try {
@@ -80,7 +121,7 @@ router.get("/", verify, async (req, res) => {
         .populate("vehicle")
         .populate("driver", "fullName email")
         .populate("loaders", "fullName email")
-        .populate("deliveryNote");
+        .populate("deliveryNote").sort({createdAt: -1});
     } else {
       // If the user is not an admin, list only their trips
       const vehicles = await Vehicle.find({
@@ -93,7 +134,7 @@ router.get("/", verify, async (req, res) => {
         .populate("vehicle")
         .populate("driver", "fullName email")
         .populate("loaders", "fullName email")
-        .populate("deliveryNote");
+        .populate("deliveryNote").sort({createdAt: -1});
     }
 
     res.status(200).json(trips);
@@ -108,7 +149,6 @@ router.get("/", verify, async (req, res) => {
 router.get("/:id", verify, async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user.id;
     const userRole = req.user.role;
 
     let trip;

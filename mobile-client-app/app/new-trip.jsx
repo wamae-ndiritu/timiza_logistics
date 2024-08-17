@@ -17,6 +17,7 @@ const NewTrip = () => {
   const { loading, success, error } = useSelector((state) => state.trip);
   const [startLocation, setStartLocation] = useState("");
   const [destination, setDestination] = useState("");
+  const [invoiceNumber, setInvoiceNumber] = useState("");
   const [errorMsg, setErrorMsg] = useState(null);
 
   useEffect(() => {
@@ -41,6 +42,8 @@ const NewTrip = () => {
   const handleChange = (name, value) => {
     if (name === "destination") {
       setDestination(value);
+    } else if (name === "invoiceNumber") {
+      setInvoiceNumber(value)
     }
   };
 
@@ -53,13 +56,14 @@ const NewTrip = () => {
       startTrip({
         startLocation: { coordinates: startLocation.split(",").map(Number) },
         expectedDestination: destination,
+        invoiceNumber,
       })
     );
   };
 
   useEffect(() => {
     if (success) {
-      router.push("/userhome");
+      router.push("/trip");
     }
   }, [success, router]);
 
@@ -71,7 +75,7 @@ const NewTrip = () => {
   }, [dispatch, error]);
 
   return (
-    <SafeAreaView className="flex-1">
+    <SafeAreaView className='flex-1'>
       <TopBar title='New Trip' />
       {loading ? (
         <Loading />
@@ -95,6 +99,15 @@ const NewTrip = () => {
             placeholder='Enter nearest town or centre'
             value={destination}
             handleChangeText={(e) => handleChange("destination", e)}
+            otherStyles='mb-3'
+            inputStyles='bg-slate-50'
+          />
+
+          <FormField
+            title='Invoice Number'
+            placeholder='Enter invoice number'
+            value={invoiceNumber}
+            handleChangeText={(e) => handleChange("invoiceNumber", e)}
             otherStyles='mb-3'
             inputStyles='bg-slate-50'
           />
