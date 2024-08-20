@@ -11,10 +11,10 @@ const vehicleSchema = new mongoose.Schema(
     ownerName: { type: String, required: true },
     ownerIdNumber: { type: String, required: true },
     ownerLogBook: { type: String, default: null },
-    currentDriver: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // current driver
-    currentLoaders: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // current loaders
-    driverHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // all drivers ever assigned
-    loaderHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // all loaders ever assigned
+    currentDriver: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, 
+    currentLoaders: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    driverHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], 
+    loaderHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], 
     tripHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: "Trip" }],
   },
   { timestamps: true }

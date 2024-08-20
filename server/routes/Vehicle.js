@@ -105,14 +105,11 @@ router.post("/:id/assign-staff", isAdmin, async (req, res) => {
     const vehicle = await Vehicle.findById(req.params.id);
     if (!vehicle) return res.status(404).json({ message: "Vehicle not found" });
 
-    console.log("Vehicle found...")
-
     // Handle driver assignment
     if (driver) {
       const driverData = await User.findById(driver);
       if (!driverData) return res.status(404).json({ message: "Driver not found" });
 
-      console.log("Driver found...")
       // Add the current driver to driver history if it exists and is not already in history
       if (vehicle.currentDriver && !vehicle.driverHistory.includes(vehicle.currentDriver)) {
         vehicle.driverHistory.push(vehicle.currentDriver);
@@ -143,11 +140,35 @@ router.post("/:id/assign-staff", isAdmin, async (req, res) => {
     // Save the vehicle with updated driver and loader assignments
     await vehicle.save();
 
-    console.log(vehicle)
-
     res.status(200).json({ message: "Staff assigned successfully", vehicle });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
+  }
+});
+
+
+// Get user's vehicle
+router.get("/users/:userId", verify, async (req, res) => {
+  try {
+    const {userId} = req.params;
+    const userRole = req.query.role || "driver";
+
+    let vehicle;
+
+    if (userRole === "driver") {
+      vehicle = await Vehicle.findOne({ currentDriver: userId });
+    } else if (userRole === "loader") {
+      vehicle = await Vehicle.findOne({ currentLoaders: { $in: [userId] } });
+    }
+    
+    if (!vehicle) {
+      return res.status(404).json({ message: "Vehicle not found" });
+    }
+    res.status(200).json(vehicle);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error retrieving vehicle", error: error.message });
   }
 });
 
