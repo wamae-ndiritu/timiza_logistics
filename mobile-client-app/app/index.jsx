@@ -15,12 +15,12 @@ export default function IndexScreen() {
             className='max-w-[320px] w-full h-[200px]'
             resizeMode='contain'
           />
-          <Text className='text-xl font-pregular text-black-300 text-center mt-5'>
+          {/* <Text className='text-xl font-pregular text-black-300 text-center mt-5'>
             Where creativity meets innovation: embark on a journey of limitless
             with Aora
-          </Text>
+          </Text> */}
           <CustomButton
-            title='Get Started'
+            title='Continue'
             handlePress={() => router.push("/sign-in")}
             containerStyles='w-full mt-7'
             textStyles="text-xl text-white-100"

@@ -8,9 +8,9 @@ import CustomButton from "../../components/CustomButton";
 import { Link, router } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../../lib/redux/actions/userActions";
-import ActivityIndicatorModal from "../../components/ActivityIndicatorModal";
 import Message from "../../components/Message";
 import { resetUserState } from "../../lib/redux/slices/users";
+import Loading from "../../components/Loading";
 
 const SignIn = () => {
   const dispatch = useDispatch();
@@ -40,57 +40,59 @@ const SignIn = () => {
   );
 
   return (
-    <SafeAreaView className='bg-secondary h-full flex-row justify-center items-center px-4'>
-      <ScrollView>
-        <View className='bg-white py-8 rounded-lg flex-col justify-center px-4'>
-          <Image
-            source={images.logoHorizontal}
-            resizeMode='contain'
-            className='w-[300px] h-[75px]'
-          />
-          {error && (
-            <Message
-              description={error}
-              icon={icons.warning}
-              descriptionStyles='text-lg text-red-400'
-            />
-          )}
-          <FormField
-            title='Email'
-            value={form.email}
-            handleChangeText={(e) => setForm({ ...form, email: e })}
-            otherStyles='mt-3'
-            keyboardType='email-address'
-            placeholder='johndoe@gmail.com'
-          />
-          <FormField
-            title='Password'
-            placeholder='........'
-            value={form.password}
-            handleChangeText={(e) => setForm({ ...form, password: e })}
-            otherStyles='mt-3'
-          />
-          <CustomButton
-            title='Sign In'
-            handlePress={submit}
-            containerStyles='mt-3 w-full rounded'
-            textStyles='text-white-100 text-xl text-white'
-            isLoading={loading}
-          />
-          <View className="mt-2 flex-row justify-end" >
-            <Link
-              href='/forgot-password'
-              className='text-pink-500 underline font-semibold'
-            >
-              Forgot Password?
-            </Link>
-          </View>
+    <SafeAreaView className='bg-white h-full'>
+      {loading ? (
+        <View className='h-full flex-row justify-center items-center'>
+          <Loading />
         </View>
-      </ScrollView>
-      <ActivityIndicatorModal
-        visible={submitting}
-        onClose={() => dispatch(resetUserState())}
-      />
+      ) : (
+        <ScrollView>
+          <View className='bg-white py-8 flex-col justify-center px-4'>
+            <Image
+              source={images.logoHorizontal}
+              resizeMode='contain'
+              className='w-[300px] h-[75px]'
+            />
+            {error && (
+              <Message
+                description={error}
+                icon={icons.warning}
+                descriptionStyles='text-lg text-red-400'
+              />
+            )}
+            <FormField
+              title='Email'
+              value={form.email}
+              handleChangeText={(e) => setForm({ ...form, email: e })}
+              otherStyles='mt-3'
+              keyboardType='email-address'
+              placeholder='johndoe@gmail.com'
+            />
+            <FormField
+              title='Password'
+              placeholder='........'
+              value={form.password}
+              handleChangeText={(e) => setForm({ ...form, password: e })}
+              otherStyles='mt-3'
+            />
+            <CustomButton
+              title='Sign In'
+              handlePress={submit}
+              containerStyles='mt-3 w-full rounded'
+              textStyles='text-white-100 text-xl text-white'
+              isLoading={loading}
+            />
+            <View className='mt-2 flex-row justify-end'>
+              <Link
+                href='/forgot-password'
+                className='text-pink-500 underline font-semibold'
+              >
+                Forgot Password?
+              </Link>
+            </View>
+          </View>
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 };

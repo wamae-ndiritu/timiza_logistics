@@ -11,4 +11,8 @@ export const store = configureStore({
     vehicle: vehicleReducer,
     trip: tripReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false, // Disable the serializable check middleware
+    }),
 });
