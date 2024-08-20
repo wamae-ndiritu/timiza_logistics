@@ -1,9 +1,9 @@
 import { Image, Text, View } from "react-native";
 
-const DashboardCard = ({ title, stats, containerStyles, textStyles, icon=null }) => {
+const DashboardCard = ({ title, stats, containerStyles, textStyles, icon=null, color="bg-white" }) => {
   return (
     <View
-      className={`mt-3 p-4 rounded shadow-md mb-2 mx-0 ${containerStyles} flex-row items-center`}
+      className={`mt-3 p-4 rounded shadow-md mb-2 mx-0 ${containerStyles} flex-row items-center ${color}` }
     >
       {icon && (
         <View className='h-12 w-12 bg-primary rounded-full flex items-center justify-center mr-2'>
@@ -11,10 +11,10 @@ const DashboardCard = ({ title, stats, containerStyles, textStyles, icon=null })
         </View>
       )}
       <View className="flex-col">
-        <Text className={`text-xl font-psemibold text-black-300 ${textStyles}`}>
+        <Text className={`text-xl text-gray-700 ${textStyles}`}>
           {title}
         </Text>
-        <Text className={`text-2xl font-pbold text-secondary`}>
+        <Text className={`text-2xl text-center text-secondary`}>
           {stats}
         </Text>
       </View>

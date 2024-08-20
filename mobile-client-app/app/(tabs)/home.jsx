@@ -6,19 +6,23 @@ import {
   RefreshControl,
   TouchableOpacity,
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { icons, images } from "../../constants";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import DashboardCard from "../../components/DashboardCard";
 import { Link, useRouter } from "expo-router";
 import Icon from "react-native-vector-icons/Feather";
 import AdminRoute from "../../components/AdminRoute";
+import { getStats } from "../../lib/redux/actions/globalActions";
 
 const Home = () => {
-  const { userData } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   const router = useRouter();
+  const { userData } = useSelector((state) => state.user);
+  const {stats} = useSelector((state) => state.global);
 
   const [refreshing, setRefreshing] = useState(false);
   const [dateTime, setDateTime] = useState(new Date());
@@ -58,15 +62,22 @@ const Home = () => {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    // await refetch();
+    dispatch(getStats());
     setRefreshing(false);
   };
 
+   useFocusEffect(
+     useCallback(() => {
+       dispatch(getStats());
+     }, [dispatch])
+   );
+
+
   const data = [
-    { id: 0, title: "Trips", stats: 15, icon: icons.tripTruck },
-    { id: 1, title: "Drivers", stats: 5, icon: icons.driver },
-    { id: 2, title: "Loaders", stats: 3, icon: icons.loader },
-    { id: 3, title: "Vehicles", stats: 10, icon: icons.deliveryTruck },
+    { id: 0, title: "Trips", stats: stats?.tripCount || 0, icon: icons.tripTruck, color: "bg-slate-200" },
+    { id: 1, title: "Drivers", stats: stats?.driverCount || 0, icon: icons.driver, color: "bg-lime-200" },
+    { id: 2, title: "Loaders", stats: stats?.loaderCount || 0, icon: icons.loader, color: "bg-lime-300" },
+    { id: 3, title: "Vehicles", stats: stats?.vehicleCount || 0, icon: icons.deliveryTruck, color: "bg-slate-300" },
   ];
 
   return (
@@ -120,6 +131,7 @@ const Home = () => {
                 title={item.title}
                 stats={item.stats}
                 icon={item.icon}
+                color={item.color}
                 containerStyles='mb-4 p-4 bg-white border border-gray-300 rounded-lg flex-1 mx-1'
               />
             )}

@@ -11,8 +11,6 @@ import HeaderComponent from "../../../components/HeaderComponent";
 import { useDispatch, useSelector } from "react-redux";
 import { listUsers } from "../../../lib/redux/actions/userActions";
 import EmptyState from "../../../components/EmptyState";
-import ActivityIndicatorModal from "../../../components/ActivityIndicatorModal";
-import { resetUserState } from "../../../lib/redux/slices/users";
 
 const Staff = () => {
   const dispatch = useDispatch();
