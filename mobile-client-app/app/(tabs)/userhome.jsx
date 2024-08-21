@@ -2,7 +2,6 @@ import {
   View,
   Text,
   FlatList,
-  Image,
   RefreshControl,
   TouchableOpacity,
 } from "react-native";
@@ -10,55 +9,26 @@ import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import Icon from "react-native-vector-icons/Feather";
-import { useSelector } from "react-redux";
-import { images } from "../../constants";
+import { useDispatch, useSelector } from "react-redux";
 import { router } from "expo-router";
 import HomeHeader from "../../components/HomeHeader";
+import { getUserAssignedTruck } from "../../lib/redux/actions/userActions";
 
 const DriverHome = () => {
-  const { userData } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const { currentTruck, userData } = useSelector((state) => state.user);
 
   const [refreshing, setRefreshing] = useState(false);
-  const [dateTime, setDateTime] = useState(new Date());
-
-  const getOrdinalSuffix = (day) => {
-    if (day > 3 && day < 21) return "th"; // Handles 11th, 12th, 13th
-    switch (day % 10) {
-      case 1:
-        return "st";
-      case 2:
-        return "nd";
-      case 3:
-        return "rd";
-      default:
-        return "th";
-    }
-  };
-
-  const formatDateTime = (date) => {
-    const day = date.getDate();
-    const dayWithSuffix = `${day}${getOrdinalSuffix(day)}`;
-    const month = date.toLocaleString("default", { month: "short" });
-    const year = date.getFullYear();
-    const dayOfWeek = date.toLocaleString("default", { weekday: "short" });
-    const time = date.toLocaleTimeString();
-
-    return `${dayWithSuffix} ${dayOfWeek} ${month}, ${year}`;
-  };
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setDateTime(new Date());
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    // await refetch();
+    dispatch(getUserAssignedTruck(userData?.user?.id));
     setRefreshing(false);
   };
+
+  useEffect(() => {
+    dispatch(getUserAssignedTruck(userData?.user?.id));
+  }, [dispatch])
 
   const data = [
     { id: 0, title: "Add Trip (Comming soon...)", icon: "plus", route: "/add-trip" },
@@ -78,9 +48,7 @@ const DriverHome = () => {
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <TouchableOpacity
-              onPress={() =>
-                router.push(item.route)
-              }
+              onPress={() => router.push(item.route)}
               className='mb-4 p-4 bg-white border border-gray-300 rounded-lg flex-row items-center space-x-4'
             >
               <Icon name={item.icon} size={24} color='#000' />
@@ -93,6 +61,16 @@ const DriverHome = () => {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
         />
+        <Text className='text-xl font-semibold text-gray-700 mb-2'>
+          Current Truck
+        </Text>
+        <View className='bg-secondary py-2 px-4 rounded flex-row items-center space-x-4'>
+          <Icon name='truck' size={60} color='#FFFFFF' />
+          <View>
+            <Text className='uppercase text-xl text-white'>{currentTruck?.vehicleNumberPlate}</Text>
+            <Text className='text-white'>{currentTruck?.vehicleMake} {currentTruck?.vehicleModel}</Text>
+          </View>
+        </View>
       </View>
       <StatusBar backgroundColor='#2A7353' style='light' />
     </SafeAreaView>

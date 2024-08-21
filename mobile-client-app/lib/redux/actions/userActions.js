@@ -2,6 +2,7 @@ import axios from "axios";
 import {
   forgotPassReqSuccess,
   getProfile,
+  getUserTruck,
   userActionFail,
   userActionStart,
   userList,
@@ -44,7 +45,7 @@ export const registerUser = (userForm) => async (dispatch, getState) => {
     console.log(data);
     dispatch(userRegister());
   } catch (error) {
-    console.log(error)
+    console.log(error);
     const message = error?.response
       ? error.response?.data.message || error.response?.data.error
       : error.message;
@@ -72,9 +73,9 @@ export const listUsers =
       );
       dispatch(userList(data));
     } catch (error) {
-     const message = error?.response
-       ? error.response?.data.message || error.response?.data.error
-       : error.message;
+      const message = error?.response
+        ? error.response?.data.message || error.response?.data.error
+        : error.message;
       dispatch(userActionFail(message));
     }
   };
@@ -93,15 +94,19 @@ export const updateProfile =
         },
       };
       dispatch(userActionStart());
-      if (type === 'documents'){
-        await axios.put(`${END_POINT}/users/profile/documents`, userForm, config);
+      if (type === "documents") {
+        await axios.put(
+          `${END_POINT}/users/profile/documents`,
+          userForm,
+          config
+        );
       }
-      if (type === 'forgot_password'){
+      if (type === "forgot_password") {
         await axios.put(`${END_POINT}/users/verify-otp`, userForm);
       }
-       if (type === "password") {
-         await axios.put(`${END_POINT}/users/profile`, userForm, config);
-       }
+      if (type === "password") {
+        await axios.put(`${END_POINT}/users/profile`, userForm, config);
+      }
       dispatch(userUpdate());
     } catch (error) {
       const message = error?.response
@@ -111,67 +116,86 @@ export const updateProfile =
     }
   };
 
-
-  export const getUserProfile =
-    () =>
-    async (dispatch, getState) => {
-      try {
-        const {
-          user: { userData },
-        } = getState();
-        const config = {
-          headers: {
-            Authorization: `Bearer ${userData?.token}`,
-            "Content-Type": "application/json",
-          },
-        };
-        dispatch(userActionStart());
-        const { data } = await axios.get(
-          `${END_POINT}/users/profile`,
-          config
-        );
-        dispatch(getProfile(data))
-      } catch (error) {
-        console.log(error)
-        const message = error?.response
-          ? error.response?.data.message || error.response?.data.error
-          : error.message;
-        dispatch(userActionFail(message));
-      }
+export const getUserProfile = () => async (dispatch, getState) => {
+  try {
+    const {
+      user: { userData },
+    } = getState();
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userData?.token}`,
+        "Content-Type": "application/json",
+      },
     };
+    dispatch(userActionStart());
+    const { data } = await axios.get(`${END_POINT}/users/profile`, config);
+    dispatch(getProfile(data));
+  } catch (error) {
+    console.log(error);
+    const message = error?.response
+      ? error.response?.data.message || error.response?.data.error
+      : error.message;
+    dispatch(userActionFail(message));
+  }
+};
 
-  // Get user by Id
-    export const getUserById = async (userId, token) => {
-      try {
-        const config = {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        };
-        const { data } = await axios.get(`${END_POINT}/users/${userId}`, config);
-        return data;
-      } catch (error) {
-        const message = error?.response
-          ? error.response?.data.message || error.response?.data.error
-          : error.message;
-          throw new Error(message)
-      }
+// Get user by Id
+export const getUserById = async (userId, token) => {
+  try {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     };
+    const { data } = await axios.get(`${END_POINT}/users/${userId}`, config);
+    return data;
+  } catch (error) {
+    const message = error?.response
+      ? error.response?.data.message || error.response?.data.error
+      : error.message;
+    throw new Error(message);
+  }
+};
 
-    // Reset password
-    export const forgotPasswordRequest = (userForm) => async (dispatch) => {
-      try {
-        dispatch(userActionStart());
-        const {data} = await axios.post(
-          `${END_POINT}/users/send-reset-password`,
-          userForm
-        );
-        dispatch(forgotPassReqSuccess(data._id));
-      } catch (error) {
-        const message = error?.response
-          ? error.response?.data.message || error.response?.data.error
-          : error.message;
-        dispatch(userActionFail(message));
-      }
+// Reset password
+export const forgotPasswordRequest = (userForm) => async (dispatch) => {
+  try {
+    dispatch(userActionStart());
+    const { data } = await axios.post(
+      `${END_POINT}/users/send-reset-password`,
+      userForm
+    );
+    dispatch(forgotPassReqSuccess(data._id));
+  } catch (error) {
+    const message = error?.response
+      ? error.response?.data.message || error.response?.data.error
+      : error.message;
+    dispatch(userActionFail(message));
+  }
+};
+
+export const getUserAssignedTruck = (userId) => async (dispatch, getState) => {
+  try {
+    const {
+      user: { userData },
+    } = getState();
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userData?.token}`,
+        "Content-Type": "application/json",
+      },
     };
+    dispatch(userActionStart());
+    const { data } = await axios.get(
+      `${END_POINT}/vehicles/users/${userId}`,
+      config
+    );
+    dispatch(getUserTruck(data));
+  } catch (error) {
+    const message = error?.response
+      ? error.response?.data.message || error.response?.data.error
+      : error.message;
+    dispatch(userActionFail(message));
+  }
+};

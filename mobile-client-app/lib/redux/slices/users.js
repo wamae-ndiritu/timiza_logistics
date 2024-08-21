@@ -10,6 +10,7 @@ const initialState = {
   profile: null,
   resetPass: false,
   activeUser: null,
+  currentTruck: null,
 }
 
 export const userSlice = createSlice({
@@ -57,6 +58,10 @@ export const userSlice = createSlice({
       state.loading = false;
       state.profile = action.payload;
     },
+    getUserTruck: (state, action) => {
+      state.loading = false;
+      state.currentTruck = action.payload;
+    },
     logoutUser: (state) => {
       state.userData = null;
     }
@@ -64,6 +69,6 @@ export const userSlice = createSlice({
 });
 
 
-export const { userActionStart, userActionFail, userLogin, userRegister, resetUserState, userList, logoutUser, userUpdate, getProfile, forgotPassReqSuccess } = userSlice.actions;
+export const { userActionStart, userActionFail, userLogin, userRegister, resetUserState, userList, logoutUser, userUpdate, getProfile, forgotPassReqSuccess, getUserTruck } = userSlice.actions;
 
 export default userSlice.reducer;
