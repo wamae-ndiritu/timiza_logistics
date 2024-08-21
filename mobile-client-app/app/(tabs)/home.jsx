@@ -77,12 +77,12 @@ const Home = () => {
             More Actions
           </Text>
           <TouchableOpacity
-            onPress={() => router.push("/new-vehicle")}
+            onPress={() => router.push("/staff")}
             className='mb-4 p-4 bg-white border border-gray-300 rounded-lg flex-row items-center space-x-4'
           >
-            <Icon name='plus' size={24} color='#000' />
+            <Icon name='users' size={24} color='#000' />
             <Text className='text-lg font-semibold text-gray-700'>
-              Add Vehicle
+              Staff
             </Text>
           </TouchableOpacity>
           <TouchableOpacity

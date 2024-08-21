@@ -7,8 +7,7 @@ import {
 } from "react-native";
 import React, { useCallback, useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Feather } from "react-native-vector-icons";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import Icon from "react-native-vector-icons/Feather";
 import { useDispatch, useSelector } from "react-redux";
 import { listTrips } from "../../lib/redux/actions/tripActions";
@@ -25,6 +24,7 @@ const Trips = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const { trips, success, loading } = useSelector((state) => state.trip);
+  const {userData} = useSelector((state) => state.user);
 
   const [refreshing, setRefreshing] = useState(false);
   const [locations, setLocations] = useState({});
@@ -53,7 +53,7 @@ const Trips = () => {
             const response = await Geocoder.from(lat, lng);
             const address = response.results[0]?.formatted_address;
             locationsData[trip._id] = address || "Unknown Location";
-          } catch (error) {
+          } catch (error) {   
             // console.error("Error fetching location:", error);
             locationsData[trip._id] = "Unknown Location";
           }
@@ -109,7 +109,13 @@ const Trips = () => {
 
   return (
     <SafeAreaView className='flex-1 bg-white'>
-      <TopBar title='Trips' />
+      <TopBar title='Trips'>
+        {userData?.user?.role !== "admin" && (
+          <Link href='/new-trip'>
+            <Icon name='plus' size={24} color='#FFF' />
+          </Link>
+        )}
+      </TopBar>
       {loading ? (
         <Loading />
       ) : (

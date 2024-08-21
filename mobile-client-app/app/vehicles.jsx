@@ -2,7 +2,7 @@ import { View, Text, TouchableOpacity, FlatList, RefreshControl } from "react-na
 import React, { useCallback, useEffect, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import Icon from "react-native-vector-icons/Feather";
 import { useDispatch, useSelector } from "react-redux";
 import { listVehicles } from "../lib/redux/actions/vehicleActions";
@@ -56,7 +56,11 @@ const Vehicles = () => {
 
   return (
     <SafeAreaView className='flex-1 bg-white'>
-      <TopBar title='Vehicles' />
+      <TopBar title='Vehicles'>
+        <Link href='/new-vehicle'>
+          <Icon name='plus' size={24} color='#FFF' />
+        </Link>
+      </TopBar>
       {loading ? (
         <Loading />
       ) : (

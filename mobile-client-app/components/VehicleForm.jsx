@@ -1,13 +1,7 @@
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, Alert } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { Feather } from "react-native-vector-icons";
 import FormField from "./FormField";
 import CustomButton from "./CustomButton";
@@ -24,10 +18,15 @@ import { getUserById } from "../lib/redux/actions/userActions";
 import TopBar from "./TopBar";
 import Loading from "./Loading";
 
-const VehicleForm = ({ mode = "new", title="View Vehicle", initialData = {}, onSubmit }) => {
+const VehicleForm = ({
+  mode = "new",
+  title = "View Vehicle",
+  initialData = {},
+  onSubmit,
+}) => {
   const dispatch = useDispatch();
   const { loading, error, success } = useSelector((state) => state.vehicle);
-  const {userData} = useSelector((state) => state.user);
+  const { userData } = useSelector((state) => state.user);
   const router = useRouter();
   const [form, setForm] = useState({
     vehicleMake: "",
@@ -61,7 +60,7 @@ const VehicleForm = ({ mode = "new", title="View Vehicle", initialData = {}, onS
         const data = await uploadPdfToCloudinary(result.assets[0]);
         handleChange("ownerLogBook", data.secure_url);
       } catch (error) {
-        Alert.alert("Error", error.message)
+        Alert.alert("Error", error.message);
       } finally {
         setUploading(false);
       }
@@ -76,35 +75,35 @@ const VehicleForm = ({ mode = "new", title="View Vehicle", initialData = {}, onS
     onSubmit(form);
   };
 
-   const handleDelete = () => {
-     // confirm action
-     Alert.alert(
-       "Warning!",
-       "You're about to delete the Vehicle. This action cannot be undone.",
-       [
-         {
-           text: "Cancel",
-           onPress: () => {
-             return;
-           },
-           style: "cancel",
-         },
-         {
-           text: "OK",
-           onPress: () => {
-             if (initialData?._id) {
-               dispatch(deleteVehicle(initialData?._id));
-               router.push("/vehicles");
-             }
-           },
-         },
-       ]
-     );
-   };
+  const handleDelete = () => {
+    // confirm action
+    Alert.alert(
+      "Warning!",
+      "You're about to delete the Vehicle. This action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          onPress: () => {
+            return;
+          },
+          style: "cancel",
+        },
+        {
+          text: "OK",
+          onPress: () => {
+            if (initialData?._id) {
+              dispatch(deleteVehicle(initialData?._id));
+              router.push("/vehicles");
+            }
+          },
+        },
+      ]
+    );
+  };
 
-   const handleEdit = () => {
-     router.push(`/vehicles/edit/${initialData?._id}`);
-   };
+  const handleEdit = () => {
+    router.push(`/vehicles/edit/${initialData?._id}`);
+  };
 
   useEffect(() => {
     if (success) {
@@ -127,7 +126,7 @@ const VehicleForm = ({ mode = "new", title="View Vehicle", initialData = {}, onS
       return () => clearTimeout(timeout);
     }
 
-    if (error){
+    if (error) {
       setForm({
         vehicleMake: "",
         vehicleModel: "",
@@ -142,7 +141,6 @@ const VehicleForm = ({ mode = "new", title="View Vehicle", initialData = {}, onS
       Alert.alert("Error", error.message);
     }
   }, [success]);
-
 
   useEffect(() => {
     const fetchVehicleStaff = async () => {
@@ -179,7 +177,11 @@ const VehicleForm = ({ mode = "new", title="View Vehicle", initialData = {}, onS
 
   return (
     <SafeAreaView className='flex-1 bg-white'>
-      <TopBar title={title} />
+      <TopBar title={title}>
+        <Link href='/vehicles'>
+          <Icon name='truck' size={24} color='#FFF' />
+        </Link>
+      </TopBar>
       {loading ? (
         <Loading />
       ) : (

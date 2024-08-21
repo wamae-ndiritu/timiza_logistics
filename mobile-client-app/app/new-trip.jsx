@@ -7,8 +7,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import TopBar from "../components/TopBar";
 import { useDispatch, useSelector } from "react-redux";
 import { startTrip } from "../lib/redux/actions/tripActions";
-import { router } from "expo-router";
+import { Link, router } from "expo-router";
 import { resetTripState } from "../lib/redux/slices/tripSlices";
+import Icon from "react-native-vector-icons/Feather";
 import Loading from "../components/Loading";
 import Error from "../components/Error";
 
@@ -76,7 +77,11 @@ const NewTrip = () => {
 
   return (
     <SafeAreaView className='flex-1'>
-      <TopBar title='New Trip' />
+      <TopBar title='New Trip'>
+        <Link href='/trip'>
+          <Icon name='map-pin' size={24} color='#FFF' />
+        </Link>
+      </TopBar>
       {loading ? (
         <Loading />
       ) : error ? (
