@@ -95,7 +95,7 @@ const TabsLayout = () => {
           }}
         />
         <Tabs.Screen
-          name='(staff)'
+          name='staff'
           options={{
             title: "Staff",
             headerShown: false,
@@ -115,7 +115,7 @@ const TabsLayout = () => {
           options={{
             title: "Account",
             headerShown: false,
-            href: !isAdmin ? "/profile" : null,
+            href: "/profile",
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
                 icon='user'
