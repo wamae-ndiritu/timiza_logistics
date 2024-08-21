@@ -13,6 +13,7 @@ import Icon from "react-native-vector-icons/Feather";
 import { useSelector } from "react-redux";
 import { images } from "../../constants";
 import { router } from "expo-router";
+import HomeHeader from "../../components/HomeHeader";
 
 const DriverHome = () => {
   const { userData } = useSelector((state) => state.user);
@@ -67,35 +68,7 @@ const DriverHome = () => {
 
   return (
     <SafeAreaView className='bg-white flex-1'>
-      <View className='bg-secondary py-4'>
-        <View className='flex-row justify-between items-center px-4'>
-          <Image
-            source={images.logoHorizontal}
-            className='w-44 h-10'
-            resizeMode='contain'
-          />
-          <TouchableOpacity onPress={() => router.push("/profile")}>
-            <Text className='text-xl font-semibold text-orange capitalize'>
-              Hi, {userData?.fullName || userData?.user?.role}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-      <View className='mx-4 mt-6'>
-        <View className='bg-orange p-4 rounded-lg flex-row items-center space-x-4'>
-          <View className='bg-primary p-2 rounded-full'>
-            <Icon name='calendar' size={40} color='#fff' />
-          </View>
-          <View>
-            <Text className='text-white text-lg'>
-              {formatDateTime(dateTime)}
-            </Text>
-            <Text className='text-secondary text-xl font-bold'>
-              {dateTime.toLocaleTimeString()}
-            </Text>
-          </View>
-        </View>
-      </View>
+      <HomeHeader />
       <View className='my-6 mx-4'>
         <Text className='text-xl font-semibold text-gray-700 mb-4'>
           Dashboard
