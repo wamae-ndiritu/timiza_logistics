@@ -17,6 +17,7 @@ import { resetTripState } from "../../../lib/redux/slices/tripSlices";
 const TripViewScreen = () => {
   const { id } = useLocalSearchParams();
   const dispatch = useDispatch();
+  const { userData } = useSelector((state) => state.user);
   const { currentTrip, loading, error, successUpdate, completed } = useSelector(
     (state) => state.trip
   );
@@ -89,7 +90,7 @@ const TripViewScreen = () => {
             </Text>
           )}
           {/* Trip Information */}
-          <View className='mb-4 p-4 bg-gray-100 rounded-lg'>
+          <View className='mb-4 p-4 bg-slate-100 rounded-lg'>
             <Text className='text-xl font-semibold text-gray-700 mb-2'>
               Trip Information
             </Text>
@@ -121,7 +122,7 @@ const TripViewScreen = () => {
           </View>
 
           {/* Vehicle Information */}
-          <View className='mb-4 p-4 bg-gray-100 rounded-lg'>
+          <View className='mb-4 p-4 bg-slate-200 rounded-lg'>
             <Text className='text-xl font-semibold text-gray-700 mb-2'>
               Vehicle Information
             </Text>
@@ -137,7 +138,7 @@ const TripViewScreen = () => {
           </View>
 
           {/* Driver Information */}
-          <View className='mb-4 p-4 bg-gray-100 rounded-lg'>
+          <View className='mb-4 p-4 bg-slate-100 rounded-lg'>
             <Text className='text-xl font-semibold text-gray-700 mb-2'>
               Driver Information
             </Text>
@@ -153,7 +154,7 @@ const TripViewScreen = () => {
           </View>
 
           {/* Loaders Information */}
-          <View className='mb-4 p-4 bg-gray-100 rounded-lg'>
+          <View className='mb-4 p-4 bg-slate-200 rounded-lg'>
             <Text className='text-xl font-semibold text-gray-700 mb-2'>
               Loaders Information
             </Text>
@@ -174,37 +175,53 @@ const TripViewScreen = () => {
           </View>
 
           {/* Attach Delivery Note Button */}
-          <TouchableOpacity
-            onPress={handleAttachDeliveryNote}
-            className='mt-4 p-4 bg-orange-500 rounded-lg flex-row items-center justify-center'
-          >
-            {currentTrip?.deliveryNote ? (
-              <>
-                <Icon name='check-square' size={20} color='white' />
-                <Text className='ml-2 text-white text-lg font-semibold'>
-                  View Delivery Note
-                </Text>
-              </>
-            ) : (
-              <>
-                <Icon name='file-plus' size={20} color='white' />
-                <Text className='ml-2 text-white text-xl font-semibold'>
-                  Attach Delivery Note
-                </Text>
-              </>
-            )}
-          </TouchableOpacity>
-          {currentTrip?.endLocation?.coordinates.length < 1 && (
+          {userData?.user?.role === "admin" && currentTrip?.deliveryNote && (
             <TouchableOpacity
-              onPress={handleFinishTrip}
-              className='mt-4 p-4 bg-green-500 rounded-lg flex-row items-center px-8'
+              onPress={handleAttachDeliveryNote}
+              className='mt-4 p-4 bg-orange-500 rounded-lg flex-row items-center px-8'
             >
-              <Icon name='clock' size={28} color='white' />
-              <Text className='ml-2 text-white text-xl font-semibold'>
-                Finish Trip
+              <Icon name='check-square' size={20} color='white' />
+              <Text className='ml-2 text-white text-lg font-semibold'>
+                View Delivery Note
               </Text>
             </TouchableOpacity>
           )}
+
+          {userData?.user?.role !== "admin" && (
+            <TouchableOpacity
+              onPress={handleAttachDeliveryNote}
+              className='mt-4 p-4 bg-orange-500 rounded-lg flex-row items-center px-8'
+            >
+              {currentTrip?.deliveryNote ? (
+                <>
+                  <Icon name='check-square' size={20} color='white' />
+                  <Text className='ml-2 text-white text-lg font-semibold'>
+                    View Delivery Note
+                  </Text>
+                </>
+              ) : (
+                <>
+                  <Icon name='file-plus' size={20} color='white' />
+                  <Text className='ml-2 text-white text-xl font-semibold'>
+                    Attach Delivery Note
+                  </Text>
+                </>
+              )}
+            </TouchableOpacity>
+          )}
+
+          {userData?.user?.role !== "admin" &&
+            currentTrip?.endLocation?.coordinates.length < 1 && (
+              <TouchableOpacity
+                onPress={handleFinishTrip}
+                className='mt-4 p-4 bg-green-500 rounded-lg flex-row items-center px-8'
+              >
+                <Icon name='clock' size={24} color='white' />
+                <Text className='ml-2 text-white text-lg font-semibold'>
+                  Finish Trip
+                </Text>
+              </TouchableOpacity>
+            )}
         </ScrollView>
       )}
     </SafeAreaView>

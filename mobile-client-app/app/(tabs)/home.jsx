@@ -83,34 +83,35 @@ const Home = () => {
   return (
     <AdminRoute>
       <SafeAreaView className='bg-white flex-1'>
-        <View className='bg-secondary py-4'>
+        <View className='bg-secondary h-4'></View>
+        <View className='bg-white pt-4'>
           <View className='flex-row justify-between items-center px-4'>
             <Image
               source={images.logoHorizontal}
               className='w-44 h-10'
               resizeMode='contain'
             />
-            <TouchableOpacity onPress={() => router.push("/profile")}>
-              <Text className='text-xl font-semibold text-orange capitalize'>
+            <TouchableOpacity
+              className='flex-row space-x-2 items-center'
+              onPress={() => router.push("/profile")}
+            >
+              <Text className='text- font-semibold text-orange capitalize'>
                 Hi, {userData?.fullName || userData?.user?.role}
               </Text>
+              <Icon name='user' size={20} color='#000' />
             </TouchableOpacity>
           </View>
         </View>
         <View className='mx-4 mt-6'>
-          <View className='bg-orange p-4 rounded-lg flex-row items-center space-x-4'>
+          <View className='bg-secondary p-4 rounded-lg flex-row items-center space-x-4'>
             <View className='bg-primary p-2 rounded-full'>
-              <Image
-                source={icons.schedule}
-                className='h-14 w-14'
-                resizeMode='contain'
-              />
+              <Icon name='calendar' size={24} color='#000' />
             </View>
             <View>
               <Text className='text-white text-lg'>
                 {formatDateTime(dateTime)}
               </Text>
-              <Text className='text-secondary text-xl font-bold'>
+              <Text className='text-orange'>
                 {dateTime.toLocaleTimeString()}
               </Text>
             </View>

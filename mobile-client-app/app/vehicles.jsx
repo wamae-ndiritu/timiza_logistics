@@ -2,7 +2,6 @@ import { View, Text, TouchableOpacity, FlatList, RefreshControl } from "react-na
 import React, { useCallback, useEffect, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Feather } from "react-native-vector-icons";
 import { useRouter } from "expo-router";
 import Icon from "react-native-vector-icons/Feather";
 import { useDispatch, useSelector } from "react-redux";
@@ -43,11 +42,13 @@ const Vehicles = () => {
         <Text className='text-lg font-semibold text-gray-700'>
           {item.vehicleMake} {item.vehicleModel}
         </Text>
-        <View className='w-full pr-5 flex-row space-x-4'>
+        <View className='w-full pr-5 flex-row space-x-4 overflow-x-hidden'>
           <Text className='text-sm text-gray-500'>
             {item.vehicleNumberPlate}
           </Text>
-          <Text className='text-sm text-gray-500'>{item.ownerName}</Text>
+          <Text className='text-sm text-gray-500 overflow-x-hidden'>
+            {item.ownerName}
+          </Text>
         </View>
       </View>
     </TouchableOpacity>
