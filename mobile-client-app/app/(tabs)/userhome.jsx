@@ -61,16 +61,24 @@ const DriverHome = () => {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
         />
-        <Text className='text-xl font-semibold text-gray-700 mb-2'>
-          Current Truck
-        </Text>
-        <View className='bg-secondary py-2 px-4 rounded flex-row items-center space-x-4'>
-          <Icon name='truck' size={60} color='#FFFFFF' />
-          <View>
-            <Text className='uppercase text-xl text-white'>{currentTruck?.vehicleNumberPlate}</Text>
-            <Text className='text-white'>{currentTruck?.vehicleMake} {currentTruck?.vehicleModel}</Text>
-          </View>
-        </View>
+        {currentTruck && (
+          <>
+            <Text className='text-xl font-semibold text-gray-700 mb-2'>
+              Current Truck
+            </Text>
+            <View className='bg-secondary py-2 px-4 rounded flex-row items-center space-x-4'>
+              <Icon name='truck' size={60} color='#FFFFFF' />
+              <View>
+                <Text className='uppercase text-xl text-white'>
+                  {currentTruck?.vehicleNumberPlate}
+                </Text>
+                <Text className='text-white'>
+                  {currentTruck?.vehicleMake} {currentTruck?.vehicleModel}
+                </Text>
+              </View>
+            </View>
+          </>
+        )}
       </View>
       <StatusBar backgroundColor='#2A7353' style='light' />
     </SafeAreaView>

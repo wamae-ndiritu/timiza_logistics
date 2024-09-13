@@ -16,7 +16,9 @@ const router = express.Router();
 
 // User login
 router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+  const { password } = req.body;
+  let email = req.body.email;
+  email = email.toLowerCase();
 
   try {
     // Find user by email

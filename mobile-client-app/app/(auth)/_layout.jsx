@@ -10,7 +10,6 @@ const AuthLayout = () => {
       return <Redirect href='/home' />;
   }
 
-
   if (userData?.token && userData.user.role !== "admin" && !userData?.user?.isDefaultPassword){
       return <Redirect href='/userhome' />;
   }

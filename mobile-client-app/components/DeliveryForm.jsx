@@ -111,10 +111,10 @@ const DeliveryForm = ({ mode = "new", title="View Delivery", initialData = {}, o
   const submit = async () => {
     setFileErr(null);
     setUploading(true);
-    if (!file && mode === "new") {
-      alert("Please select a file first.");
-      return;
-    }
+    // if (!file && mode === "new") {
+    //   alert("Please select a file first.");
+    //   return;
+    // }
 
     try {
       let fileRef = form.fileRef;

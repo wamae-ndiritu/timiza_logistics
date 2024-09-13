@@ -22,6 +22,8 @@ const Home = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const {stats} = useSelector((state) => state.global);
+  const {userData} = useSelector((state) => state.user);
+
 
   const [refreshing, setRefreshing] = useState(false);
 
