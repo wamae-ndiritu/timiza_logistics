@@ -18,6 +18,12 @@ const Trip = require("./models/TripModel.js");
 // Database
 connectDatabase();
 
+// Middleware to log every request
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+  next(); 
+});
+
 // Middleware
 // Increase the limit to 10mb (for example)
 app.use(express.json({ limit: '10mb' }));

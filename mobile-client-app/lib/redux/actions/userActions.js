@@ -128,7 +128,7 @@ export const getUserProfile = () => async (dispatch, getState) => {
       },
     };
     dispatch(userActionStart());
-    const { data } = await axios.get(`${END_POINT}/users/profile`, config);
+    const { data } = await axios.get(`${END_POINT}/users/profile`);
     dispatch(getProfile(data));
   } catch (error) {
     console.log(error);

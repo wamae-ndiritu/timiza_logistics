@@ -55,11 +55,9 @@ router.post("/login", async (req, res) => {
     let userDetails = {};
     if (foundUser.role === "driver" || foundUser.role === "loader") {
       payload = {
-        user: {
-          id: user.user._id,
-          email: user.user.email,
-          role: user.user.role,
-        },
+        id: user.user._id,
+        email: user.user.email,
+        role: user.user.role,
       };
       userDetails = {
         _id: user._id,
@@ -80,11 +78,9 @@ router.post("/login", async (req, res) => {
       };
     } else {
       payload = {
-        user: {
-          id: user._id,
-          email: user.email,
-          role: user.role,
-        },
+        id: user._id,
+        email: user.email,
+        role: user.role,
       };
       userDetails = {
         _id: user._id,
@@ -257,49 +253,9 @@ router.get("/:id", verify, async (req, res) => {
   }
 });
 
-// User get their profile
-router.get("/profile", verify, async (req, res) => {
-  const type = req.user.role;
 
-  console.log(type);
-  try {
-    let user;
 
-    if (type === "driver") {
-      console.log("Driver found...");
-      user = await Driver.findOne({ user: req.user.id }).populate("user");
-      console.log(user);
-    } else if (type === "loader") {
-      console.log("Laoder found...");
-      user = await Loader.findOne({ user: req.user.id }).populate("user");
-      console.log(user);
-    } else {
-      const user = User.findById(req.user.id);
-      return res.status(200).json(user);
-    }
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    let profile = {
-      _id: user.user._id,
-      email: user.user.email,
-      role: user.user.role,
-      fullName: user.fullName,
-      phoneNumber: user.phoneNumber,
-      nationalId: user.nationalId,
-      drivingLicense: user.drivingLicense,
-      nationalIdFront: user.nationalIdFront,
-      nationalIdBack: user.nationalIdBack,
-    };
-
-    res.status(200).json(profile);
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: error.message });
-  }
-});
 
 // User update  their profile (password only)
 router.put("/profile", verify, async (req, res) => {
@@ -349,12 +305,10 @@ router.post("/send-reset-password", async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res
-        .status(404)
-        .json({
-          message:
-            "User with the provided email was not found. Please try again using another email!",
-        });
+      return res.status(404).json({
+        message:
+          "User with the provided email was not found. Please try again using another email!",
+      });
     }
 
     const otp = generateOTP();
@@ -373,9 +327,7 @@ router.post("/send-reset-password", async (req, res) => {
       `Hi ${user.fullName},\nA request to reset your password has been made. Your reset code is ${otp}. This code expire in 10 minutes. Please ignore this if you didn't request a password reset.`
     );
 
-    res
-      .status(200)
-      .json(user);
+    res.status(200).json(user);
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: error.message });
@@ -409,9 +361,7 @@ router.put("/verify-otp", async (req, res) => {
 
     const account = await User.findById(user);
     if (!account) {
-      return res
-        .status(404)
-        .json({ message: "An error occured!" });
+      return res.status(404).json({ message: "An error occured!" });
     }
 
     // Set the new password (it will be hashed by the pre-save hook)
@@ -420,7 +370,7 @@ router.put("/verify-otp", async (req, res) => {
 
     await account.save();
 
-    await PasswordReset.findOneAndDelete({user: account._id});
+    await PasswordReset.findOneAndDelete({ user: account._id });
 
     res.status(200).json({
       message: "Password reset successful!",

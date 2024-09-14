@@ -24,6 +24,8 @@ const Trips = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const { trips, success, loading } = useSelector((state) => state.trip);
+
+  console.log(trips)
   const {userData} = useSelector((state) => state.user);
 
   const [refreshing, setRefreshing] = useState(false);

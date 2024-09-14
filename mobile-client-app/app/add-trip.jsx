@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  Button,
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
@@ -11,7 +10,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import * as Location from "expo-location";
 import axios from "axios";
-import RNPickerSelect from "react-native-picker-select";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { router } from "expo-router";
 

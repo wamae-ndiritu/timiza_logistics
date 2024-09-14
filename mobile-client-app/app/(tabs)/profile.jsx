@@ -24,7 +24,7 @@ import { uploadImageToCloudinary } from "../../lib/cloudinary";
 
 const Profile = () => {
   const dispatch = useDispatch();
-  const { userData, profile, updateSuccess, loading } = useSelector((state) => state.user);
+  const { userData, profile, updateSuccess, loading,  error } = useSelector((state) => state.user);
 
   const [form, setForm] = useState({
     nationalIdFront: null,
@@ -77,6 +77,8 @@ const Profile = () => {
     }
   };
 
+  console.log(error)
+
   const submit = async () => {
     if (!form.nationalIdFront || !form.nationalIdBack) {
       Alert.alert("Please select both front and back images");
@@ -110,7 +112,6 @@ const Profile = () => {
       setForm({nationalIdFront: profile.nationalIdFront, nationalIdBack: profile.nationalIdBack})
     }
   }, [profile])
-
 
   return (
     <SafeAreaView className='bg-white h-full'>
