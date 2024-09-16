@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ScrollView, Alert } from "react-native";
+import { ScrollView, Alert, View, Text, TouchableOpacity } from "react-native";
 import * as Location from "expo-location";
 import FormField from "../components/FormField";
 import CustomButton from "../components/CustomButton";
@@ -17,10 +17,13 @@ const NewTrip = () => {
   const dispatch = useDispatch();
   const { loading, success, error } = useSelector((state) => state.trip);
   const [startLocation, setStartLocation] = useState("");
-  const [destination, setDestination] = useState("");
-  const [invoiceNumber, setInvoiceNumber] = useState("");
+  const [destinationInput, setDestinationInput] = useState("");
+  const [destinations, setDestinations] = useState([]);
+  const [invoiceInput, setInvoiceInput] = useState("");
+  const [invoices, setInvoices] = useState([]);
   const [errorMsg, setErrorMsg] = useState(null);
 
+  // Preserve existing code for auto-fetching location
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -34,30 +37,54 @@ const NewTrip = () => {
       }
 
       let location = await Location.getCurrentPositionAsync({});
-      setStartLocation(
-        `${location.coords.longitude},${location.coords.latitude}`
-      );
+      // setStartLocation(
+      //   `${location.coords.longitude},${location.coords.latitude}`
+      // );
     })();
   }, []);
 
-  const handleChange = (name, value) => {
-    if (name === "destination") {
-      setDestination(value);
-    } else if (name === "invoiceNumber") {
-      setInvoiceNumber(value)
+  const handleAddDestination = () => {
+    if (!destinationInput) {
+      Alert.alert("Error", "Please enter a destination!");
+      return;
     }
+    setDestinations([...destinations, destinationInput]);
+    setDestinationInput(""); // Clear input after adding
+  };
+
+  const handleRemoveDestination = (index) => {
+    const updatedDestinations = destinations.filter((_, i) => i !== index);
+    setDestinations(updatedDestinations);
+  };
+
+  const handleAddInvoice = () => {
+    if (!invoiceInput) {
+      Alert.alert("Error", "Please enter an invoice number!");
+      return;
+    }
+    setInvoices([...invoices, invoiceInput]);
+    setInvoiceInput(""); // Clear input after adding
+  };
+
+  const handleRemoveInvoice = (index) => {
+    const updatedInvoices = invoices.filter((_, i) => i !== index);
+    setInvoices(updatedInvoices);
   };
 
   const submitForm = () => {
-    if (!destination) {
-      Alert.alert("Error", "Please enter your destination!");
+    if (!startLocation || !destinations.length) {
+      Alert.alert(
+        "Error",
+        "Please enter start location and at least one destination!"
+      );
       return;
     }
+
     dispatch(
       startTrip({
-        startLocation: { coordinates: startLocation.split(",").map(Number) },
-        expectedDestination: destination,
-        invoiceNumber,
+        startLocation, // String start location
+        destinations, // Array of destinations
+        invoices, // Array of invoice numbers
       })
     );
   };
@@ -89,33 +116,102 @@ const NewTrip = () => {
       ) : (
         <ScrollView className='px-4 py-4'>
           {error && <Error>{error}</Error>}
-          <FormField
-            title='Start Location'
-            placeholder='Enter start location coordinates (longitude, latitude)'
-            value={startLocation}
-            handleChangeText={(e) => handleChange("startLocation", e)}
-            otherStyles='mb-3'
-            inputStyles='bg-slate-50'
-            editable={false} // Disabling editing since location is auto-filled
-          />
+          <View className='flex-row items-end mb-3'>
+            <FormField
+              title='Start Location'
+              placeholder='Kagundo etc.'
+              value={startLocation}
+              handleChangeText={(e) => setStartLocation(e)}
+              otherStyles='flex-1'
+              inputStyles='bg-slate-50'
+            />
+            <TouchableOpacity className=''>
+              <Icon
+                name='check-circle'
+                size={28}
+                color='transparent'
+                style={{ marginLeft: 10 }}
+              />
+            </TouchableOpacity>
+          </View>
 
-          <FormField
-            title='Destination'
-            placeholder='Enter nearest town or centre'
-            value={destination}
-            handleChangeText={(e) => handleChange("destination", e)}
-            otherStyles='mb-3'
-            inputStyles='bg-slate-50'
-          />
+          <View className='flex-row items-end mb-3'>
+            <FormField
+              title='Destination'
+              placeholder='Kiamathaga etc'
+              value={destinationInput}
+              handleChangeText={(e) => setDestinationInput(e)}
+              otherStyles='flex-1'
+              inputStyles='bg-slate-50'
+            />
+            <TouchableOpacity onPress={handleAddDestination}>
+              <Icon
+                name='check-circle'
+                size={28}
+                color='green'
+                style={{ marginLeft: 10 }}
+              />
+            </TouchableOpacity>
+          </View>
 
-          <FormField
-            title='Invoice Number'
-            placeholder='Enter invoice number'
-            value={invoiceNumber}
-            handleChangeText={(e) => handleChange("invoiceNumber", e)}
-            otherStyles='mb-3'
-            inputStyles='bg-slate-50'
-          />
+          {destinations.length > 0 && (
+            <View className='mb-4'>
+              <Text className='text-base text-gray-600'>
+                Added Destinations
+              </Text>
+              {destinations.map((destination, index) => (
+                <View
+                  key={index}
+                  className='flex-row items-center justify-between mb-2'
+                >
+                  <Text className='text-gray-600'>{destination}</Text>
+                  <TouchableOpacity
+                    onPress={() => handleRemoveDestination(index)}
+                  >
+                    <Icon name='x-circle' size={24} color='red' />
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+          )}
+
+          <View className='flex-row items-end mb-3'>
+            <FormField
+              title='Invoice Number'
+              placeholder='484395 etc'
+              value={invoiceInput}
+              handleChangeText={(e) => setInvoiceInput(e)}
+              otherStyles='flex-1'
+              inputStyles='bg-slate-50'
+            />
+            <TouchableOpacity onPress={handleAddInvoice}>
+              <Icon
+                name='check-circle'
+                size={28}
+                color='green'
+                style={{ marginLeft: 10 }}
+              />
+            </TouchableOpacity>
+          </View>
+
+          {invoices.length > 0 && (
+            <View className='mb-4'>
+              <Text className='text-base text-gray-600 text-lg py-1'>
+                Added Invoices
+              </Text>
+              {invoices.map((invoice, index) => (
+                <View
+                  key={index}
+                  className='flex-row items-center justify-between mb-2'
+                >
+                  <Text className='text-gray-600'>{invoice}</Text>
+                  <TouchableOpacity onPress={() => handleRemoveInvoice(index)}>
+                    <Icon name='x-circle' size={24} color='red' />
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+          )}
 
           <CustomButton
             title='Start Trip'
