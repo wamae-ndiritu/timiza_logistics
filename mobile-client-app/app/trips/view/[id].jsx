@@ -1,11 +1,20 @@
-import { ScrollView, View, Text, TouchableOpacity } from "react-native";
+import {
+  ScrollView,
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  TextInput,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
 import {
   completeTrip,
   getTripById,
-} from "../../../lib/redux/actions/tripActions";
+  markDestinationReached,
+  rejectInvoiceAtDestination,
+} from "../../../lib/redux/actions/tripActions"; // new actions
 import { SafeAreaView } from "react-native-safe-area-context";
 import TopBar from "../../../components/TopBar";
 import Icon from "react-native-vector-icons/Feather";
@@ -23,6 +32,7 @@ const TripViewScreen = () => {
   );
 
   const [endLocation, setEndLocation] = useState("");
+  const [rejectionReason, setRejectionReason] = useState("");
 
   useEffect(() => {
     if (id) {
@@ -30,26 +40,16 @@ const TripViewScreen = () => {
     }
   }, [dispatch, id, successUpdate, completed]);
 
-  const handleAttachDeliveryNote = () => {
-    if (currentTrip?.deliveryNote) {
-      router.push(`/view-delivery/${currentTrip?.deliveryNote?._id}`);
-    } else {
-      router.push(`/trips/${id}/attach-delivery-note`);
-    }
-  };
-
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        setErrorMsg("Permission to access location was denied");
         Alert.alert(
           "Permission Denied",
           "Cannot access location. Please enable location services."
         );
         return;
       }
-
       let location = await Location.getCurrentPositionAsync({});
       setEndLocation(
         `${location.coords.longitude},${location.coords.latitude}`
@@ -65,15 +65,28 @@ const TripViewScreen = () => {
     );
   };
 
-  useEffect(() => {
-    if (completed) {
-      const timeout = setTimeout(() => {
-        dispatch(resetTripState());
-      }, 5000);
+  const handleMarkDestinationReached = (destinationId) => {
+    dispatch(markDestinationReached(id, destinationId));
+  };
 
-      return () => clearTimeout(timeout);
+  const handleRejectInvoice = (destinationId, invoiceNumber) => {
+    if (!rejectionReason) {
+      Alert.alert(
+        "Rejection Reason Required",
+        "Please provide a reason for rejecting the invoice."
+      );
+      return;
     }
-  });
+    dispatch(
+      rejectInvoiceAtDestination(
+        id,
+        destinationId,
+        invoiceNumber,
+        rejectionReason
+      )
+    );
+    setRejectionReason(""); // Clear the rejection reason after submitting
+  };
 
   return (
     <SafeAreaView className='flex-1 bg-white'>
@@ -89,127 +102,108 @@ const TripViewScreen = () => {
               Your trip has been marked as completed!
             </Text>
           )}
+
           {/* Trip Information */}
           <View className='mb-4 p-4 bg-slate-100 rounded-lg'>
             <Text className='text-xl font-semibold text-gray-700 mb-2'>
               Trip Information
             </Text>
             <Text className='text-sm text-gray-600'>
-              Start Location:{" "}
-              {currentTrip?.startLocation?.coordinates
-                ? `${currentTrip.startLocation.coordinates[1]}, ${currentTrip.startLocation.coordinates[0]}`
-                : "Unknown"}
+              Start Location: {currentTrip?.startLocation || "Unknown"}
             </Text>
             <Text className='text-sm text-gray-600'>
-              End Location:{" "}
-              {currentTrip?.endLocation?.coordinates.length > 0
-                ? `${currentTrip.endLocation.coordinates[1]}, ${currentTrip.endLocation.coordinates[0]}`
-                : "Ongoing"}
-            </Text>
-            <Text className='text-sm text-gray-600'>
-              Start Time: {new Date(currentTrip?.startTime).toLocaleString()}
-            </Text>
-            <Text className='text-sm text-gray-600'>
-              End Time:{" "}
-              {currentTrip?.endTime
-                ? new Date(currentTrip.endTime).toLocaleString()
-                : "Ongoing"}
-            </Text>
-            <Text className='text-sm text-gray-600'>
-              Time Spent:{" "}
-              {currentTrip?.timeSpent ? `${currentTrip.timeSpent}` : "Ongoing"}
+              Time Spent: {currentTrip?.timeSpent || "Ongoing"}
             </Text>
           </View>
 
-          {/* Vehicle Information */}
-          <View className='mb-4 p-4 bg-slate-200 rounded-lg'>
-            <Text className='text-xl font-semibold text-gray-700 mb-2'>
-              Vehicle Information
-            </Text>
-            <Text className='text-sm text-gray-600'>
-              Number Plate: {currentTrip?.vehicle?.vehicleNumberPlate}
-            </Text>
-            <Text className='text-sm text-gray-600'>
-              Model: {currentTrip?.vehicle?.vehicleModel}
-            </Text>
-            <Text className='text-sm text-gray-600'>
-              Capacity: {currentTrip?.vehicle?.tonnageCategory}
-            </Text>
-          </View>
-
-          {/* Driver Information */}
+          {/* Vehicle and Driver Information */}
           <View className='mb-4 p-4 bg-slate-100 rounded-lg'>
             <Text className='text-xl font-semibold text-gray-700 mb-2'>
-              Driver Information
+              Vehicle and Driver Information
             </Text>
             <Text className='text-sm text-gray-600'>
-              Name: {currentTrip?.driver?.fullName}
+              Vehicle: {currentTrip?.vehicle?.name || "N/A"} (Plate:{" "}
+              {currentTrip?.vehicle?.plateNumber || "N/A"})
             </Text>
             <Text className='text-sm text-gray-600'>
-              License Number: {currentTrip?.driver?.licenseNumber}
-            </Text>
-            <Text className='text-sm text-gray-600'>
-              Contact: {currentTrip?.driver?.contactNumber}
+              Driver: {currentTrip?.driver?.name || "N/A"} (Phone:{" "}
+              {currentTrip?.driver?.phone || "N/A"})
             </Text>
           </View>
 
-          {/* Loaders Information */}
-          <View className='mb-4 p-4 bg-slate-200 rounded-lg'>
-            <Text className='text-xl font-semibold text-gray-700 mb-2'>
-              Loaders Information
-            </Text>
-            {currentTrip?.loaders?.length > 0 ? (
-              currentTrip.loaders.map((loader) => (
-                <View key={loader._id} className='mb-2'>
-                  <Text className='text-sm text-gray-600'>
-                    Name: {loader.fullName}
-                  </Text>
-                  <Text className='text-sm text-gray-600'>
-                    Contact: {loader.contactNumber}
-                  </Text>
-                </View>
-              ))
-            ) : (
-              <Text className='text-sm text-gray-600'>No Loaders Assigned</Text>
-            )}
-          </View>
-
-          {/* Attach Delivery Note Button */}
-          {userData?.user?.role === "admin" && currentTrip?.deliveryNote && (
-            <TouchableOpacity
-              onPress={handleAttachDeliveryNote}
-              className='mt-4 p-4 bg-orange-500 rounded-lg flex-row items-center px-8'
-            >
-              <Icon name='check-square' size={20} color='white' />
-              <Text className='ml-2 text-white text-lg font-semibold'>
-                View Delivery Note
+          {/* Destinations Information */}
+          {currentTrip?.destinations?.map((destination, index) => (
+            <View key={index} className='mb-4 p-4 bg-slate-200 rounded-lg'>
+              <Text className='text-xl font-semibold text-gray-700 mb-2'>
+                Destination {index + 1}: {destination.location}
               </Text>
-            </TouchableOpacity>
-          )}
+              <Text className='text-sm text-gray-600'>
+                Reached: {destination.reached ? "Yes" : "No"}
+              </Text>
+              {destination.reached && destination.reachedAt && (
+                <Text className='text-sm text-gray-600'>
+                  Reached At: {new Date(destination.reachedAt).toLocaleString()}
+                </Text>
+              )}
 
-          {userData?.user?.role !== "admin" && (
-            <TouchableOpacity
-              onPress={handleAttachDeliveryNote}
-              className='mt-4 p-4 bg-orange-500 rounded-lg flex-row items-center px-8'
-            >
-              {currentTrip?.deliveryNote ? (
-                <>
+              {/* Invoices */}
+              <Text className='text-lg font-semibold text-gray-700 mt-2'>
+                Invoices:
+              </Text>
+              {destination.invoices.map((invoice) => (
+                <View key={invoice.invoiceNumber} className='mb-2'>
+                  <Text className='text-sm text-gray-600'>
+                    Invoice Number: {invoice.invoiceNumber}
+                  </Text>
+                  <Text className='text-sm text-gray-600'>
+                    Delivered: {invoice.delivered ? "Yes" : "No"}
+                  </Text>
+                  <Text className='text-sm text-gray-600'>
+                    Rejected: {invoice.rejected ? "Yes" : "No"}
+                  </Text>
+
+                  {!invoice.rejected && (
+                    <>
+                      <TouchableOpacity
+                        onPress={() =>
+                          handleRejectInvoice(
+                            destination._id,
+                            invoice.invoiceNumber
+                          )
+                        }
+                        className='mt-2 p-2 bg-red-500 rounded-lg flex-row items-center'
+                      >
+                        <Icon name='x-square' size={20} color='white' />
+                        <Text className='ml-2 text-white text-lg font-semibold'>
+                          Reject Invoice
+                        </Text>
+                      </TouchableOpacity>
+                      <TextInput
+                        className='mt-2 p-2 border rounded-lg'
+                        placeholder='Enter rejection reason'
+                        value={rejectionReason}
+                        onChangeText={setRejectionReason}
+                      />
+                    </>
+                  )}
+                </View>
+              ))}
+
+              {!destination.reached && (
+                <TouchableOpacity
+                  onPress={() => handleMarkDestinationReached(destination._id)}
+                  className='mt-4 p-4 bg-green-500 rounded-lg flex-row items-center'
+                >
                   <Icon name='check-square' size={20} color='white' />
                   <Text className='ml-2 text-white text-lg font-semibold'>
-                    View Delivery Note
+                    Mark as Reached
                   </Text>
-                </>
-              ) : (
-                <>
-                  <Icon name='file-plus' size={20} color='white' />
-                  <Text className='ml-2 text-white text-xl font-semibold'>
-                    Attach Delivery Note
-                  </Text>
-                </>
+                </TouchableOpacity>
               )}
-            </TouchableOpacity>
-          )}
+            </View>
+          ))}
 
+          {/* Finish Trip Button */}
           {userData?.user?.role !== "admin" &&
             currentTrip?.endLocation?.coordinates.length < 1 && (
               <TouchableOpacity
