@@ -17,42 +17,44 @@ const tripSchema = new mongoose.Schema(
     ],
     startTime: { type: Date, required: true },
     endTime: { type: Date },
-    startLocation: {
-      type: { type: String, enum: ["Point"], required: true },
-      coordinates: { type: [Number], required: true }, // [longitude, latitude]
-    },
-    endLocation: {
-      type: { type: String, enum: ["Point"] },
-      coordinates: { type: [Number] }, // [longitude, latitude]
-    },
-    expectedDestination: { type: String, required: true }, 
+    startLocation: { type: String, required: true }, // String input for start location
+    destinations: [
+      {
+        location: { type: String, required: true },
+        reached: { type: Boolean, default: false },
+        reachedAt: { type: Date, default: null }, // Timestamp when marked as reached
+        invoices: [
+          {
+            invoiceNumber: { type: String, required: true }, // Invoice number
+            delivered: { type: Boolean, default: false }, // Invoice delivered flag
+            rejected: { type: Boolean, default: false }, // Invoice rejected flag
+            rejectionReason: { type: String, default: null }, // Reason if rejected
+          },
+        ],
+      },
+    ],
     timeSpent: { type: String },
     deliveryNote: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "DeliveryNote",
-      default: null, // Initially null until a delivery note is added
+      default: null,
     },
-    invoiceNumber: {type: String, default: null},
   },
   { timestamps: true }
 );
 
-// Middleware to calculate time spent on the trip before saving
+// Middleware to calculate time spent on the trip
 tripSchema.pre("save", function (next) {
   if (this.startTime && this.endTime) {
-    // Calculate the duration in minutes and round to the nearest minute
     let durationInMinutes = Math.round(
       (new Date(this.endTime) - new Date(this.startTime)) / 1000 / 60
     );
 
-    // Check if the duration is more than 60 minutes
     if (durationInMinutes >= 60) {
-      // Convert to hours and minutes
       const hours = Math.floor(durationInMinutes / 60);
       const minutes = durationInMinutes % 60;
       this.timeSpent = `${hours} hour(s) and ${minutes} minute(s)`;
     } else {
-      // If less than 60 minutes, keep it in minutes
       this.timeSpent = `${durationInMinutes} minute(s)`;
     }
   }
@@ -60,5 +62,4 @@ tripSchema.pre("save", function (next) {
 });
 
 const Trip = mongoose.model("Trip", tripSchema);
-
 module.exports = Trip;

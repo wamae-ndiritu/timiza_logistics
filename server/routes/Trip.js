@@ -9,14 +9,14 @@ const router = express.Router();
 // POST /trips/create - Create a new trip
 router.post("/create", verify, async (req, res) => {
   try {
-    const { startLocation, expectedDestination, invoiceNumber } = req.body;
+    const { startLocation, destinations } = req.body;
 
     // Validate input data
-    if (!startLocation || !startLocation.coordinates || !expectedDestination) {
+    if (!startLocation || !destinations || destinations.length === 0) {
       return res
         .status(400)
         .json({
-          message: "Start location and expected destination are required.",
+          message: "Start location and at least one destination are required.",
         });
     }
 
@@ -38,18 +38,21 @@ router.post("/create", verify, async (req, res) => {
         .json({ message: "No vehicle found for the current user." });
     }
 
-    // Create a new Trip instance
+    // Create a new Trip instance with multiple destinations and associated invoices
     const trip = new Trip({
       vehicle: vehicle._id,
       driver: vehicle.currentDriver,
       loaders: vehicle.currentLoaders,
       startTime: new Date(),
-      startLocation: {
-        type: "Point",
-        coordinates: startLocation.coordinates, // [longitude, latitude]
-      },
-      expectedDestination,
-      invoiceNumber,
+      startLocation,
+      destinations: destinations.map((destination) => ({
+        location: destination.location,
+        invoices: destination.invoices.map((invoiceNumber) => ({
+          invoiceNumber,
+          delivered: false, // Initially not delivered
+          rejected: false, // Initially not rejected
+        })),
+      })),
     });
 
     // Save the trip to the database
@@ -65,6 +68,42 @@ router.post("/create", verify, async (req, res) => {
     res
       .status(500)
       .json({ message: "An error occurred while creating the trip." });
+  }
+});
+
+// PATCH /trips/:id/destination/reached - Mark a destination as reached and update invoice status
+router.patch("/:id/destination/reached", verify, async (req, res) => {
+  try {
+    const { destinationIndex, invoices } = req.body; // Array of invoices and their statuses
+
+    const trip = await Trip.findById(req.params.id);
+    if (!trip) {
+      return res.status(404).json({ message: "Trip not found." });
+    }
+
+    // Mark the destination as reached and set the timestamp
+    trip.destinations[destinationIndex].reached = true;
+    trip.destinations[destinationIndex].reachedAt = new Date();
+
+    // Update invoice delivery status for this destination
+    invoices.forEach((invoiceUpdate, i) => {
+      const invoice = trip.destinations[destinationIndex].invoices[i];
+      invoice.delivered = invoiceUpdate.delivered;
+      invoice.rejected = invoiceUpdate.rejected;
+
+      // If rejected, add the reason
+      if (invoiceUpdate.rejected) {
+        invoice.rejectionReason = invoiceUpdate.rejectionReason || "No reason provided";
+      }
+    });
+
+    // Save the updated trip
+    await trip.save();
+
+    res.status(200).json(trip);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error updating destination and invoice status." });
   }
 });
 
