@@ -79,9 +79,10 @@ const Trips = () => {
         <Icon name='map-pin' size={28} color='#F8981D' />
       </View>
       <View>
-        <View className="flex-row flex-wrap w-[95%]">
+        <View className='flex-row flex-wrap w-[95%]'>
           <Text className='text-lg font-semibold text-gray-700'>
-            {item.startLocation} - {item.destinations[item.destinations.length - 1].location}
+            {item.startLocation} -{" "}
+            {item.destinations[item.destinations.length - 1].location}
           </Text>
         </View>
         <View className='w-full pr-5 flex-row space-x-4'>
@@ -91,6 +92,17 @@ const Trips = () => {
           <Text className='text-sm text-gray-500'>
             {item.driver ? item.driver.fullName : "No Driver"}
           </Text>
+        </View>
+        <View className='w-[90%] flex-row justify-end'>
+          {item.endTime ? (
+            <Text className='text-sm text-center bg-secondary px-2 py-1 rounded-full text-white'>
+              {item?.timeSpent} Spent
+            </Text>
+          ) : (
+            <Text className='w-20 text-sm text-center bg-slate-200 px-2 py-0.5 rounded-full text-green-600'>
+              Ongoing
+            </Text>
+          )}
         </View>
       </View>
     </TouchableOpacity>
