@@ -17,18 +17,18 @@ const tripSchema = new mongoose.Schema(
     ],
     startTime: { type: Date, required: true },
     endTime: { type: Date },
-    startLocation: { type: String, required: true }, // String input for start location
+    startLocation: { type: String, required: true },
     destinations: [
       {
         location: { type: String, required: true },
         reached: { type: Boolean, default: false },
-        reachedAt: { type: Date, default: null }, // Timestamp when marked as reached
+        reachedAt: { type: Date, default: null }, 
         invoices: [
           {
-            invoiceNumber: { type: String, required: true }, // Invoice number
-            delivered: { type: Boolean, default: false }, // Invoice delivered flag
-            rejected: { type: Boolean, default: false }, // Invoice rejected flag
-            rejectionReason: { type: String, default: null }, // Reason if rejected
+            invoiceNumber: { type: String, required: true }, 
+            accepted: { type: Boolean, default: false }, 
+            rejected: { type: Boolean, default: false },
+            rejectionReason: { type: String, default: null },
           },
         ],
       },

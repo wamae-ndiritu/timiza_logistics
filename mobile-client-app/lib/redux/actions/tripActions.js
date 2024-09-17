@@ -93,3 +93,40 @@ export const getTripById= (tripId) => async (dispatch, getState) => {
     dispatch(tripActionFail(message));
   }
 };
+
+export const updateInvoiceAtDestination =
+  (tripId, destinationId, invoiceNumber, type, rejectionReason,) =>
+  async (dispatch, getState) => {
+    try {
+      const {
+        user: { userData },
+      } = getState();
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userData?.token}`,
+          "Content-Type": "application/json",
+        },
+      };
+      let resData = {};
+      if (type === "reject"){
+        const { data } = await axios.patch(
+          `${END_POINT}/trips/${tripId}/destination/${destinationId}/invoice/${invoiceNumber}/reject`,
+          { rejectionReason },
+          config
+        );
+        resData = data;
+      }else if (type === 'accept') {
+        const { data } = await axios.patch(
+          `${END_POINT}/trips/${tripId}/destination/${destinationId}/invoice/${invoiceNumber}/accept`,
+          config
+        );
+        resData = data;
+      }
+      dispatch(getTripSuccess(data));
+    } catch (error) {
+      const message = error?.response
+        ? error.response?.data.message || error.response?.data.error
+        : error.message;
+      dispatch(tripActionFail(message));
+    }
+  };

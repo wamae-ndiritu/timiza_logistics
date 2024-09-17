@@ -71,81 +71,99 @@ router.post("/create", verify, async (req, res) => {
   }
 });
 
-// PATCH /trips/:id/destination/reached - Mark a destination as reached and update invoice status
-router.patch("/:id/destination/reached", verify, async (req, res) => {
+// PATCH /trips/:tripId/destination/:destinationIndex/invoice/:invoiceNumber/accept
+router.patch("/:tripId/destination/:destinationIndex/invoice/:invoiceNumber/accept", verify, async (req, res) => {
   try {
-    const { destinationIndex, invoices } = req.body; // Array of invoices and their statuses
+    const { tripId, destinationIndex, invoiceNumber } = req.params;
 
-    const trip = await Trip.findById(req.params.id);
+    const trip = await Trip.findById(tripId);
     if (!trip) {
       return res.status(404).json({ message: "Trip not found." });
     }
 
-    // Mark the destination as reached and set the timestamp
+    // Find the specific invoice within the destination
+    const invoice = trip.destinations[destinationIndex].invoices.find(
+      (inv) => inv.invoiceNumber === invoiceNumber
+    );
+
+    if (!invoice) {
+      return res.status(404).json({ message: "Invoice not found." });
+    }
+
+    // Mark the invoice as accepted
+    invoice.accepted = true;
+    invoice.rejected = false;
+    invoice.rejectionReason = null;
+
+    // Save the trip with updated invoice status
+    await trip.save();
+
+    res.status(200).json({ message: "Invoice accepted successfully.", trip });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error accepting invoice." });
+  }
+});
+
+// PATCH /trips/:tripId/destination/:destinationIndex/invoice/:invoiceNumber/reject
+router.patch("/:tripId/destination/:destinationIndex/invoice/:invoiceNumber/reject", verify, async (req, res) => {
+  try {
+    const { rejectionReason } = req.body;
+    const { tripId, destinationIndex, invoiceNumber } = req.params;
+
+    const trip = await Trip.findById(tripId);
+    if (!trip) {
+      return res.status(404).json({ message: "Trip not found." });
+    }
+
+    // Find the specific invoice within the destination
+    const invoice = trip.destinations[destinationIndex].invoices.find(
+      (inv) => inv.invoiceNumber === invoiceNumber
+    );
+
+    if (!invoice) {
+      return res.status(404).json({ message: "Invoice not found." });
+    }
+
+    // Reject the invoice and set rejection reason
+    invoice.rejected = true;
+    invoice.rejectionReason = rejectionReason || "No reason provided";
+
+    // Save the trip with updated invoice information
+    await trip.save();
+
+    res.status(200).json({ message: "Invoice rejected successfully.", trip });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error rejecting invoice." });
+  }
+});
+
+
+// PATCH /trips/:tripId/destination/:destinationIndex/complete
+router.patch("/:tripId/destination/:destinationIndex/complete", verify, async (req, res) => {
+  try {
+    const { tripId, destinationIndex } = req.params;
+
+    const trip = await Trip.findById(tripId);
+    if (!trip) {
+      return res.status(404).json({ message: "Trip not found." });
+    }
+
+    // Mark the destination as reached and completed
     trip.destinations[destinationIndex].reached = true;
     trip.destinations[destinationIndex].reachedAt = new Date();
-
-    // Update invoice delivery status for this destination
-    invoices.forEach((invoiceUpdate, i) => {
-      const invoice = trip.destinations[destinationIndex].invoices[i];
-      invoice.delivered = invoiceUpdate.delivered;
-      invoice.rejected = invoiceUpdate.rejected;
-
-      // If rejected, add the reason
-      if (invoiceUpdate.rejected) {
-        invoice.rejectionReason = invoiceUpdate.rejectionReason || "No reason provided";
-      }
-    });
 
     // Save the updated trip
     await trip.save();
 
-    res.status(200).json(trip);
+    res.status(200).json({ message: "Destination marked as completed.", trip });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error updating destination and invoice status." });
+    res.status(500).json({ message: "Error completing destination." });
   }
 });
 
-// Complete a trip
-router.post("/complete/:tripId", verify, async (req, res) => {
-  try {
-    const { tripId } = req.params;
-    const { endLocation } = req.body;
-
-    // Validate input data
-    if (!endLocation || !endLocation.coordinates) {
-      return res.status(400).json({
-        message: "End location is required.",
-      });
-    }
-
-    // Find the trip by ID
-    const trip = await Trip.findById(tripId);
-
-    if (!trip) {
-      return res.status(404).json({ message: "Trip not found." });
-    }
-
-    // Ensure the trip is not already completed
-    if (trip.endTime) {
-      return res.status(400).json({ message: "Trip is already completed." });
-    }
-
-    // Set the end time and end location
-    trip.endTime = new Date();
-    trip.endLocation = {
-      type: "Point",
-      coordinates: endLocation.coordinates, // [longitude, latitude]
-    };
-
-    await trip.save();
-
-    res.status(200).json(trip);
-  } catch (error) {
-    res.status(500).json({ message: "An error occurred while completing the trip." });
-  }
-});
 
 // Get trips
 router.get("/", verify, async (req, res) => {

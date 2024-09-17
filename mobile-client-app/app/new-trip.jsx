@@ -19,7 +19,7 @@ const NewTrip = () => {
   const [startLocation, setStartLocation] = useState("");
   const [destinationInput, setDestinationInput] = useState("");
   const [destinations, setDestinations] = useState([]);
-  const [invoiceInputs, setInvoiceInputs] = useState({}); // State to store invoice inputs for each destination
+  const [invoiceInputs, setInvoiceInputs] = useState({});
   const [destinationInvoices, setDestinationInvoices] = useState({});
   const [errorMsg, setErrorMsg] = useState(null);
 
