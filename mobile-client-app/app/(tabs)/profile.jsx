@@ -15,16 +15,17 @@ import moment from "moment";
 import AvatarWithInitials from "../../components/AvatarWithInitials";
 import { useDispatch, useSelector } from "react-redux";
 import { icons } from "../../constants";
-import { router } from "expo-router";
-import { logoutUser, resetUserState } from "../../lib/redux/slices/users";
+import { resetUserState } from "../../lib/redux/slices/users";
 import CustomButton from "../../components/CustomButton";
-import { getUserProfile, updateProfile } from "../../lib/redux/actions/userActions";
+import { getUserProfile, logout, updateProfile } from "../../lib/redux/actions/userActions";
 import Loading from "../../components/Loading";
 import { uploadImageToCloudinary } from "../../lib/cloudinary";
 
 const Profile = () => {
   const dispatch = useDispatch();
   const { userData, profile, updateSuccess, loading,  error } = useSelector((state) => state.user);
+
+  console.log(profile)
 
   const [form, setForm] = useState({
     nationalIdFront: null,
@@ -35,9 +36,8 @@ const Profile = () => {
   const [uploadErrFront, setUploadErrFront] = useState(null);
   const [uploadErrBack, setUploadErrBack] = useState(null);
 
-  const logout = () => {
-    dispatch(logoutUser());
-    router.replace("/sign-in");
+  const handleLogout = () => {
+    dispatch(logout());
   };
 
   const openPicker = async (side) => {
@@ -77,7 +77,6 @@ const Profile = () => {
     }
   };
 
-  console.log(error)
 
   const submit = async () => {
     if (!form.nationalIdFront || !form.nationalIdBack) {
@@ -91,8 +90,6 @@ const Profile = () => {
   useFocusEffect(
     useCallback(() => {
       dispatch(getUserProfile());
-      // if (userData?.user?.role !== "admin"){
-      // }
     }, [dispatch, userData?.user?.role])
   );
 
@@ -105,7 +102,7 @@ const Profile = () => {
 
       return () => clearInterval(interval);
     }
-  })
+  }, [updateSuccess])
 
   useEffect(() => {
     if (profile){
@@ -119,7 +116,7 @@ const Profile = () => {
         <Text className='text-white text-2xl font-psemibold'>My Account</Text>
         <TouchableOpacity
           className='bg-orange h-10 w-10 flex-row items-center justify-center rounded-full'
-          onPress={logout}
+          onPress={handleLogout}
         >
           <Image
             source={icons.logout}

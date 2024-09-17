@@ -130,10 +130,12 @@ export const getUserProfile = () => async (dispatch, getState) => {
       },
     };
     dispatch(userActionStart());
-    const { data } = await axios.get(`${END_POINT}/users/profile`);
+    const { data } = await axios.get(`${END_POINT}/users/profile`, config);
+    console.log("expected to be called...")
+    console.log(data)
     dispatch(getProfile(data));
   } catch (error) {
-    console.log(error);
+    console.log(error)
     const message = error?.response
       ? error.response?.data.message || error.response?.data.error
       : error.message;
@@ -142,21 +144,25 @@ export const getUserProfile = () => async (dispatch, getState) => {
 };
 
 // Get user by Id
-export const getUserById = async (userId, token) => {
+export const getUserById = () => async (dispatch, getState) => {
   try {
+    const {
+      user: { userData },
+    } = getState();
     const config = {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${userData?.token}`,
         "Content-Type": "application/json",
       },
     };
+    dispatch(userActionStart())
     const { data } = await axios.get(`${END_POINT}/users/${userId}`, config);
-    return data;
+    dispatch(getProfile(data));
   } catch (error) {
     const message = error?.response
       ? error.response?.data.message || error.response?.data.error
       : error.message;
-    throw new Error(message);
+      dispatch(userActionFail(message))
   }
 };
 
