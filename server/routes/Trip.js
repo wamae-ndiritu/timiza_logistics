@@ -214,8 +214,8 @@ router.get("/", verify, async (req, res) => {
       // If the user is an admin, list all trips
       trips = await Trip.find()
         .populate("vehicle")
-        .populate("driver", "fullName email")
-        .populate("loaders", "fullName email")
+        .populate("driver", "fullName email phoneNumber")
+        .populate("loaders", "fullName email phoneNumber")
         .populate("deliveryNote").sort({createdAt: -1});
     } else {
       // If the user is not an admin, list only their trips
@@ -227,8 +227,8 @@ router.get("/", verify, async (req, res) => {
 
       trips = await Trip.find({ vehicle: { $in: vehicleIds } })
         .populate("vehicle")
-        .populate("driver", "fullName email")
-        .populate("loaders", "fullName email")
+        .populate("driver", "fullName email phoneNumber")
+        .populate("loaders", "fullName email phoneNumber")
         .populate("deliveryNote").sort({createdAt: -1});
     }
 

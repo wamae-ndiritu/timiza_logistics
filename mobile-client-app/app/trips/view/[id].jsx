@@ -67,6 +67,14 @@ const TripViewScreen = () => {
     );
   };
 
+    // const handleAttachDeliveryNote = () => {
+    //   if (currentTrip?.deliveryNote) {
+    //     router.push(`/view-delivery/${currentTrip?.deliveryNote?._id}`);
+    //   } else {
+    //     router.push(`/trips/${id}/attach-delivery-note`);
+    //   }
+    // };
+
   const handleMarkDestinationReached = (destinationId) => {
     dispatch(markDestinationReached(id, destinationId));
   };
@@ -186,7 +194,7 @@ const TripViewScreen = () => {
               License Number: {currentTrip?.driver?.licenseNumber}
             </Text>
             <Text className='text-sm text-gray-600'>
-              Contact: {currentTrip?.driver?.contactNumber}
+              Contact: {currentTrip?.driver?.phoneNumber}
             </Text>
           </View>
 
@@ -202,7 +210,7 @@ const TripViewScreen = () => {
                     Name: {loader.fullName}
                   </Text>
                   <Text className='text-sm text-gray-600'>
-                    Contact: {loader.contactNumber}
+                    Contact: {loader.phoneNumber}
                   </Text>
                 </View>
               ))
@@ -382,6 +390,29 @@ const TripViewScreen = () => {
               ))}
             </View>
           ))}
+
+          {/* {userData?.user?.role !== "admin" && (
+            <TouchableOpacity
+              onPress={handleAttachDeliveryNote}
+              className='mt-4 p-4 bg-orange-500 rounded-lg flex-row items-center px-8'
+            >
+              {currentTrip?.deliveryNote ? (
+                <>
+                  <Icon name='check-square' size={20} color='white' />
+                  <Text className='ml-2 text-white text-lg font-semibold'>
+                    View Delivery Note
+                  </Text>
+                </>
+              ) : (
+                <>
+                  <Icon name='file-plus' size={20} color='white' />
+                  <Text className='ml-2 text-white text-xl font-semibold'>
+                    Attach Delivery Note
+                  </Text>
+                </>
+              )}
+            </TouchableOpacity>
+          )} */}
 
           {/* Finish Trip Button */}
           {userData?.user?.role !== "admin" && !currentTrip?.endTime && (
