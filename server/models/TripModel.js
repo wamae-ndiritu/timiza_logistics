@@ -22,12 +22,13 @@ const tripSchema = new mongoose.Schema(
       {
         location: { type: String, required: true },
         reached: { type: Boolean, default: false },
-        reachedAt: { type: Date, default: null }, 
+        reachedAt: { type: Date, default: null },
         invoices: [
           {
-            invoiceNumber: { type: String, required: true }, 
-            accepted: { type: Boolean, default: false }, 
+            invoiceNumber: { type: String, required: true },
+            accepted: { type: Boolean, default: false },
             rejected: { type: Boolean, default: false },
+            delivered: { type: Boolean, default: false },
             rejectionReason: { type: String, default: null },
           },
         ],

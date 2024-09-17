@@ -3,6 +3,7 @@ import {
   forgotPassReqSuccess,
   getProfile,
   getUserTruck,
+  logoutUser,
   userActionFail,
   userActionStart,
   userList,
@@ -11,6 +12,7 @@ import {
   userUpdate,
 } from "../slices/users";
 import { END_POINT } from "../../baseUrl";
+import { router } from "expo-router";
 
 export const login = (userForm) => async (dispatch) => {
   try {
@@ -199,3 +201,8 @@ export const getUserAssignedTruck = (userId) => async (dispatch, getState) => {
     dispatch(userActionFail(message));
   }
 };
+
+export const logout = () => (dispatch) => {
+  dispatch(logoutUser());
+  router.replace('/sign-in');
+}

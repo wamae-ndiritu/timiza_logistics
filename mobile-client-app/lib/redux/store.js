@@ -4,6 +4,7 @@ import deliveryReducer from "./slices/deliverySlices";
 import vehicleReducer from "./slices/vehicleSlices";
 import tripReducer from "./slices/tripSlices";
 import globalReducer from "./slices/globalSlices";
+import errorMiddleware from "./middleware/errorMiddleware";
 
 export const store = configureStore({
   reducer: {
@@ -15,6 +16,6 @@ export const store = configureStore({
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false, // Disable the serializable check middleware
-    }),
+      serializableCheck: false, 
+    }).concat(errorMiddleware),
 });

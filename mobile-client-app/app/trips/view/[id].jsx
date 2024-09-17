@@ -13,7 +13,7 @@ import {
   completeTrip,
   getTripById,
   markDestinationReached,
-  rejectInvoiceAtDestination,
+  updateInvoiceAtDestination
 } from "../../../lib/redux/actions/tripActions"; // new actions
 import { SafeAreaView } from "react-native-safe-area-context";
 import TopBar from "../../../components/TopBar";
@@ -35,6 +35,8 @@ const TripViewScreen = () => {
   const [endLocation, setEndLocation] = useState("");
   const [rejectionReason, setRejectionReason] = useState({});
   const [flaggedReject, setFlaggedReject] = useState({});
+  const [loadingAccept, setLoadingAccept] = useState({});
+  const [loadingReject, setLoadingReject] = useState({})
 
   useEffect(() => {
     if (id) {
@@ -79,23 +81,55 @@ const TripViewScreen = () => {
     { label: "Other", value: "Other" },
   ];
 
-  const handleRejectInvoice = (destinationId, destinationIndex, invoiceNumber) => {
-    if (!rejectionReason) {
+  const handleRejectInvoice = (destinationIndex, invoiceNumber) => {
+    if (!rejectionReason[invoiceNumber]) {
       Alert.alert(
         "Rejection Reason Required",
         "Please provide a reason for rejecting the invoice."
       );
       return;
     }
-    // dispatch(
-    //   rejectInvoiceAtDestination(
-    //     id,
-    //     destinationId,
-    //     invoiceNumber,
-    //     rejectionReason
-    //   )
-    // );
+    setLoadingReject((prevState) => ({
+      ...prevState,
+      [invoiceNumber]: true,
+    }));
+    const reason = rejectionReason[invoiceNumber];
+    dispatch(
+      updateInvoiceAtDestination(
+        id,
+        destinationIndex,
+        invoiceNumber,
+        "reject",
+        reason
+      )
+    );
     setRejectionReason("");
+     setLoadingReject((prevState) => ({
+       ...prevState,
+       [invoiceNumber]: false,
+     }));
+  };
+
+  const handleAcceptInvoice = (
+    destinationIndex,
+    invoiceNumber
+  ) => {
+    setLoadingAccept((prevState) => ({
+      ...prevState,
+      [invoiceNumber]: true,
+    }));
+    dispatch(
+      updateInvoiceAtDestination(
+        id,
+        destinationIndex,
+        invoiceNumber,
+        "accept",
+      )
+    );
+    setLoadingAccept((prevState) => ({
+      ...prevState,
+      [invoiceNumber]: false,
+    }));
   };
 
   return (
@@ -143,14 +177,17 @@ const TripViewScreen = () => {
 
           {/* Destinations Information */}
           {currentTrip?.destinations?.map((destination, index) => (
-            <View key={index} className='mb-4 p-1 bg-slate-200 rounded-lg'>
+            <View
+              key={index}
+              className='mb-4 py-1 px-2 bg-slate-200 rounded-lg'
+            >
               <Text className='text-xl font-semibold text-gray-700'>
                 Destination {index + 1}: {destination.location}
               </Text>
               {!destination.reached ? (
                 <TouchableOpacity
                   onPress={() => handleMarkDestinationReached(destination._id)}
-                  className='p-2 border border-gray-300 bg-white rounded-lg flex-row items-center'
+                  className='p-2 border border-gray-300 bg-white rounded-lg flex-row items-center my-2'
                 >
                   <Icon name='check-square' size={28} color='green' />
                   <Text className='ml-2 text-gray-600 text-lg font-semibold'>
@@ -159,117 +196,152 @@ const TripViewScreen = () => {
                 </TouchableOpacity>
               ) : (
                 destination.reachedAt && (
-                  <Text className='text-md text-gray-600 mt-1'>
-                    Reached At:{" "}
+                  <Text className='text-md text-gray-600 my-2'>
+                    Arrived at{" "}
                     {new Date(destination.reachedAt).toLocaleString()}
                   </Text>
                 )
               )}
 
               {/* Invoices */}
-              <Text className='text-lg font-semibold text-gray-700 mt-2'>
-                Invoices
-              </Text>
+              <Text className='text-lg text-gray-600'>Attached Invoices</Text>
               {destination.invoices.map((invoice) => (
                 <View
                   key={invoice.invoiceNumber}
-                  className='mb-2 bg-white rounded p-1 my-1 '
+                  className='mb-2 bg-white rounded p-1 pb-2 my-1 '
                 >
-                  <Text className='text-lg pb-1 text-gray-600'>
-                    {invoice.invoiceNumber}
-                  </Text>
-                  <View className='flex-row space-x-2 items-center'>
-                    {invoice?.accepted ? (
-                      <TouchableOpacity className='flex-row space-x-1 p-1 rounded-lg items-center bg-green-500'>
-                        <Icon name='check-circle' size={28} color='white' />
-                        <Text className='text-white'>Accepted</Text>
-                      </TouchableOpacity>
-                    ) : (
-                      <TouchableOpacity className='flex-row space-x-1 py-1 px-2 rounded-lg border border-gray-300 items-center'>
-                        <Icon name='check-circle' size={20} color='green' />
-                        <Text className='text-xs text-gray-600'>
-                          Mark Accepted
-                        </Text>
-                      </TouchableOpacity>
-                    )}
-                    {!invoice.rejected && (
-                      <TouchableOpacity
-                        className='flex-row space-x-1 p-1 rounded-lg items-center border border-gray-300'
-                        onPress={() =>
-                          setFlaggedReject((prevState) => ({
-                            ...prevState,
-                            [invoice.invoiceNumber]:
-                              !prevState[invoice.invoiceNumber],
-                          }))
-                        }
-                      >
-                        <Icon
-                          name={`${
-                            flaggedReject[invoice.invoiceNumber]
-                              ? "x"
-                              : "alert-circle"
-                          }`}
-                          size={20}
-                          color={`${
-                            flaggedReject[invoice.invoiceNumber]
-                              ? "gray"
-                              : "orange"
-                          }`}
-                        />
-                        <Text className='text-xs text-gray-600'>
-                          {flaggedReject[invoice.invoiceNumber]
-                            ? "Cancel"
-                            : "Mark Rejected"}
-                        </Text>
+                  <View className='flex-row items-center justify-between'>
+                    <Text className='text-lg text-gray-600'>
+                      {invoice.invoiceNumber}
+                    </Text>
+                    {invoice.accepted && invoice.delivered && (
+                      <TouchableOpacity className='flex-row space-x-1 p-1 rounded-lg items-center justify-center bg-green-500'>
+                        <Icon name='check-square' size={24} color='white' />
                       </TouchableOpacity>
                     )}
                   </View>
-                  {flaggedReject[invoice.invoiceNumber] &&
-                    !invoice.rejected && (
-                      <>
+                  {userData?.user?.role !== "admin" && (
+                    <View className='flex-row justify-between items-center'>
+                      {!invoice?.accepted &&
+                        !invoice.delivered &&
+                        !invoice.rejected && (
+                          <TouchableOpacity
+                            className='flex-row space-x-1 py-1 px-2 rounded-lg border border-gray-300 items-center'
+                            onPress={() =>
+                              handleAcceptInvoice(index, invoice.invoiceNumber)
+                            }
+                            disabled={loadingAccept[invoice.invoiceNumber]}
+                          >
+                            {loadingAccept[invoice.invoiceNumber] ? (
+                              <Loading />
+                            ) : (
+                              <>
+                                <Icon
+                                  name='check-circle'
+                                  size={20}
+                                  color='green'
+                                />
+                                <Text className='text-xs text-gray-600'>
+                                  Mark Accepted
+                                </Text>
+                              </>
+                            )}
+                          </TouchableOpacity>
+                        )}
+                      {!invoice.rejected && !invoice.delivered && (
                         <TouchableOpacity
+                          className='flex-row space-x-1 p-1 rounded-lg items-center border border-gray-300'
                           onPress={() =>
-                            handleRejectInvoice(
-                              destination._id,
-                              index,
-                              invoice.invoiceNumber
-                            )
-                          }
-                          className='mt-2 p-2 bg-red-500 rounded-lg flex-row items-center'
-                        >
-                          <Icon name='x-square' size={20} color='white' />
-                          <Text className='ml-2 text-white text-lg font-semibold'>
-                            Reject Invoice
-                          </Text>
-                        </TouchableOpacity>
-
-                        {/* Rejection Reason Picker */}
-                        <Picker
-                          selectedValue={
-                            rejectionReason[invoice.invoiceNumber] || ""
-                          }
-                          onValueChange={(itemValue) =>
-                            setRejectionReason((prevInputs) => ({
-                              ...prevInputs,
-                              [invoice.invoiceNumber]: itemValue,
+                            setFlaggedReject((prevState) => ({
+                              ...prevState,
+                              [invoice.invoiceNumber]:
+                                !prevState[invoice.invoiceNumber],
                             }))
                           }
-                          className='mt-2 p-2 border rounded-lg bg-white'
                         >
-                          <Picker.Item
-                            label='Select rejection reason'
-                            value=''
+                          <Icon
+                            name={`${
+                              flaggedReject[invoice.invoiceNumber]
+                                ? "x"
+                                : "alert-circle"
+                            }`}
+                            size={20}
+                            color={`${
+                              flaggedReject[invoice.invoiceNumber]
+                                ? "gray"
+                                : "orange"
+                            }`}
                           />
-                          {rejectionReasonsList.map((reason, index) => (
+                          <Text className='text-xs text-gray-600'>
+                            {flaggedReject[invoice.invoiceNumber]
+                              ? "Cancel"
+                              : "Mark Rejected"}
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  )}
+                  {flaggedReject[invoice.invoiceNumber] &&
+                    !invoice.rejected && (
+                      <View className='flex-row space-x-2'>
+                        {/* Rejection Reason Picker */}
+                        <View className='flex-1 mt-2 border border-gray-300  rounded-lg bg-white'>
+                          <Picker
+                            selectedValue={
+                              rejectionReason[invoice.invoiceNumber] || ""
+                            }
+                            onValueChange={(itemValue) =>
+                              setRejectionReason((prevInputs) => ({
+                                ...prevInputs,
+                                [invoice.invoiceNumber]: itemValue,
+                              }))
+                            }
+                            className=''
+                          >
                             <Picker.Item
-                              key={index}
-                              label={reason.label}
-                              value={reason.value}
+                              label='Select rejection reason'
+                              value=''
                             />
-                          ))}
-                        </Picker>
-                      </>
+                            {rejectionReasonsList.map((reason, index) => (
+                              <Picker.Item
+                                key={index}
+                                label={reason.label}
+                                value={reason.value}
+                              />
+                            ))}
+                          </Picker>
+                        </View>
+                        <TouchableOpacity
+                          onPress={() =>
+                            handleRejectInvoice(index, invoice.invoiceNumber)
+                          }
+                          className={` ${
+                            loadingReject[invoice.invoiceNumber]
+                              ? "bg-red-200"
+                              : "bg-red-500"
+                          } w-14 mt-2 p-2 rounded-lg flex-row items-center justify-center`}
+                          disabled={loadingReject[invoice.invoiceNumber]}
+                        >
+                          {loadingReject[invoice.invoiceNumber] ? (
+                            <Loading color='white' />
+                          ) : (
+                            <Icon name='send' size={28} color='white' />
+                          )}
+                        </TouchableOpacity>
+                      </View>
                     )}
+                  {invoice.rejected && invoice.rejectionReason && (
+                    <View className='flex-row items-center'>
+                      {invoice?.rejected && (
+                        <TouchableOpacity className='flex-row space-x-1 p-1 rounded-lg items-center justify-center'>
+                          <Icon name='alert-circle' size={18} color='orange' />
+                        </TouchableOpacity>
+                      )}
+                      <Text className='text-xs text-red-500 p-0'>
+                        {invoice.rejectionReason}
+                      </Text>
+                    </View>
+                  )}
                 </View>
               ))}
             </View>

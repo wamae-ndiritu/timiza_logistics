@@ -1,6 +1,6 @@
 import axios from "axios";
 import { END_POINT } from "../../baseUrl";
-import { completeTripSuccess, createTripSuccess, getTripsSuccess, getTripSuccess, tripActionFail, tripActionStart } from "../slices/tripSlices";
+import { completeTripSuccess, createTripSuccess, getTripsSuccess, getTripSuccess, tripActionFail, tripActionStart, updateTrip } from "../slices/tripSlices";
 
 
 export const startTrip = (tripData) => async (dispatch, getState) => {
@@ -107,22 +107,20 @@ export const updateInvoiceAtDestination =
           "Content-Type": "application/json",
         },
       };
-      let resData = {};
       if (type === "reject"){
-        const { data } = await axios.patch(
+          await axios.patch(
           `${END_POINT}/trips/${tripId}/destination/${destinationId}/invoice/${invoiceNumber}/reject`,
           { rejectionReason },
           config
         );
-        resData = data;
       }else if (type === 'accept') {
-        const { data } = await axios.patch(
+        await axios.patch(
           `${END_POINT}/trips/${tripId}/destination/${destinationId}/invoice/${invoiceNumber}/accept`,
+          {},
           config
         );
-        resData = data;
       }
-      dispatch(getTripSuccess(data));
+      dispatch(updateTrip());
     } catch (error) {
       const message = error?.response
         ? error.response?.data.message || error.response?.data.error
@@ -130,3 +128,29 @@ export const updateInvoiceAtDestination =
       dispatch(tripActionFail(message));
     }
   };
+
+  export const markDestinationReached = (tripId, destinationId) => async (dispatch, getState) => {
+    try {
+      const {
+        user: { userData },
+      } = getState();
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userData?.token}`,
+          "Content-Type": "application/json",
+        },
+      };
+      
+      await axios.patch(
+        `${END_POINT}/trips/${tripId}/destination/${destinationId}/complete`,
+        {},
+        config
+      );
+      dispatch(updateTrip());
+    } catch (error) {
+      const message = error?.response
+        ? error.response?.data.message || error.response?.data.error
+        : error.message;
+      dispatch(tripActionFail(message));
+    }
+  }

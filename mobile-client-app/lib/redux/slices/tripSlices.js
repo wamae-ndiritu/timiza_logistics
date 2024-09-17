@@ -50,6 +50,9 @@ export const tripSlice = createSlice({
       state.loading = false;
       state.currentTrip = action.payload;
     },
+    updateTrip: (state) => {
+      state.successUpdate = true;
+    }
   },
 });
 
@@ -61,6 +64,7 @@ export const {
   getTripsSuccess,
   getTripSuccess,
   completeTripSuccess,
+  updateTrip
 } = tripSlice.actions;
 
 export default tripSlice.reducer;

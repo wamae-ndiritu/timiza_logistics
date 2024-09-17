@@ -93,6 +93,7 @@ router.patch("/:tripId/destination/:destinationIndex/invoice/:invoiceNumber/acce
     // Mark the invoice as accepted
     invoice.accepted = true;
     invoice.rejected = false;
+    invoice.delivered = true;
     invoice.rejectionReason = null;
 
     // Save the trip with updated invoice status
@@ -127,12 +128,15 @@ router.patch("/:tripId/destination/:destinationIndex/invoice/:invoiceNumber/reje
 
     // Reject the invoice and set rejection reason
     invoice.rejected = true;
+    invoice.accepted = false;
+    invoice.delivered = false;
     invoice.rejectionReason = rejectionReason || "No reason provided";
 
     // Save the trip with updated invoice information
     await trip.save();
 
     res.status(200).json({ message: "Invoice rejected successfully.", trip });
+    console.log
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error rejecting invoice." });
@@ -151,8 +155,16 @@ router.patch("/:tripId/destination/:destinationIndex/complete", verify, async (r
     }
 
     // Mark the destination as reached and completed
-    trip.destinations[destinationIndex].reached = true;
-    trip.destinations[destinationIndex].reachedAt = new Date();
+    trip.destinations = trip.destinations.map((dest) => {
+      if (dest._id.toString() === destinationIndex){
+        return {
+          ...dest,
+          reached: true,
+          reachedAt: new Date(),
+        }
+      }
+      return dest;
+    })
 
     // Save the updated trip
     await trip.save();
