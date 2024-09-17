@@ -238,6 +238,43 @@ router.get("/", isAdmin, async (req, res) => {
   res.status(200).json(usersList);
 });
 
+// User get their profile
+router.get("/profile", verify, async (req, res) => {
+  const type = req.user.role;
+  try {
+    let user;
+
+    if (type === "driver") {
+      user = await Driver.findOne({ user: req.user.id }).populate("user");
+    } else if (type === "loader") {
+      user = await Loader.findOne({ user: req.user.id }).populate("user");
+    } else {
+      return res.status(400).json({ message: "Invalid user type!" });
+    }
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    let profile = {
+      _id: user.user._id,
+      email: user.user.email,
+      role: user.user.role,
+      fullName: user.fullName,
+      phoneNumber: user.phoneNumber,
+      nationalId: user.nationalId,
+      drivingLicense: user.drivingLicense,
+      nationalIdFront: user.nationalIdFront,
+      nationalIdBack: user.nationalIdBack,
+    };
+
+    res.status(200).json(profile);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
 // Get a user by ID
 router.get("/:id", verify, async (req, res) => {
   try {

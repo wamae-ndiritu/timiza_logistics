@@ -25,8 +25,6 @@ const Profile = () => {
   const dispatch = useDispatch();
   const { userData, profile, updateSuccess, loading,  error } = useSelector((state) => state.user);
 
-  console.log(profile)
-
   const [form, setForm] = useState({
     nationalIdFront: null,
     nationalIdBack: null,
@@ -200,9 +198,12 @@ const Profile = () => {
               )}
             </TouchableOpacity>
             {uploadingFront ? (
-              <Text className='px-2 text-base text-green-500 font-pregular py-0.5'>
-                Uploading image...
-              </Text>
+              <View className='flex-row items-center space-x-2'>
+                <Text className='px-2 text-base text-green-500 font-pregular py-0.5'>
+                  Uploading...
+                </Text>
+                <Loading color='green' />
+              </View>
             ) : (
               uploadErrFront && (
                 <Text className='px-2 text-base text-red-500 font-pregular bg-red-100 py-1 rounded'>
@@ -240,9 +241,12 @@ const Profile = () => {
               )}
             </TouchableOpacity>
             {uploadingBack ? (
-              <Text className='px-2 text-base text-green-500 font-pregular py-0.5'>
-                Uploading image...
-              </Text>
+              <View className='flex-row items-center space-x-2'>
+                <Text className='px-2 text-base text-green-500 font-pregular py-0.5'>
+                  Uploading...
+                </Text>
+                <Loading color='green' />
+              </View>
             ) : (
               uploadErrBack && (
                 <Text className='px-2 text-base text-red-500 font-pregular bg-red-100 py-1 rounded'>
