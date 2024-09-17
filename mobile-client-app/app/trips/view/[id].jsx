@@ -349,7 +349,7 @@ const TripViewScreen = () => {
 
           {/* Finish Trip Button */}
           {userData?.user?.role !== "admin" &&
-            currentTrip?.endLocation?.coordinates.length < 1 && (
+            !currentTrip?.endTime && (
               <TouchableOpacity
                 onPress={handleFinishTrip}
                 className='mt-4 p-4 bg-green-500 rounded-lg flex-row items-center px-8'
