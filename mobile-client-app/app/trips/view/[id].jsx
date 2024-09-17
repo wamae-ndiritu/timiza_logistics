@@ -63,9 +63,7 @@ const TripViewScreen = () => {
 
   const handleFinishTrip = () => {
     dispatch(
-      completeTrip(id, {
-        endLocation: { coordinates: endLocation.split(",").map(Number) },
-      })
+      completeTrip(id)
     );
   };
 
@@ -160,19 +158,57 @@ const TripViewScreen = () => {
             </Text>
           </View>
 
-          {/* Vehicle and Driver Information */}
+          {/* Vehicle Information */}
+          <View className='mb-4 p-4 bg-slate-200 rounded-lg'>
+            <Text className='text-xl font-semibold text-gray-700 mb-2'>
+              Vehicle Information
+            </Text>
+            <Text className='text-sm text-gray-600'>
+              Number Plate: {currentTrip?.vehicle?.vehicleNumberPlate}
+            </Text>
+            <Text className='text-sm text-gray-600'>
+              Model: {currentTrip?.vehicle?.vehicleModel}
+            </Text>
+            <Text className='text-sm text-gray-600'>
+              Capacity: {currentTrip?.vehicle?.tonnageCategory}
+            </Text>
+          </View>
+
+          {/* Driver Information */}
           <View className='mb-4 p-4 bg-slate-100 rounded-lg'>
             <Text className='text-xl font-semibold text-gray-700 mb-2'>
-              Vehicle and Driver Information
+              Driver Information
             </Text>
             <Text className='text-sm text-gray-600'>
-              Vehicle: {currentTrip?.vehicle?.name || "N/A"} (Plate:{" "}
-              {currentTrip?.vehicle?.plateNumber || "N/A"})
+              Name: {currentTrip?.driver?.fullName}
             </Text>
             <Text className='text-sm text-gray-600'>
-              Driver: {currentTrip?.driver?.name || "N/A"} (Phone:{" "}
-              {currentTrip?.driver?.phone || "N/A"})
+              License Number: {currentTrip?.driver?.licenseNumber}
             </Text>
+            <Text className='text-sm text-gray-600'>
+              Contact: {currentTrip?.driver?.contactNumber}
+            </Text>
+          </View>
+
+          {/* Loaders Information */}
+          <View className='mb-4 p-4 bg-slate-200 rounded-lg'>
+            <Text className='text-xl font-semibold text-gray-700 mb-2'>
+              Loaders Information
+            </Text>
+            {currentTrip?.loaders?.length > 0 ? (
+              currentTrip.loaders.map((loader) => (
+                <View key={loader._id} className='mb-2'>
+                  <Text className='text-sm text-gray-600'>
+                    Name: {loader.fullName}
+                  </Text>
+                  <Text className='text-sm text-gray-600'>
+                    Contact: {loader.contactNumber}
+                  </Text>
+                </View>
+              ))
+            ) : (
+              <Text className='text-sm text-gray-600'>No Loaders Assigned</Text>
+            )}
           </View>
 
           {/* Destinations Information */}
@@ -348,18 +384,17 @@ const TripViewScreen = () => {
           ))}
 
           {/* Finish Trip Button */}
-          {userData?.user?.role !== "admin" &&
-            !currentTrip?.endTime && (
-              <TouchableOpacity
-                onPress={handleFinishTrip}
-                className='mt-4 p-4 bg-green-500 rounded-lg flex-row items-center px-8'
-              >
-                <Icon name='clock' size={24} color='white' />
-                <Text className='ml-2 text-white text-lg font-semibold'>
-                  Finish Trip
-                </Text>
-              </TouchableOpacity>
-            )}
+          {userData?.user?.role !== "admin" && !currentTrip?.endTime && (
+            <TouchableOpacity
+              onPress={handleFinishTrip}
+              className='mt-4 p-4 bg-green-500 rounded-lg flex-row items-center px-8'
+            >
+              <Icon name='clock' size={24} color='white' />
+              <Text className='ml-2 text-white text-lg font-semibold'>
+                Finish Trip
+              </Text>
+            </TouchableOpacity>
+          )}
         </ScrollView>
       )}
     </SafeAreaView>

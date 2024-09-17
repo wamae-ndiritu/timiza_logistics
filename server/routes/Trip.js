@@ -177,6 +177,32 @@ router.patch("/:tripId/destination/:destinationIndex/complete", verify, async (r
 });
 
 
+// Finish Trip: PATCH /trips/:tripId/finish
+router.patch("/:tripId/finish", async (req, res) => {
+  try {
+    const { tripId } = req.params;
+
+    // Find the trip by its ID
+    const trip = await Trip.findById(tripId);
+    if (!trip) {
+      return res.status(404).json({ message: "Trip not found." });
+    }
+
+    // Update the endTime to the current time
+    trip.endTime = new Date();
+
+    // Save the trip, allowing the pre-save middleware to calculate the timeSpent
+    await trip.save();
+
+    res.status(200).json({
+      message: "Trip finished successfully.",
+      trip,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error finishing the trip." });
+  }
+});
+
 // Get trips
 router.get("/", verify, async (req, res) => {
   try {

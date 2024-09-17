@@ -26,7 +26,7 @@ export const startTrip = (tripData) => async (dispatch, getState) => {
 };
 
 
-export const completeTrip = (tripId, tripData) => async (dispatch, getState) => {
+export const completeTrip = (tripId) => async (dispatch, getState) => {
   try {
     const {
       user: { userData },
@@ -38,7 +38,7 @@ export const completeTrip = (tripId, tripData) => async (dispatch, getState) => 
       },
     };
     dispatch(tripActionStart());
-    await axios.post(`${END_POINT}/trips/complete/${tripId}`, tripData, config);
+    await axios.patch(`${END_POINT}/trips/${tripId}/finish`, {}, config);
     dispatch(completeTripSuccess());
   } catch (error) {
     const message = error?.response
