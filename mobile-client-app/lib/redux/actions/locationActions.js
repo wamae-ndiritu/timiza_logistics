@@ -1,6 +1,6 @@
 import axios from "axios";
 import { END_POINT } from "../../baseUrl";
-import { createBranchSuccess, createLocationSuccess, deleteLocationBranchSuccess, getBranchesSuccess, getLocationDetailsSuccess, getLocationsSuccess, locationActionFail, locationActionStart } from "../slices/locationSlices";
+import { createBranchSuccess, createLocationSuccess, deleteLocationBranchSuccess, deleteLocationSuccess, getBranchesSuccess, getLocationDetailsSuccess, getLocationsSuccess, locationActionFail, locationActionStart } from "../slices/locationSlices";
 
 
 export const createLocation = (locationData) => async (dispatch, getState) => {
@@ -125,7 +125,7 @@ export const deleteLocation = (locationId) => async (dispatch, getState) => {
     };
     dispatch(locationActionStart());
     await axios.delete(`${END_POINT}/locations/${locationId}`, config);
-    dispatch(deleteLocationBranchSuccess());
+    dispatch(deleteLocationSuccess());
   } catch (error) {
     const message = error?.response
       ? error.response?.data.message || error.response?.data.error

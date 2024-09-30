@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getLocation,
@@ -18,7 +18,7 @@ import {
   deleteLocationBranch,
 } from "../../../lib/redux/actions/locationActions"; // Import actions
 import TopBar from "../../../components/TopBar";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import Icon from "react-native-vector-icons/Feather";
 import Loading from "../../../components/Loading";
 
@@ -31,6 +31,7 @@ const LocationBranches = () => {
     loading,
     error,
     successCreate,
+    successDeleteBranch,
     successDelete,
   } = useSelector((state) => state.location);
 
@@ -100,6 +101,13 @@ const LocationBranches = () => {
       ]
     );
   };
+
+  useEffect(() => {
+    if (successDelete){
+       Alert.alert("Success", "Location & it's branches deleted successfully!");
+       router.navigate("/locations");
+    }
+  }, [successDelete, router])
 
   const renderItem = ({ item }) => (
     <View className='p-4 m-2 bg-white rounded-lg relative'>

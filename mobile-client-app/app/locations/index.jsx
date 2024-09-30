@@ -56,7 +56,7 @@ const Locations = () => {
     <AdminRoute>
       <SafeAreaView className='flex-1 pt-4'>
         <TopBar title='Locations'>
-          <Link href='/new-location'>
+          <Link href='/locations/new'>
             <Icon name='plus' size={24} color='#FFF' />
           </Link>
         </TopBar>

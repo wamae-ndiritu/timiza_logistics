@@ -73,7 +73,11 @@ const RootLayout = () => {
         <Stack.Screen name='forgot-password' options={{ headerShown: false }} />
         <Stack.Screen name='verify-otp' options={{ headerShown: false }} />
         <Stack.Screen name='locations/index' options={{ headerShown: false }} />
-        <Stack.Screen name='locations/view/[locationId]' options={{ headerShown: false }} />
+        <Stack.Screen name='locations/new' options={{ headerShown: false }} />
+        <Stack.Screen
+          name='locations/view/[locationId]'
+          options={{ headerShown: false }}
+        />
       </Stack>
     </Provider>
   );

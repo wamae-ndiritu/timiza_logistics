@@ -7,6 +7,7 @@ const initialState = {
   currentLocation: null,
   error: null,
   successDelete: false,
+  successDeleteBranch: false,
   successCreate: false,
 };
 
@@ -18,6 +19,7 @@ export const locationSlice = createSlice({
       state.loading = true;
       state.error = null;
       state.successDelete = false;
+      state.successDeleteBranch = false;
       state.successCreate = false;
       state.currentLocation = null;
     },
@@ -28,6 +30,7 @@ export const locationSlice = createSlice({
     resetLocationState: (state) => {
       state.error = null;
       state.successDelete = false;
+      state.successDeleteBranch = false;
       state.successCreate = false;
       state.currentLocation = null;
     },
@@ -53,8 +56,12 @@ export const locationSlice = createSlice({
     },
     deleteLocationBranchSuccess: (state) => {
       state.loading = false;
-      state.successDelete = true;
+      state.successDeleteBranch = true;
     },
+    deleteLocationSuccess: (state) => {
+      state.loading = false;
+      state.successDelete = true;
+    }
   },
 });
 
@@ -66,6 +73,7 @@ export const {
   getBranchesSuccess,
   createLocationSuccess,
   createBranchSuccess,
+  deleteLocationSuccess,
   deleteLocationBranchSuccess,
   getLocationDetailsSuccess
 } = locationSlice.actions;

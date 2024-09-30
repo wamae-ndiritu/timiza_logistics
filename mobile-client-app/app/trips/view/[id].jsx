@@ -14,14 +14,13 @@ import {
   getTripById,
   markDestinationReached,
   updateInvoiceAtDestination
-} from "../../../lib/redux/actions/tripActions"; // new actions
+} from "../../../lib/redux/actions/tripActions";
 import { SafeAreaView } from "react-native-safe-area-context";
 import TopBar from "../../../components/TopBar";
 import Icon from "react-native-vector-icons/Feather";
 import Loading from "../../../components/Loading";
 import Error from "../../../components/Error";
 import * as Location from "expo-location";
-import { resetTripState } from "../../../lib/redux/slices/tripSlices";
 import { Picker } from "@react-native-picker/picker";
 
 const TripViewScreen = () => {
