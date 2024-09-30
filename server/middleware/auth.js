@@ -49,7 +49,7 @@ function isAdmin(req, res, next) {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // Check if user role is admin
-    if (decoded.user.role !== "admin") {
+    if (decoded.role !== "admin") {
       return res.status(403).json({ message: "Access denied! You must be an admin" });
     }
 
