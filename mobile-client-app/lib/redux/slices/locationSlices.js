@@ -4,6 +4,7 @@ const initialState = {
   loading: false,
   locations: [],
   branches: [],
+  currentLocation: null,
   error: null,
   successDelete: false,
   successCreate: false,
@@ -18,6 +19,7 @@ export const locationSlice = createSlice({
       state.error = null;
       state.successDelete = false;
       state.successCreate = false;
+      state.currentLocation = null;
     },
     locationActionFail: (state, action) => {
       state.loading = false;
@@ -27,6 +29,7 @@ export const locationSlice = createSlice({
       state.error = null;
       state.successDelete = false;
       state.successCreate = false;
+      state.currentLocation = null;
     },
     getLocationsSuccess: (state, action) => {
       state.loading = false;
@@ -44,6 +47,10 @@ export const locationSlice = createSlice({
       state.loading = false;
       state.successCreate = true;
     },
+    getLocationDetailsSuccess: (state, action) => {
+      state.loading = false;
+      state.currentLocation = action.payload;
+    },
     deleteLocationBranchSuccess: (state) => {
       state.loading = false;
       state.successDelete = true;
@@ -59,7 +66,8 @@ export const {
   getBranchesSuccess,
   createLocationSuccess,
   createBranchSuccess,
-  deleteLocationBranchSuccess
+  deleteLocationBranchSuccess,
+  getLocationDetailsSuccess
 } = locationSlice.actions;
 
 export default locationSlice.reducer;

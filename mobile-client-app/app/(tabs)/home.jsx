@@ -5,7 +5,7 @@ import {
   RefreshControl,
   TouchableOpacity,
 } from "react-native";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
@@ -79,12 +79,12 @@ const Home = () => {
             More Actions
           </Text>
           <TouchableOpacity
-            onPress={() => router.push("/staff")}
+            onPress={() => router.push("/locations/")}
             className='mb-4 p-4 bg-white border border-gray-300 rounded-lg flex-row items-center space-x-4'
           >
-            <Icon name='users' size={24} color='#000' />
+            <Icon name='map-pin' size={24} color='#000' />
             <Text className='text-lg font-semibold text-gray-700'>
-              Staff
+              Destinations
             </Text>
           </TouchableOpacity>
           <TouchableOpacity

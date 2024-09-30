@@ -1,6 +1,6 @@
 import axios from "axios";
 import { END_POINT } from "../../baseUrl";
-import { createBranchSuccess, createLocationSuccess, deleteLocationBranchSuccess, getBranchesSuccess, getLocationsSuccess, locationActionFail, locationActionStart } from "../slices/locationSlices";
+import { createBranchSuccess, createLocationSuccess, deleteLocationBranchSuccess, getBranchesSuccess, getLocationDetailsSuccess, getLocationsSuccess, locationActionFail, locationActionStart } from "../slices/locationSlices";
 
 
 export const createLocation = (locationData) => async (dispatch, getState) => {
@@ -88,6 +88,29 @@ export const listLocationBranches = (locationId) => async (dispatch, getState) =
     dispatch(locationActionFail(message));
   }
 };
+
+export const getLocation = (locationId) => async (dispatch, getState) => {
+  try {
+    const {
+      user: { userData },
+    } = getState();
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userData?.token}`,
+        "Content-Type": "application/json",
+      },
+    };
+    dispatch(locationActionStart())
+    const { data } = await axios.get(`${END_POINT}/locations/${locationId}`, config);
+    dispatch(getLocationDetailsSuccess(data));
+  } catch (error) {
+    const message = error?.response
+      ? error.response?.data.message || error.response?.data.error
+      : error.message;
+    dispatch(locationActionFail(message));
+  }
+};
+
 
 export const deleteLocation = (locationId) => async (dispatch, getState) => {
   try {

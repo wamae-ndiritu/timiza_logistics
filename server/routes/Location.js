@@ -170,6 +170,7 @@ router.put("/:locationId/add-branch", isAdmin, async (req, res) => {
   try {
     const { locationId } = req.params;
     const { branches } = req.body;
+    console.log(branches)
 
     if (!branches || branches.length === 0) {
       return res
@@ -319,6 +320,51 @@ router.get('/:locationId/branches', verify, async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error", error });
+  }
+});
+
+/**
+ * @swagger
+ * /locations/{id}:
+ *   get:
+ *     summary: Get a location by ID with its branches
+ *     tags: [Locations]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the location
+ *     responses:
+ *       200:
+ *         description: Location details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Location'
+ *       404:
+ *         description: Location not found
+ *       500:
+ *         description: Server error
+ */
+
+// Route to get a specific location by ID
+router.get('/:id', verify, async (req, res) => {
+  try {
+    const locationId = req.params.id;
+    const location = await Location.findById(locationId);
+
+    if (!location) {
+      return res.status(404).json({ message: 'Location not found' });
+    }
+
+    res.status(200).json(location);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error', error });
   }
 });
 
