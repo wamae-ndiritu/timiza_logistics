@@ -79,7 +79,7 @@ export const listLocationBranches = (locationId) => async (dispatch, getState) =
         "Content-Type": "application/json",
       },
     };
-    const { data } = await axios.get(`${END_POINT}/locations/${locationId}`, config);
+    const { data } = await axios.get(`${END_POINT}/locations/${locationId}/branches`, config);
     dispatch(getBranchesSuccess(data));
   } catch (error) {
     const message = error?.response
