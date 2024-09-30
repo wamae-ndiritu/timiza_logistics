@@ -18,9 +18,15 @@ const tripSchema = new mongoose.Schema(
     startTime: { type: Date, required: true },
     endTime: { type: Date },
     startLocation: { type: String, required: true },
+
+    // Updated to reference the Location model
     destinations: [
       {
-        location: { type: String, required: true },
+        location: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Location",
+          required: true,
+        },
         reached: { type: Boolean, default: false },
         reachedAt: { type: Date, default: null },
         invoices: [

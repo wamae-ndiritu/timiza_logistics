@@ -1,5 +1,5 @@
 const express = require("express");
-const { verify } = require("../middleware/auth");
+const { verify, isAdmin } = require("../middleware/auth");
 const Vehicle = require("../models/VehicleModel");
 const Trip = require("../models/TripModel");
 const User = require("../models/User");
@@ -241,6 +241,47 @@ router.get("/", verify, async (req, res) => {
 
 
 // Get trip by ID
+/**
+ * @swagger
+ * /trips/{id}:
+ *   get:
+ *     summary: Get trip by ID
+ *     tags: [Trips]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The trip ID
+ *     responses:
+ *       200:
+ *         description: Trip details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 _id:
+ *                   type: string
+ *                   description: The trip ID
+ *                 vehicle:
+ *                   type: object
+ *                   description: Details of the vehicle
+ *                 driver:
+ *                   type: object
+ *                   description: Driver details
+ *                 loaders:
+ *                   type: array
+ *                   description: List of loaders
+ *                 startLocation:
+ *                   type: string
+ *                   description: Trip starting location
+ *       403:
+ *         description: Access forbidden
+ *       500:
+ *         description: Internal server error
+ */
 router.get("/:id", verify, async (req, res) => {
   try {
     const { id } = req.params;
@@ -249,16 +290,17 @@ router.get("/:id", verify, async (req, res) => {
     let trip;
 
     if (userRole === "admin") {
-      // If the user is an admin, fetch the trip by ID
+      // Admin can view any trip by ID
       trip = await Trip.findById(id)
         .populate("vehicle")
         .populate("driver", "fullName email")
         .populate("loaders", "fullName email")
         .populate("deliveryNote");
     } else {
-      // If the user is not an admin, fetch the trip only if the user is related to it
+      // Regular user can view only trips they're involved in
       trip = await Trip.findOne({
         _id: id,
+        // Uncomment and adjust the condition to match the user’s ID in relevant roles
         // $or: [
         //   { "vehicle.currentDriver": userId },
         //   { "vehicle.currentLoaders": { $in: [userId] } },
@@ -269,7 +311,6 @@ router.get("/:id", verify, async (req, res) => {
         .populate("loaders", "fullName email")
         .populate("deliveryNote");
 
-      // If no trip is found or user is not related to the trip, deny access
       if (!trip) {
         return res.status(403).json({
           message: "You do not have access to this trip.",
@@ -284,5 +325,30 @@ router.get("/:id", verify, async (req, res) => {
   }
 });
 
+// Delete all trips
+/**
+ * @swagger
+ * /trips:
+ *   delete:
+ *     summary: Delete all trips
+ *     tags: [Trips]
+ *     responses:
+ *       200:
+ *         description: All trips deleted successfully
+ *       403:
+ *         description: Access forbidden
+ *       500:
+ *         description: Internal server error
+ */
+router.delete("/", isAdmin, async (req, res) => {
+  try {
+    await Trip.deleteMany(); // Deletes all trips
+
+    res.status(200).json({ message: "All trips have been deleted." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "An error occurred while deleting all trips." });
+  }
+});
 
 module.exports = router;
