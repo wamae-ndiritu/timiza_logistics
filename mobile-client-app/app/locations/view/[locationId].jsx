@@ -13,8 +13,9 @@ import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getLocation,
-  deleteBranch,
+  deleteLocation,
   addLocationBranch,
+  deleteLocationBranch,
 } from "../../../lib/redux/actions/locationActions"; // Import actions
 import TopBar from "../../../components/TopBar";
 import { useLocalSearchParams } from "expo-router";
@@ -30,6 +31,7 @@ const LocationBranches = () => {
     loading,
     error,
     successCreate,
+    successDelete,
   } = useSelector((state) => state.location);
 
   const [newBranchName, setNewBranchName] = useState("");
@@ -39,7 +41,7 @@ const LocationBranches = () => {
   useFocusEffect(
     useCallback(() => {
       dispatch(getLocation(locationId));
-    }, [dispatch, locationId, successCreate])
+    }, [dispatch, locationId, successCreate, successDelete])
   );
 
   const handleDeleteBranch = (branchId) => {
@@ -54,7 +56,7 @@ const LocationBranches = () => {
         {
           text: "Delete",
           onPress: () => {
-            dispatch(deleteBranch(locationId, branchId));
+            dispatch(deleteLocationBranch(locationId, branchId));
           },
         },
       ]
