@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { ScrollView, Alert, View, Text, TouchableOpacity } from "react-native";
+import {
+  ScrollView,
+  Alert,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
 import * as Location from "expo-location";
 import FormField from "../components/FormField";
 import CustomButton from "../components/CustomButton";
@@ -11,8 +18,8 @@ import { resetTripState } from "../lib/redux/slices/tripSlices";
 import Icon from "react-native-vector-icons/Feather";
 import Loading from "../components/Loading";
 import Error from "../components/Error";
-import { Picker } from "@react-native-picker/picker"; // Picker for locations and branches
 import {
+  getLocation,
   listLocationBranches,
   listLocations,
 } from "../lib/redux/actions/locationActions";
@@ -21,6 +28,8 @@ const NewTrip = () => {
   const dispatch = useDispatch();
   const { loading, success, error } = useSelector((state) => state.trip);
   const { locations, branches } = useSelector((state) => state.location);
+  const { userData } = useSelector((state) => state.user);
+
   const [startLocation, setStartLocation] = useState("");
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [selectedBranch, setSelectedBranch] = useState(null);
@@ -28,8 +37,13 @@ const NewTrip = () => {
   const [invoiceInputs, setInvoiceInputs] = useState({});
   const [destinationInvoices, setDestinationInvoices] = useState({});
   const [errorMsg, setErrorMsg] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [branchSearchQuery, setBranchSearchQuery] = useState("");
+  const [filteredBranches, setFilteredBranches] = useState([]);
+  const [isLocationInputFocused, setIsLocationInputFocused] = useState(false);
+  const [isBranchInputFocused, setIsBranchInputFocused] = useState(false);
 
-  // Fetch user's location and available locations
+  // Fetch user's location
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -43,10 +57,8 @@ const NewTrip = () => {
       }
 
       let location = await Location.getCurrentPositionAsync({});
-      // setStartLocation(`${location.coords.longitude},${location.coords.latitude}`);
-
-      // Fetch available locations
-      dispatch(listLocations());
+      // Fetch initial locations (if needed)
+      dispatch(listLocations(""));
     })();
   }, [dispatch]);
 
@@ -57,18 +69,51 @@ const NewTrip = () => {
     }
   }, [selectedLocation, dispatch]);
 
+  // Search locations as user types
+  useEffect(() => {
+    if (searchQuery) {
+      dispatch(listLocations(searchQuery));
+    }
+  }, [searchQuery, dispatch]);
+
+  // Filter branches based on search query
+  useEffect(() => {
+    if (branchSearchQuery) {
+      const filtered = branches.filter((branch) =>
+        branch.name.toLowerCase().startsWith(branchSearchQuery.toLowerCase())
+      );
+      setFilteredBranches(filtered);
+    } else {
+      setFilteredBranches(branches);
+    }
+  }, [branchSearchQuery, branches]);
+
   // Add destination with selected branch
   const handleAddDestination = () => {
     if (!selectedLocation || !selectedBranch) {
       Alert.alert("Error", "Please select a location and branch!");
       return;
     }
+
+    // Check if the location and branch combination already exists
+    const exists = destinations.some(
+      (dest) =>
+        dest.location === selectedLocation && dest.branch === selectedBranch
+    );
+
+    if (exists) {
+      Alert.alert("Error", "This location and branch have already been added!");
+      return;
+    }
+
     setDestinations([
       ...destinations,
       { location: selectedLocation, branch: selectedBranch, invoices: [] },
     ]);
     setSelectedLocation(null);
     setSelectedBranch(null);
+    setSearchQuery("");
+    setBranchSearchQuery("");
   };
 
   // Remove destination
@@ -100,8 +145,27 @@ const NewTrip = () => {
 
     setInvoiceInputs((prevInputs) => ({
       ...prevInputs,
-      [`${location}-${branch}`]: "", // Clear the input for the specific destination
+      [`${location}-${branch}`]: "",
     }));
+  };
+
+  // Remove an invoice from a specific destination
+  const handleRemoveDestinationInvoice = (destination, invoiceNumber) => {
+    const updatedDestinations = destinations.map((dest) => {
+      if (
+        dest.location === destination.location &&
+        dest.branch === destination.branch
+      ) {
+        return {
+          ...dest,
+          invoices: dest.invoices.filter(
+            (invoice) => invoice !== invoiceNumber
+          ),
+        };
+      }
+      return dest;
+    });
+    setDestinations(updatedDestinations);
   };
 
   // Submit trip form
@@ -122,6 +186,11 @@ const NewTrip = () => {
     dispatch(startTrip(tripData));
   };
 
+  const resetSearchQuery = () => {
+    setSearchQuery("");
+    setSelectedLocation(null);
+  };
+
   return (
     <SafeAreaView className='flex-1'>
       <TopBar title='New Trip' />
@@ -139,107 +208,169 @@ const NewTrip = () => {
             handleChangeText={(e) => setStartLocation(e)}
           />
 
+          {/* Location Search Input */}
           <Text className='text-base text-gray-600 text-lg font-pmedium mb-2 mt-3'>
-            Select Your Destination
+            Search and Select Your Destination
           </Text>
-          <View className='border border-gray-100 rounded py-0 mb-2'>
-            <Picker
-              selectedValue={selectedLocation}
-              onValueChange={(value) => setSelectedLocation(value)}
-            >
-              <Picker.Item label='Select a location' value={null} />
-              {locations.map((location) => (
-                <Picker.Item
-                  key={location._id}
-                  label={location.name}
-                  value={location._id}
-                />
-              ))}
-            </Picker>
+          <View className='flex-row items-center border border-gray-200 rounded px-2 py-2'>
+            <TextInput
+              placeholder='Search location'
+              value={
+                selectedLocation
+                  ? locations.find((l) => l._id === selectedLocation)?.name
+                  : searchQuery
+              }
+              onChangeText={(text) => setSearchQuery(text)}
+              onFocus={() => setIsLocationInputFocused(true)}
+              onBlur={() => setIsLocationInputFocused(false)}
+              className='flex-1'
+            />
+            {selectedLocation || searchQuery ? (
+              <TouchableOpacity onPress={resetSearchQuery}>
+                <Icon name='x' size={20} color='gray' />
+              </TouchableOpacity>
+            ) : (
+              <Icon name='search' size={20} color='gray' />
+            )}
           </View>
-
-          {selectedLocation && (
-            <>
-              <Text className='text-base text-gray-600 text-lg font-pmedium mb-2 mt-2'>
-                Select Branch
-              </Text>
-              <View className='border border-gray-100 mb-2'>
-                <Picker
-                  selectedValue={selectedBranch}
-                  onValueChange={(value) => setSelectedBranch(value)}
-                >
-                  <Picker.Item label='Select a branch' value={null} />
-                  {branches?.map((branch) => (
-                    <Picker.Item
-                      key={branch._id}
-                      label={branch.name}
-                      value={branch._id}
-                    />
-                  ))}
-                </Picker>
-              </View>
-            </>
-          )}
-
-          <TouchableOpacity onPress={handleAddDestination}>
-            <Text className='text-green-500 mt-2'>Add Destination</Text>
-          </TouchableOpacity>
-
-          {destinations.length > 0 && (
-            <View className='mb-4'>
-              <Text className='text-base text-gray-600 text-lg font-semibold py-2'>
-                Added Destinations
-              </Text>
-              {destinations.map((destination, index) => (
-                <View key={index} className='mb-3 bg-white p-4 rounded-lg'>
-                  <View className='flex-row justify-between'>
-                    <Text className='text-base text-gray-600'>
-                      {destination.location} - {destination.branch}
-                    </Text>
-                    <TouchableOpacity
-                      onPress={() => handleRemoveDestination(index)}
-                    >
-                      <Icon name='trash-2' size={24} color='red' />
-                    </TouchableOpacity>
-                  </View>
-
-                  <View className='flex-row items-end mb-3'>
-                    <FormField
-                      title='Invoice Number'
-                      placeholder='Enter invoice number'
-                      value={
-                        invoiceInputs[
-                          `${destination.location}-${destination.branch}`
-                        ] || ""
-                      }
-                      handleChangeText={(e) =>
-                        setInvoiceInputs((prevInputs) => ({
-                          ...prevInputs,
-                          [`${destination.location}-${destination.branch}`]: e,
-                        }))
-                      }
-                    />
-                    <TouchableOpacity
-                      onPress={() => handleAddInvoice(destination)}
-                    >
-                      <Icon
-                        name='check-circle'
-                        size={28}
-                        color='green'
-                        style={{ marginLeft: 10 }}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              ))}
+          {isLocationInputFocused && locations.length > 0 && (
+            <View className='border border-gray-300 mt-1'>
+              {locations.map((location) => {
+                return (
+                  <TouchableOpacity
+                    key={location._id}
+                    onPress={() => {
+                      setSelectedLocation(location._id);
+                      setIsLocationInputFocused(false);
+                    }}
+                    className='px-2 py-4 border-b border-gray-200'
+                  >
+                    <Text>{location.name}</Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
           )}
-
+          {selectedLocation && (
+            <>
+              {/* Branch Search Input */}
+              <Text className='text-base text-gray-600 text-lg font-pmedium mb-2 mt-2'>
+                Search and Select Branch
+              </Text>
+              <View className='flex-row items-center border border-gray-200 rounded px-2 py-2'>
+                <TextInput
+                  placeholder='Search branch'
+                  value={
+                    selectedBranch
+                      ? branches.find((b) => b._id === selectedBranch)?.name
+                      : branchSearchQuery
+                  }
+                  onChangeText={(text) => setBranchSearchQuery(text)}
+                  onFocus={() => setIsBranchInputFocused(true)}
+                  onBlur={() => setIsBranchInputFocused(false)}
+                  className='flex-1'
+                />
+                {selectedBranch || branchSearchQuery ? (
+                  <TouchableOpacity
+                    onPress={() => {
+                      setBranchSearchQuery("");
+                      setSelectedBranch(null);
+                    }}
+                  >
+                    <Icon name='x' size={20} color='gray' />
+                  </TouchableOpacity>
+                ) : (
+                  <Icon name='search' size={20} color='gray' />
+                )}
+              </View>
+              {isBranchInputFocused && filteredBranches.length > 0 && (
+                <View className='border border-gray-300 mt-1'>
+                  {filteredBranches.map((branch) => (
+                    <TouchableOpacity
+                      key={branch._id}
+                      onPress={() => {
+                        setSelectedBranch(branch._id);
+                        setIsBranchInputFocused(false);
+                      }}
+                      className='p-2 border-b border-gray-200'
+                    >
+                      <Text>{branch.name}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </>
+          )}
+          <TouchableOpacity onPress={handleAddDestination} className='mt-4'>
+            <Text className='text-blue-500 text-lg'>+ Add Destination</Text>
+          </TouchableOpacity>
+          {/* Destinations List */}
+          <View>
+            {destinations.map((destination, index) => (
+              <View
+                key={index}
+                className='bg-white p-4 border border-gray-200 rounded-lg mt-2'
+              >
+                <View className='flex-row justify-between items-center'>
+                  <Text className='text-lg text-gray-600'>
+                    {
+                      locations.find((l) => l._id === destination.location)
+                        ?.name
+                    }
+                    , {branches.find((b) => b._id === destination.branch)?.name}
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => handleRemoveDestination(index)}
+                  >
+                    <Icon name='trash' size={20} color='red' />
+                  </TouchableOpacity>
+                </View>
+                <View className='w-full flex-row my-3'>
+                  <FormField
+                    placeholder='Enter invoice number'
+                    otherStyles='flex-1'
+                    value={
+                      invoiceInputs[
+                        `${destination.location}-${destination.branch}`
+                      ] || ""
+                    }
+                    handleChangeText={(e) =>
+                      setInvoiceInputs((prevInputs) => ({
+                        ...prevInputs,
+                        [`${destination.location}-${destination.branch}`]: e,
+                      }))
+                    }
+                  />
+                  <TouchableOpacity
+                    onPress={() => handleAddInvoice(destination)}
+                    className='border border-gray-100 rounded bg-orange flex-row items-center justify-center w-12 ml-1'
+                  >
+                    <Icon name='check-circle' size={28} color='white' />
+                  </TouchableOpacity>
+                </View>
+                {destination.invoices.map((invoice) => (
+                  <View
+                    key={invoice}
+                    className='border border-gray-100 p-2 rounded my-1 flex-row justify-between'
+                  >
+                    <Text className='text-gray-600 text-sm'>{invoice}</Text>
+                    <TouchableOpacity
+                      onPress={() =>
+                        handleRemoveDestinationInvoice(destination, invoice)
+                      }
+                    >
+                      <Icon name='x-circle' size={20} color='red' />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            ))}
+          </View>
+          {/* Submit Button */}
           <CustomButton
-            title='Start Trip'
-            handlePress={submitForm}
-            containerStyles='my-7 bg-orange rounded'
-            textStyles='text-white font-semibold text-xl'
+            onPress={submitForm}
+            title='Submit Trip'
+            containerStyles='mt-4 mb-8'
           />
         </ScrollView>
       )}

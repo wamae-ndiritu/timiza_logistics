@@ -199,57 +199,18 @@ router.put("/:locationId/add-branch", isAdmin, async (req, res) => {
 
 /**
  * @swagger
- * components:
- *   schemas:
- *     Branch:
- *       type: object
- *       properties:
- *         name:
- *           type: string
- *           description: Name of the branch
- *         address:
- *           type: string
- *           description: Address of the branch
- *         city:
- *           type: string
- *           description: City where the branch is located
- *           default: "Nairobi"
- *         coordinates:
- *           type: object
- *           properties:
- *             lat:
- *               type: number
- *               description: Latitude of the branch
- *             lng:
- *               type: number
- *               description: Longitude of the branch
- *
- *     Location:
- *       type: object
- *       properties:
- *         type:
- *           type: string
- *           description: Type of location (Supermarket, Hypermarket, Mall)
- *         name:
- *           type: string
- *           description: Name of the location
- *         branches:
- *           type: array
- *           items:
- *             $ref: '#/components/schemas/Branch'
- *         createdAt:
- *           type: string
- *           format: date-time
- *         updatedAt:
- *           type: string
- *           format: date-time
- *
  * /locations:
  *   get:
- *     summary: Get all locations with branches
+ *     summary: Get a paginated list of locations with branches, optionally filtered by name
  *     tags: [Locations]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Optional search term to filter locations by name
  *     responses:
  *       200:
  *         description: A list of locations
@@ -262,17 +223,31 @@ router.put("/:locationId/add-branch", isAdmin, async (req, res) => {
  *       500:
  *         description: Server error
  */
-
-// Route to get all locations with branches
+// Route to get locations with pagination, alphabetical sorting, and optional search
 router.get('/', verify, async (req, res) => {
   try {
-    const locations = await Location.find();
+    const { search } = req.query;
+    const limit = 10; // Limit results to 10
+
+    let query = {};
+
+    // If search query is provided, filter locations by name (starting with search term)
+    if (search) {
+      query.name = { $regex: `^${search}`, $options: 'i' }; // Case-insensitive match
+    }
+
+    // Fetch the locations, sort by name, and limit the results
+    const locations = await Location.find(query)
+      .sort({ name: 1 }) // Sort alphabetically (A-Z)
+      .limit(limit);
+
     res.status(200).json(locations);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error", error });
+    res.status(500).json({ message: 'Server error', error });
   }
 });
+
 
 
 /**

@@ -47,7 +47,7 @@ export const addLocationBranch = (locationId, branches) => async (dispatch, getS
   }
 };
 
-export const listLocations = () => async (dispatch, getState) => {
+export const listLocations = (search="") => async (dispatch, getState) => {
   try {
     const {
       user: { userData },
@@ -58,7 +58,7 @@ export const listLocations = () => async (dispatch, getState) => {
         "Content-Type": "application/json",
       },
     };
-    const { data } = await axios.get(`${END_POINT}/locations/`, config);
+    const { data } = await axios.get(`${END_POINT}/locations/?search=${search}`, config);
     dispatch(getLocationsSuccess(data));
   } catch (error) {
     const message = error?.response
