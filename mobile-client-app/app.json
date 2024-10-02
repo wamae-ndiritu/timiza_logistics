@@ -1,24 +1,24 @@
 {
   "expo": {
-    "name": "timiza-logistics",
+    "name": "Timiza Logistics",
     "slug": "timiza-logistics",
     "scheme": "timiza-logistics",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/playstore.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "image": "./assets/playstore.png", 
+      "resizeMode": "contain", 
+      "backgroundColor": "#2A7353"
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/icon.png", 
+        "backgroundColor": "##2A7353"
       },
       "package": "com.anonymous.timizalogistics"
     },
@@ -27,6 +27,12 @@
     },
     "plugins": [
       "expo-router"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "a59e3b51-b79c-42e3-97ab-df66cb2202c5"
+      }
+    }
   }
 }
+
