@@ -21,7 +21,13 @@
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "##2A7353"
       },
-      "package": "com.anonymous.timizalogistics"
+      "package": "com.anonymous.timizalogistics",
+      "permissions": [],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDkVLNZUvOQ-SSG2rpp4xCtVmxGCHaLfNY"
+        }
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
