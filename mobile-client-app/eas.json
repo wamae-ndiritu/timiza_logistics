@@ -12,6 +12,21 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "API_KEY": "AIzaSyCkEyLFjPvidwDFjVUnMmg7DbxRzyyM8dM",
+        "AUTH_DOMAIN": "timiza-logistics.firebaseapp.com",
+        "PROJECT_ID": "timiza-logistics",
+        "STORAGE_BUCKET": "timiza-logistics.appspot.com",
+        "MESSAGING_SENDER_ID": "925572313297",
+        "APP_ID": "1:925572313297:web:46bceab4894348732255f0",
+        "MEASUREMENT_ID": "G-132TG4FKWV",
+        "BUCKET_URL": "gs://timiza-logistics.appspot.com",
+        "CLOUDINARY_CLOUD_NAME": "dmwkndfyv",
+        "CLOUDINARY_API_KEY": "569448191285298",
+        "CLOUDINARY_API_SECRET": "yYjUpoq8XQf-vd0hlsNe_nPAKl0",
+        "CLOUDINARY_UPLOAD_PRESET": "default_preset",
+        "GOOGLE_API_KEY": "AIzaSyDkVLNZUvOQ-SSG2rpp4xCtVmxGCHaLfNY"
       }
     },
     "production": {

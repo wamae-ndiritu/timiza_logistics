@@ -8,16 +8,17 @@
     "icon": "./assets/playstore.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/playstore.png", 
-      "resizeMode": "contain", 
+      "image": "./assets/playstore.png",
+      "resizeMode": "contain",
       "backgroundColor": "#2A7353"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.timizalogistics"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon.png", 
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "##2A7353"
       },
       "package": "com.anonymous.timizalogistics"
@@ -35,4 +36,3 @@
     }
   }
 }
-
