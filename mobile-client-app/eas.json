@@ -14,6 +14,7 @@
         "buildType": "apk"
       },
       "env": {
+        "NODE_ENV": "production",
         "API_KEY": "AIzaSyCkEyLFjPvidwDFjVUnMmg7DbxRzyyM8dM",
         "AUTH_DOMAIN": "timiza-logistics.firebaseapp.com",
         "PROJECT_ID": "timiza-logistics",

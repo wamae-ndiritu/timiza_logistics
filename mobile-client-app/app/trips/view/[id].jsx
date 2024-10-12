@@ -31,6 +31,9 @@ const TripViewScreen = () => {
     (state) => state.trip
   );
 
+
+  console.log(currentTrip)
+
   const [endLocation, setEndLocation] = useState("");
   const [rejectionReason, setRejectionReason] = useState({});
   const [flaggedReject, setFlaggedReject] = useState({});
@@ -154,7 +157,7 @@ const TripViewScreen = () => {
 
           {/* Trip Information */}
           <View className='mb-4 p-4 bg-slate-100 rounded-lg'>
-            <Text className='text-xl font-semibold text-gray-700 mb-2'>
+            <Text className='text-lg font-semibold text-gray-700 mb-2'>
               Trip Information
             </Text>
             <Text className='text-sm text-gray-600'>
@@ -167,7 +170,7 @@ const TripViewScreen = () => {
 
           {/* Vehicle Information */}
           <View className='mb-4 p-4 bg-slate-200 rounded-lg'>
-            <Text className='text-xl font-semibold text-gray-700 mb-2'>
+            <Text className='text-lg font-semibold text-gray-700 mb-2'>
               Vehicle Information
             </Text>
             <Text className='text-sm text-gray-600'>
@@ -183,7 +186,7 @@ const TripViewScreen = () => {
 
           {/* Driver Information */}
           <View className='mb-4 p-4 bg-slate-100 rounded-lg'>
-            <Text className='text-xl font-semibold text-gray-700 mb-2'>
+            <Text className='text-lg font-semibold text-gray-700 mb-2'>
               Driver Information
             </Text>
             <Text className='text-sm text-gray-600'>
@@ -199,7 +202,7 @@ const TripViewScreen = () => {
 
           {/* Loaders Information */}
           <View className='mb-4 p-4 bg-slate-200 rounded-lg'>
-            <Text className='text-xl font-semibold text-gray-700 mb-2'>
+            <Text className='text-lg font-semibold text-gray-700 mb-2'>
               Loaders Information
             </Text>
             {currentTrip?.loaders?.length > 0 ? (
@@ -224,8 +227,13 @@ const TripViewScreen = () => {
               key={index}
               className='mb-4 py-1 px-2 bg-slate-200 rounded-lg'
             >
-              <Text className='text-xl font-semibold text-gray-700'>
-                Destination {index + 1}: {destination.location}
+              <Text className='py-2 flex-row items-center justify-center'>
+                <Text className='text-xs text-gray-600 my-auto'>Destination {index + 1}: </Text>
+                <Text className='text-lg font-semibold text-gray-700 '>
+                  {destination.location?.name +
+                    " " +
+                    destination.location?.type}
+                </Text>
               </Text>
               {!destination.reached ? (
                 <TouchableOpacity

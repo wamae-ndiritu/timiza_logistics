@@ -25,6 +25,8 @@ const Trips = () => {
   const dispatch = useDispatch();
   const { trips, success, loading } = useSelector((state) => state.trip);
 
+  console.log(trips)
+
   const {userData} = useSelector((state) => state.user);
 
   const [refreshing, setRefreshing] = useState(false);
@@ -82,7 +84,9 @@ const Trips = () => {
         <View className='flex-row flex-wrap w-[95%]'>
           <Text className='text-lg font-semibold text-gray-700'>
             {item.startLocation} -{" "}
-            {item.destinations[item.destinations.length - 1].location}
+            {item.destinations[item.destinations.length - 1].location?.name +
+              " " +
+              item.destinations[item.destinations.length - 1].location?.type}
           </Text>
         </View>
         <View className='w-full pr-5 flex-row space-x-4'>
