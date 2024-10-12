@@ -11,6 +11,7 @@
     "preview": {
       "distribution": "internal",
       "android": {
+        "node": "16.18.0",
         "buildType": "apk"
       },
       "env": {
