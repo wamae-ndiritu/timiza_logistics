@@ -249,7 +249,14 @@ router.get("/profile", verify, async (req, res) => {
     } else if (type === "loader") {
       user = await Loader.findOne({ user: req.user.id }).populate("user");
     } else {
-      return res.status(400).json({ message: "Invalid user type!" });
+      user = await User.findById(req.user.id);
+       let profile = {
+         ...user,
+         drivingLicense: null,
+         nationalIdFront: null,
+         nationalIdBack: null,
+       };
+      return res.status(200).json(profile);
     }
 
     if (!user) {
