@@ -216,7 +216,7 @@ router.get("/", verify, async (req, res) => {
         .populate("vehicle")
         .populate("driver", "fullName email phoneNumber")
         .populate("loaders", "fullName email phoneNumber")
-        .populate("deliveryNote").sort({createdAt: -1});
+        .populate("deliveryNote").populate('destinations.location').sort({createdAt: -1});
     } else {
       // If the user is not an admin, list only their trips
       const vehicles = await Vehicle.find({
@@ -229,7 +229,7 @@ router.get("/", verify, async (req, res) => {
         .populate("vehicle")
         .populate("driver", "fullName email phoneNumber")
         .populate("loaders", "fullName email phoneNumber")
-        .populate("deliveryNote").sort({createdAt: -1});
+        .populate("deliveryNote").populate('destinations.location').sort({createdAt: -1});
     }
 
     res.status(200).json(trips);
@@ -295,7 +295,7 @@ router.get("/:id", verify, async (req, res) => {
         .populate("vehicle")
         .populate("driver", "fullName email")
         .populate("loaders", "fullName email")
-        .populate("deliveryNote");
+        .populate("deliveryNote").populate('destinations.location');
     } else {
       // Regular user can view only trips they're involved in
       trip = await Trip.findOne({
@@ -309,7 +309,8 @@ router.get("/:id", verify, async (req, res) => {
         .populate("vehicle")
         .populate("driver", "fullName email")
         .populate("loaders", "fullName email")
-        .populate("deliveryNote");
+        .populate("deliveryNote")
+        .populate("destinations.location");
 
       if (!trip) {
         return res.status(403).json({
