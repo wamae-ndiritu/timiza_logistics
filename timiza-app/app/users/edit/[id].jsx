@@ -7,13 +7,13 @@ import { getUserById, updateProfile } from "../../../lib/redux/actions/userActio
 const EditUserScreen = () => {
   const { id } = useLocalSearchParams();
   const dispatch = useDispatch();
-  const { profile } = useSelector((state) => state.user);
+  const { profile, updateSuccess } = useSelector((state) => state.user);
 
   useEffect(() => {
     if (id) {
       dispatch(getUserById(id));
     }
-  }, [dispatch, id]);
+  }, [dispatch, id, updateSuccess]);
 
   const handleUpdateUser = (formData) => {
     dispatch(updateProfile(formData, "admin_update_user_profile", id));

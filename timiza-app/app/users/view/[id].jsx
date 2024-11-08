@@ -1,4 +1,3 @@
-import { View, Text } from "react-native";
 import React, { useCallback} from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { useLocalSearchParams } from "expo-router";
@@ -9,12 +8,12 @@ import UserForm from "../../../components/UserForm";
 const UserViewScreen = () => {
   const { id } = useLocalSearchParams();
   const dispatch = useDispatch();
-  const { profile } = useSelector((state) => state.user);
+  const { profile, updateSuccess } = useSelector((state) => state.user);
 
   useFocusEffect(
     useCallback(() => {
       dispatch(getUserById(id));
-    }, [dispatch, id])
+    }, [dispatch, id, updateSuccess])
   );
 
   return (
@@ -22,7 +21,7 @@ const UserViewScreen = () => {
       key={profile?._id}
       mode='view'
       title='View Staff'
-      initialData={profile}
+      initialData={{...profile}}
       
     />
   );

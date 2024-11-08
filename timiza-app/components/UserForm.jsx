@@ -42,6 +42,12 @@ const UserForm = ({
   }, []);
 
   useEffect(() => {
+    if (initialData){
+      setForm(initialData)
+    }
+  }, [initialData]);
+
+  useEffect(() => {
     if (updateSuccess) {
       ToastAndroid.show("Staff details updated!", ToastAndroid.SHORT, ToastAndroid.TOP);
     }
