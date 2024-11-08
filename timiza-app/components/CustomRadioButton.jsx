@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Text, View } from "react-native";
 import RadioGroup from "react-native-radio-buttons-group";
 
-export default function CustomRadioButton({ options, title, handlePress }) {
+export default function CustomRadioButton({ options, title, handlePress, selectedValue="", mode="" }) {
   const radioButtons = useMemo(() => options, []);
   const [selectedId, setSelectedId] = useState();
 
@@ -14,8 +14,15 @@ export default function CustomRadioButton({ options, title, handlePress }) {
       if (selectedOption) {
         handlePress(selectedOption?.value);
       }
+    } else if (selectedValue) {
+      const selectedOption = options?.find(
+        (option) => option.value === selectedValue
+      );
+      if (selectedOption) {
+        setSelectedId(selectedOption.id);
+      }
     }
-  }, [selectedId]);
+  }, [selectedId, selectedValue]);
 
   return (
     <View className='mb-3'>
@@ -24,7 +31,7 @@ export default function CustomRadioButton({ options, title, handlePress }) {
       </Text>
       <RadioGroup
         radioButtons={radioButtons}
-        onPress={setSelectedId}
+        onPress={mode==="view" ? () => {} : setSelectedId}
         selectedId={selectedId}
         layout='row'
       />

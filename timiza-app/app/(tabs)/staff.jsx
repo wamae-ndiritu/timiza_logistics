@@ -12,7 +12,8 @@ import { listUsers } from "../../lib/redux/actions/userActions";
 import EmptyState from "../../components/EmptyState";
 import TopBar from "../../components/TopBar";
 import Icon from "react-native-vector-icons/Feather";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
+import { TouchableOpacity } from "react-native";
 
 const Staff = () => {
   const dispatch = useDispatch();
@@ -53,7 +54,10 @@ const Staff = () => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         renderItem={({ item }) => (
-          <View className='px-2 my-2'>
+          <TouchableOpacity
+            onPress={() => router.push(`/users/view/${item.user?._id}`)}
+            className='px-2 my-2'
+          >
             <View className='bg-white p-2'>
               <View className='border-b-[1px] border-dotted border-secondary py-2 flex-row justify-between'>
                 <Text className='capitalize text-gray-600'>
@@ -78,7 +82,7 @@ const Staff = () => {
                 <Text className='text-gray-600'>{item.nationalId}</Text>
               </View>
             </View>
-          </View>
+          </TouchableOpacity>
         )}
         ListEmptyComponent={() => (
           <EmptyState

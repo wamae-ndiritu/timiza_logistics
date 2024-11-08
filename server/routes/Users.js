@@ -291,7 +291,29 @@ router.get("/:id", verify, async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json(user);
+    let profile;
+
+    if (user.role === "driver") {
+      profile = await Driver.findOne({ user: user._id }).populate("user");
+    } else if (user.role === "loader") {
+      profile = await Loader.findOne({ user: user._id }).populate("user");
+    } else {
+      profile = user;
+    }
+    // let profile = {
+    //   _id: user.user._id,
+    //   email: user.user.email,
+    //   role: user.user.role,
+    //   fullName: user.fullName,
+    //   phoneNumber: user.phoneNumber,
+    //   nationalId: user.nationalId,
+    //   drivingLicense: user.drivingLicense,
+    //   nationalIdFront: user.nationalIdFront,
+    //   nationalIdBack: user.nationalIdBack,
+    // };
+
+    console.log(profile)
+    res.status(200).json(profile);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -21,6 +21,7 @@ export const login = (userForm) => async (dispatch) => {
     const { data } = await axios.post(`${END_POINT}/users/login`, userForm);
     dispatch(userLogin(data));
   } catch (error) {
+    console.log(JSON.stringify(error));
     const message = error?.response
       ? error.response?.data.message || error.response?.data.error
       : error.message;
@@ -45,10 +46,8 @@ export const registerUser = (userForm) => async (dispatch, getState) => {
       userForm,
       config
     );
-    console.log(data);
     dispatch(userRegister());
   } catch (error) {
-    console.log(error);
     const message = error?.response
       ? error.response?.data.message || error.response?.data.error
       : error.message;

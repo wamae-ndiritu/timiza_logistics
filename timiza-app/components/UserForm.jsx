@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, Alert, Image } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Link, useRouter } from "expo-router";
@@ -13,6 +13,7 @@ import TopBar from "./TopBar";
 import Loading from "./Loading";
 import { resetUserState } from "../lib/redux/slices/users";
 import CustomRadioButton from "./CustomRadioButton";
+import { icons } from "../constants";
 
 const UserForm = ({
   mode = "new",
@@ -33,6 +34,14 @@ const UserForm = ({
     ...initialData,
   });
   const [role, setRole] = useState("");
+
+  useEffect(() => {
+    if (initialData?.user?.role) {
+      setRole(initialData.user.role);
+    }
+  }, []);
+
+  console.log(role)
 
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -112,79 +121,137 @@ const UserForm = ({
           <Icon name='users' size={24} color='#FFF' />
         </Link>
       </TopBar>
-      {loading ? (
-        <Loading />
-      ) : (
-        <ScrollView className='px-4 py-4'>
-          <FormField
-            title='Full Name'
-            placeholder='Enter fullname'
-            value={form.fullName}
-            handleChangeText={(e) => handleChange("fullName", e)}
-            otherStyles='mb-3'
-            inputStyles='bg-slate-50'
-            editable={mode !== "view"}
-          />
-          <FormField
-            title='Email'
-            placeholder='Enter email'
-            value={form.email}
-            handleChangeText={(e) => handleChange("email", e)}
-            editable={mode !== "view"}
-            otherStyles='mb-3'
-            inputStyles='bg-slate-50'
-          />
-          <FormField
-            title='Contact'
-            placeholder='Enter phone number'
-            value={form.phoneNumber}
-            handleChangeText={(e) => handleChange("phoneNumber", e)}
-            editable={mode !== "view"}
-            otherStyles='mb-3'
-            inputStyles='bg-slate-50'
-          />
-          <FormField
-            title='National ID'
-            placeholder='Enter ID no'
-            value={form.nationalId}
-            handleChangeText={(e) => handleChange("nationalId", e)}
-            editable={mode !== "view"}
-            otherStyles='mb-3'
-            inputStyles='bg-slate-50'
-          />
-          <CustomRadioButton
-            options={[
-              {
-                id: "1",
-                label: "Driver",
-                value: "driver",
-              },
-              {
-                id: "2",
-                label: "Loader",
-                value: "loader",
-              },
-            ]}
-            handlePress={setRole}
-            title='Select Role'
-          />
-          {mode !== "view" && (
-            <CustomButton
-              title={mode === "new" ? "Add Staff" : "Update Staff"}
-              handlePress={submitForm}
-              containerStyles='my-7 bg-orange rounded min-h-[45px]'
-              textStyles='text-white font-semibold text-xl'
-              isLoading={loading}
-            />
-          )}
-          {mode === "view" && userData?.user?.role === "admin" && (
-            <View className='flex-row justify-between mb-4 space-x-2'>
-              <ActionButton type='edit' handlePress={handleEdit} />
-              <ActionButton type='delete' handlePress={handleDelete} />
+      <ScrollView className='px-4 py-4'>
+        {loading && <Loading />}
+        {initialData?.user?.isDefaultPassword && (
+          <View className='bg-red-100 p-3 rounded mb-3'>
+            <Text className='text-red-600 text-lg font-pmedium'>
+              This user has never logged in to their account!
+            </Text>
+          </View>
+        )}
+        {mode === "view" && (
+          <>
+            <Text className='text-lg text-gray-600 font-pmedium mb-2'>
+              National ID (Front)
+            </Text>
+            <View className='bg-white border-[1px] border-gray-300 p-1 h-48 rounded-lg'>
+              {initialData?.nationalIdFront ? (
+                <Image
+                  source={{
+                    uri: initialData.nationalIdFront,
+                  }}
+                  resizeMode='cover'
+                  className='w-full h-full rounded-xl border-[1px]'
+                />
+              ) : (
+                <View className='bg-primary h-full w-full rounded items-center justify-center'>
+                  <View className='border-[1px] border-gray-300 border-dotted p-3 rounded-full'>
+                    <Image
+                      source={icons.camera}
+                      className='h-8 w-8'
+                      resizeMode='contain'
+                    />
+                  </View>
+                </View>
+              )}
             </View>
-          )}
-        </ScrollView>
-      )}
+            <Text className='text-lg mt-3 text-gray-600 font-pmedium mb-2'>
+              National ID (Back)
+            </Text>
+            <View className='bg-white border-[1px] border-gray-300 p-1 h-48 rounded-lg'>
+              {initialData?.nationalIdBack ? (
+                <Image
+                  source={{
+                    uri: initialData.nationalIdBack,
+                  }}
+                  resizeMode='cover'
+                  className='w-full h-full rounded-xl border-[1px]'
+                />
+              ) : (
+                <View className='bg-primary h-full w-full rounded items-center justify-center'>
+                  <View className='border-[1px] border-gray-300 border-dotted p-3 rounded-full'>
+                    <Image
+                      source={icons.camera}
+                      className='h-8 w-8'
+                      resizeMode='contain'
+                    />
+                  </View>
+                </View>
+              )}
+            </View>
+          </>
+        )}
+        <FormField
+          title='Full Name'
+          placeholder='Enter fullname'
+          value={form.fullName}
+          handleChangeText={(e) => handleChange("fullName", e)}
+          otherStyles='my-3'
+          inputStyles='bg-slate-50'
+          editable={mode !== "view"}
+        />
+        <FormField
+          title='Email'
+          placeholder='Enter email'
+          value={form.email}
+          handleChangeText={(e) => handleChange("email", e)}
+          editable={mode !== "view"}
+          otherStyles='mb-3'
+          inputStyles='bg-slate-50'
+        />
+        <FormField
+          title='Contact'
+          placeholder='Enter phone number'
+          value={form.phoneNumber}
+          handleChangeText={(e) => handleChange("phoneNumber", e)}
+          editable={mode !== "view"}
+          otherStyles='mb-3'
+          inputStyles='bg-slate-50'
+        />
+        <FormField
+          title='National ID'
+          placeholder='Enter ID no'
+          value={form.nationalId}
+          handleChangeText={(e) => handleChange("nationalId", e)}
+          editable={mode !== "view"}
+          otherStyles='mb-3'
+          inputStyles='bg-slate-50'
+        />
+        <CustomRadioButton
+          options={[
+            {
+              id: "1",
+              label: "Driver",
+              value: "driver",
+            },
+            {
+              id: "2",
+              label: "Loader",
+              value: "loader",
+            },
+          ]}
+          handlePress={mode === "view" ? () => {} : setRole}
+          mode='view'
+          title='Select Role'
+          selectedValue={role}
+        />
+        {mode !== "view" && (
+          <CustomButton
+            title={mode === "new" ? "Add Staff" : "Update Staff"}
+            handlePress={submitForm}
+            containerStyles='my-7 bg-orange rounded min-h-[45px]'
+            textStyles='text-white font-semibold text-xl'
+            isLoading={loading}
+          />
+        )}
+        {mode === "view" && userData?.user?.role === "admin" && (
+          <View className='flex-row justify-between my-4 space-x-2'>
+            <ActionButton type='edit' handlePress={handleEdit} />
+            <ActionButton type='delete' handlePress={handleDelete} />
+          </View>
+        )}
+      </ScrollView>
       <StatusBar backgroundColor='#2A7353' style='light' />
     </SafeAreaView>
   );
