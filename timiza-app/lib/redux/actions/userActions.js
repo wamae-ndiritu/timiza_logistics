@@ -21,7 +21,6 @@ export const login = (userForm) => async (dispatch) => {
     const { data } = await axios.post(`${END_POINT}/users/login`, userForm);
     dispatch(userLogin(data));
   } catch (error) {
-    console.log(JSON.stringify(error));
     const message = error?.response
       ? error.response?.data.message || error.response?.data.error
       : error.message;
@@ -83,7 +82,7 @@ export const listUsers =
   };
 
 export const updateProfile =
-  (userForm, type = "documents") =>
+  (userForm, type = "documents", userId="") =>
   async (dispatch, getState) => {
     try {
       const {
@@ -102,12 +101,16 @@ export const updateProfile =
           userForm,
           config
         );
-      }
-      if (type === "forgot_password") {
+      } else if (type === "forgot_password") {
         await axios.put(`${END_POINT}/users/verify-otp`, userForm);
-      }
-      if (type === "password") {
+      }else if (type === "password") {
         await axios.put(`${END_POINT}/users/profile`, userForm, config);
+      } else if (type === "admin_update_user_profile") {
+        await axios.put(
+          `${END_POINT}/users/profile/admin/${userId}`,
+          userForm,
+          config
+        );
       }
       dispatch(userUpdate());
     } catch (error) {

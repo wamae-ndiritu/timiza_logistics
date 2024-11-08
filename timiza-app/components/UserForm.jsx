@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, Alert, Image } from "react-native";
+import { View, Text, ScrollView, Alert, Image, ToastAndroid } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Link, useRouter } from "expo-router";
@@ -22,7 +22,7 @@ const UserForm = ({
   onSubmit,
 }) => {
   const dispatch = useDispatch();
-  const { userData, loading, error, success } = useSelector(
+  const { userData, loading, error, success, updateSuccess } = useSelector(
     (state) => state.user
   );
   const router = useRouter();
@@ -36,12 +36,16 @@ const UserForm = ({
   const [role, setRole] = useState("");
 
   useEffect(() => {
-    if (initialData?.user?.role) {
-      setRole(initialData.user.role);
+    if (initialData?.role || initialData?.user?.role) {
+      setRole(initialData.role || initialData.user.role);
     }
   }, []);
 
-  console.log(role)
+  useEffect(() => {
+    if (updateSuccess) {
+      ToastAndroid.show("Staff details updated!", ToastAndroid.SHORT, ToastAndroid.TOP);
+    }
+  }, [updateSuccess]);
 
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -82,7 +86,7 @@ const UserForm = ({
   };
 
   const handleEdit = () => {
-    router.push(`/users/edit/${initialData?._id}`);
+    router.push(`/users/edit/${initialData?.user?._id}`);
   };
 
   useEffect(() => {

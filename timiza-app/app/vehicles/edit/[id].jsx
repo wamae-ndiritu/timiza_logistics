@@ -23,15 +23,12 @@ const EditVehicleScreen = () => {
   };
 
   return (
-    <>
-
       <VehicleForm
           mode='edit'
           title="Edit Vehicle"
           initialData={currentVehicle}
           onSubmit={handleUpdateDelivery}
         />
-        </>
   );
 };
 

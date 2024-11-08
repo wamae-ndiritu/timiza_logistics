@@ -300,19 +300,7 @@ router.get("/:id", verify, async (req, res) => {
     } else {
       profile = user;
     }
-    // let profile = {
-    //   _id: user.user._id,
-    //   email: user.user.email,
-    //   role: user.user.role,
-    //   fullName: user.fullName,
-    //   phoneNumber: user.phoneNumber,
-    //   nationalId: user.nationalId,
-    //   drivingLicense: user.drivingLicense,
-    //   nationalIdFront: user.nationalIdFront,
-    //   nationalIdBack: user.nationalIdBack,
-    // };
 
-    console.log(profile)
     res.status(200).json(profile);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -488,11 +476,13 @@ router.put("/profile/documents", verify, async (req, res) => {
 router.put("/profile/admin/:id", isAdmin, async (req, res) => {
   const { id } = req.params;
   const { fullName, email, role, phoneNumber, nationalId } = req.body;
+  console.log("Admin update user profile");
 
   try {
     const user = await User.findById(id);
 
     if (!user) {
+      console.log("User not found");
       return res.status(404).json({ message: "User not found" });
     }
 
@@ -521,8 +511,10 @@ router.put("/profile/admin/:id", isAdmin, async (req, res) => {
         await profile.save();
       }
     }
+    console.log(profile)
     res.status(200).json({ message: "Profile updated successfully" });
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: error.message });
   }
 });

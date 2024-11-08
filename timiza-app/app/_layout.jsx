@@ -81,10 +81,8 @@ const RootLayout = () => {
           name='locations/view/[locationId]'
           options={{ headerShown: false }}
         />
-        <Stack.Screen
-          name='users/view/[id]'
-          options={{ headerShown: false }}
-        />
+        <Stack.Screen name='users/view/[id]' options={{ headerShown: false }} />
+        <Stack.Screen name='users/edit/[id]' options={{ headerShown: false }} />
       </Stack>
     </Provider>
   );
