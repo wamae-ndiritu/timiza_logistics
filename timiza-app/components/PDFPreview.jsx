@@ -10,24 +10,20 @@ import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { Ionicons } from "@expo/vector-icons";
 
-const PDFPreview = ({ form }) => {
-  const [pdfUri, setPdfUri] = useState(null);
-
+const PDFPreview = ({ form, fileField }) => {
+  // Access the PDF URL from the form using the specified fileField
+  const pdfUrl = form[fileField];
+  
   const handleDownloadAndPreview = async () => {
     try {
       // Define the file path in the local file system
-      const fileUri =
-        FileSystem.documentDirectory + form.ownerLogBook.split("/").pop();
+      const fileUri = FileSystem.documentDirectory + pdfUrl.split("/").pop();
 
       // Download the PDF to the local file system
-      const downloadResult = await FileSystem.downloadAsync(
-        form.ownerLogBook,
-        fileUri
-      );
+      const downloadResult = await FileSystem.downloadAsync(pdfUrl, fileUri);
 
       if (downloadResult.status === 200) {
         ToastAndroid.show("Document ready for viewing!", ToastAndroid.SHORT);
-        setPdfUri(downloadResult.uri);
 
         // Trigger sharing (preview) immediately after download
         if (await Sharing.isAvailableAsync()) {
@@ -48,7 +44,7 @@ const PDFPreview = ({ form }) => {
     <View style={{ padding: 10 }}>
       {/* Display the PDF filename */}
       <Text style={{ color: "blue", textDecorationLine: "underline" }}>
-        {form.ownerLogBook.split("/").pop()}
+        {pdfUrl.split("/").pop()}
       </Text>
 
       {/* Download and Preview button */}

@@ -14,25 +14,40 @@ import * as ImagePicker from "expo-image-picker";
 import moment from "moment";
 import AvatarWithInitials from "../../components/AvatarWithInitials";
 import { useDispatch, useSelector } from "react-redux";
-import { icons } from "../../constants";
+import Icon from "react-native-vector-icons/Feather";
 import { resetUserState } from "../../lib/redux/slices/users";
 import CustomButton from "../../components/CustomButton";
-import { getUserProfile, logout, updateProfile } from "../../lib/redux/actions/userActions";
+import {
+  getUserProfile,
+  logout,
+  updateProfile,
+} from "../../lib/redux/actions/userActions";
 import Loading from "../../components/Loading";
-import { uploadImageToCloudinary } from "../../lib/cloudinary";
+import {
+  uploadImageToCloudinary,
+  uploadPdfToCloudinary,
+} from "../../lib/cloudinary";
+import * as DocumentPicker from "expo-document-picker";
+import PDFPreview from "../../components/PDFPreview";
+import TopBar from "../../components/TopBar";
 
 const Profile = () => {
   const dispatch = useDispatch();
-  const { userData, profile, updateSuccess, loading,  error } = useSelector((state) => state.user);
+  const { userData, profile, updateSuccess, loading, error } = useSelector(
+    (state) => state.user
+  );
 
   const [form, setForm] = useState({
     nationalIdFront: null,
     nationalIdBack: null,
+    drivingLicense: null,
   });
   const [uploadingFront, setUploadingFront] = useState(false);
   const [uploadingBack, setUploadingBack] = useState(false);
   const [uploadErrFront, setUploadErrFront] = useState(null);
   const [uploadErrBack, setUploadErrBack] = useState(null);
+  const [uploadingDL, setUploadingDL] = useState(false);
+  const [dl, setDL] = useState(null);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -47,43 +62,66 @@ const Profile = () => {
       aspect: [4, 3],
       quality: 1,
     });
-    
+
     if (!result.canceled) {
       if (side === "front") {
         setForm({ ...form, nationalIdFront: result.assets[0] });
         setUploadingFront(true);
-       try {
-         const response = await uploadImageToCloudinary(result.assets[0]);
-         setForm({ ...form, nationalIdFront: { uri: response.secure_url } });
-       } catch (error) {
-        setUploadErrFront(error.message);
-       } finally{
-        setUploadingFront(false);
-       }
+        try {
+          const response = await uploadImageToCloudinary(result.assets[0]);
+          setForm({ ...form, nationalIdFront: { uri: response.secure_url } });
+        } catch (error) {
+          setUploadErrFront(error.message);
+        } finally {
+          setUploadingFront(false);
+        }
       } else {
         setForm({ ...form, nationalIdBack: result.assets[0] });
         setUploadingBack(true);
-         try {
+        try {
           const response = await uploadImageToCloudinary(result.assets[0]);
           setForm({ ...form, nationalIdBack: { uri: response.secure_url } });
-         } catch (error) {
+        } catch (error) {
           setUploadErrBack(error.message);
-         }finally{
+        } finally {
           setUploadingBack(false);
-         }
+        }
       }
     }
   };
 
+  const openDocumentPicker = async () => {
+    const result = await DocumentPicker.getDocumentAsync({
+      type: "application/pdf",
+    });
 
-  const submit = async () => {
-    if (!form.nationalIdFront || !form.nationalIdBack) {
-      Alert.alert("Please select both front and back images");
-      return;
+    if (result.type !== "cancel") {
+      setForm({ ...form, drivingLicense: result.assets[0].uri });
+      setUploadingDL(true);
+      try {
+        const data = await uploadPdfToCloudinary(result.assets[0]);
+        setForm({ ...form, drivingLicense: data.secure_url });
+      } catch (error) {
+        Alert.alert("Error", error.message);
+      } finally {
+        setUploadingDL(false);
+      }
     }
-    dispatch(updateProfile({nationalIdFront: form.nationalIdFront.uri, nationalIdBack: form.nationalIdBack.uri}));
   };
 
+  const submit = async () => {
+    if (!form.nationalIdFront || !form.nationalIdBack || !form.drivingLicense) {
+      Alert.alert("Error", "Please upload all documents!");
+      return;
+    }
+    dispatch(
+      updateProfile({
+        ...form,
+        nationalIdFront: form.nationalIdFront.uri,
+        nationalIdBack: form.nationalIdBack.uri,
+      })
+    );
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -92,89 +130,83 @@ const Profile = () => {
   );
 
   useEffect(() => {
-    if (updateSuccess){
+    if (updateSuccess) {
       dispatch(getUserProfile());
       const interval = setInterval(() => {
         dispatch(resetUserState());
-      }, 5000)
+      }, 5000);
 
       return () => clearInterval(interval);
     }
-  }, [updateSuccess])
+  }, [updateSuccess]);
 
   useEffect(() => {
-    if (profile){
-      setForm({nationalIdFront: profile.nationalIdFront, nationalIdBack: profile.nationalIdBack})
+    if (profile) {
+      setForm({
+        nationalIdFront: profile.nationalIdFront,
+        nationalIdBack: profile.nationalIdBack,
+      });
+      setDL(profile.drivingLicense);
     }
-  }, [profile])
+  }, [profile]);
 
   return (
     <SafeAreaView className='bg-white h-full'>
-      <View className='px-4 z-[99] bg-secondary w-full h-14 flex-row justify-between items-center'>
-        <Text className='text-white text-2xl font-psemibold'>My Account</Text>
+      <TopBar title='My Account'>
         <TouchableOpacity
-          className='bg-orange h-10 w-10 flex-row items-center justify-center rounded-full'
           onPress={handleLogout}
         >
-          <Image
-            source={icons.logout}
-            resizeMode='contain'
-            className='w-6 h-6'
-          />
+          <Icon name='log-out' size={24} color='#fff' />
         </TouchableOpacity>
-      </View>
-      {loading ? (
-        <Loading />
-      ) : (
-        <ScrollView className='px-4'>
-          <View className='w-full flex-row space-x-3 items-center mt-5'>
-            <AvatarWithInitials
-              name={userData?.fullName || userData?.user?.role}
-            />
-            <View className='w-[70%]'>
-              <View className='flex-row justify-between items-center'>
-                <Text className='text-gray-500 capitalize text-xl font-pregular'>
-                  {userData?.fullName || userData?.user?.role}
-                </Text>
-                <Text
-                  className={`w-20 text-center py-0.5 rounded text-sm text-white capitalize ${
-                    userData?.user?.role === "driver"
-                      ? "bg-orange-500"
-                      : "bg-green-500"
-                  }`}
-                >
-                  {userData?.user?.role}
-                </Text>
-              </View>
-              <Text className='text-gray-500 text-lg font-pregular'>
-                {userData?.user?.email}
-              </Text>
-            </View>
+      </TopBar>
+      <ScrollView className='px-4'>
+        {loading && <Loading />}
+
+        {/* User Info Section */}
+        <View className='mt-6 flex-row items-center space-x-4 bg-slate-200 p-4 rounded-lg'>
+          <AvatarWithInitials
+            name={userData?.fullName || userData?.user?.role}
+          />
+          <View>
+            <Text className='text-gray-800 text-xl font-psemibold'>
+              {userData?.fullName || userData?.user?.role}
+            </Text>
+            <Text className='text-gray-600 text-lg'>
+              {userData?.user?.email}
+            </Text>
           </View>
-          <View className='bg-white p-2'>
-            <View className='border-b-[1px] border-dotted border-secondary py-2 flex-row justify-end'>
-              <Text className='capitalize text-gray-600 text-lg'>
-                Joined{" "}
-                <Text className='text-indigo-500 font-pregular'>
-                  {moment(userData?.user?.createdAt).format("MMMM Do YYYY")}
-                </Text>
-              </Text>
-            </View>
-            <View className='flex-row justify-between items-center py-1'>
-              <Text className='font-pmedium'>ID NO</Text>
-              <Text className='text-gray-600'>{userData?.nationalId}</Text>
-            </View>
-            <View className='flex-row justify-between items-center py-1'>
-              <Text className='font-pmedium'>Contact</Text>
-              <Text className='text-gray-600'>{userData?.phoneNumber}</Text>
-            </View>
+        </View>
+
+        {/* Profile Details Section */}
+        <View className='bg-white p-4 mt-4 border border-gray-200 rounded-lg'>
+          <Text className='text-indigo-500 text-lg mb-2'>Account Details</Text>
+          <View className='flex-row justify-between py-1'>
+            <Text className='font-pmedium'>Joined</Text>
+            <Text className='text-gray-600'>
+              {moment(userData?.user?.createdAt).format("MMMM Do YYYY")}
+            </Text>
           </View>
-          <View className='mt-7 space-y-2'>
-            <Text className='text-base text-gray-600 font-pregular'>
+          <View className='flex-row justify-between py-1'>
+            <Text className='font-pmedium'>ID No.</Text>
+            <Text className='text-gray-600'>{userData?.nationalId}</Text>
+          </View>
+          <View className='flex-row justify-between py-1'>
+            <Text className='font-pmedium'>Contact</Text>
+            <Text className='text-gray-600'>{userData?.phoneNumber}</Text>
+          </View>
+        </View>
+
+        {/* Document Upload Section */}
+        <View className='mt-8 space-y-4'>
+          <Text className='text-lg text-gray-700 font-semibold'>Documents</Text>
+
+          {/* ID Front */}
+          <View>
+            <Text className='text-base text-gray-600'>
               Upload ID (Front-Side)
             </Text>
             <TouchableOpacity
-              className='bg-white border-[1px] border-gray-300 p-1 h-48 rounded-lg'
+              className='bg-slate-100 border border-gray-100 p-2 rounded-lg mt-2'
               onPress={() => openPicker("front")}
             >
               {form.nationalIdFront ? (
@@ -183,41 +215,27 @@ const Profile = () => {
                     uri: form.nationalIdFront.uri || form.nationalIdFront,
                   }}
                   resizeMode='cover'
-                  className='w-full h-full rounded-xl border-[1px]'
+                  className='w-full h-48 rounded-lg'
                 />
               ) : (
-                <View className='bg-primary h-full w-full rounded items-center justify-center'>
-                  <View className='border-[1px] border-gray-300 border-dotted p-3 rounded-full'>
-                    <Image
-                      source={icons.camera}
-                      className='h-8 w-8'
-                      resizeMode='contain'
-                    />
-                  </View>
-                </View>
+                <Text className='text-center text-gray-500'>
+                  Tap to upload ID front
+                </Text>
               )}
             </TouchableOpacity>
-            {uploadingFront ? (
-              <View className='flex-row items-center space-x-2'>
-                <Text className='px-2 text-base text-green-500 font-pregular py-0.5'>
-                  Uploading...
-                </Text>
-                <Loading color='green' />
-              </View>
-            ) : (
-              uploadErrFront && (
-                <Text className='px-2 text-base text-red-500 font-pregular bg-red-100 py-1 rounded'>
-                  {uploadErrFront}
-                </Text>
-              )
+            {uploadingFront && <Loading color='green' />}
+            {uploadErrFront && (
+              <Text className='text-red-500'>{uploadErrFront}</Text>
             )}
           </View>
-          <View className='mt-7 space-y-2'>
-            <Text className='text-base text-gray-600 font-pmedium'>
+
+          {/* ID Back */}
+          <View>
+            <Text className='text-base text-gray-600'>
               Upload ID (Back-Side)
             </Text>
             <TouchableOpacity
-              className='bg-white border-[1px] border-gray-300 p-1 h-48 rounded-lg'
+              className='bg-slate-100 border border-gray-100 p-2 rounded-lg mt-2'
               onPress={() => openPicker("back")}
             >
               {form.nationalIdBack ? (
@@ -226,49 +244,59 @@ const Profile = () => {
                     uri: form.nationalIdBack.uri || form.nationalIdBack,
                   }}
                   resizeMode='cover'
-                  className='w-full h-full rounded-xl border-[1px]'
+                  className='w-full h-48 rounded-lg'
                 />
               ) : (
-                <View className='bg-primary h-full w-full rounded items-center justify-center'>
-                  <View className='border-[1px] border-gray-300 border-dotted p-3 rounded-full'>
-                    <Image
-                      source={icons.camera}
-                      className='h-8 w-8'
-                      resizeMode='contain'
-                    />
-                  </View>
-                </View>
+                <Text className='text-center text-gray-500'>
+                  Tap to upload ID back
+                </Text>
               )}
             </TouchableOpacity>
-            {uploadingBack ? (
-              <View className='flex-row items-center space-x-2'>
-                <Text className='px-2 text-base text-green-500 font-pregular py-0.5'>
-                  Uploading...
-                </Text>
-                <Loading color='green' />
-              </View>
-            ) : (
-              uploadErrBack && (
-                <Text className='px-2 text-base text-red-500 font-pregular bg-red-100 py-1 rounded'>
-                  {uploadErrBack}
-                </Text>
-              )
+            {uploadingBack && <Loading color='green' />}
+            {uploadErrBack && (
+              <Text className='text-red-500'>{uploadErrBack}</Text>
             )}
           </View>
-          {/* <PdfUploader /> */}
-          <CustomButton
-            title={
-              uploadErrFront || uploadErrFront || loading
-                ? "Please wait..."
-                : "Update Profile"
-            }
-            handlePress={submit}
-            containerStyles='my-7 bg-orange rounded min-h-[45px]'
-            textStyles='text-white font-psemibold text-xl'
-            isLoading={uploadErrFront || uploadErrFront || loading}
-          />
-        </ScrollView>
-      )}
+
+          {/* Driving License PDF */}
+          <View className='my-2'>
+            <Text className='text-base text-gray-600 pb-2'>
+              Driver License (PDF)
+            </Text>
+            <TouchableOpacity
+              className='bg-gray-100 border border-gray-300 p-4 rounded-lg'
+              onPress={openDocumentPicker}
+            >
+              {form.drivingLicense ? (
+                <Text className='text-blue-500 underline'>
+                  {form.drivingLicense.split("/").pop()}
+                </Text>
+              ) : (
+                <Text className='text-center text-gray-500'>
+                  Tap to upload your driving license
+                </Text>
+              )}
+            </TouchableOpacity>
+            {uploadingDL && <Loading color='blue' />}
+            {dl && (
+              <View className='mt-2 bg-gray-100 rounded-lg'>
+                <PDFPreview
+                  form={{ drivingLicense: dl }}
+                  fileField='drivingLicense'
+                />
+              </View>
+            )}
+          </View>
+        </View>
+
+        {/* Submit Button */}
+        <CustomButton
+          title='Submit'
+          onPress={submit}
+          className='my-8'
+          isLoading={uploadErrFront || uploadErrFront || loading || uploadingDL}
+        />
+      </ScrollView>
       <StatusBar backgroundColor='#2A7353' style='light' />
     </SafeAreaView>
   );

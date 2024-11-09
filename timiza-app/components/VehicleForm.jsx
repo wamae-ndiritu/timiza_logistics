@@ -251,7 +251,7 @@ const VehicleForm = ({
               {/* <Text className='text-blue-500 underline'>
                 {form.ownerLogBook.split("/").pop()}
               </Text> */}
-              <PDFPreview form={form} />
+              <PDFPreview form={form} fileField="ownerLogBook" />
             </>
           ) : (
             // <Image
