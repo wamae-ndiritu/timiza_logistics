@@ -24,9 +24,9 @@ router.post("/login", async (req, res) => {
     // Find user by email
     let user;
     let isMatch;
-    const foundUser = await User.findOne({ email });
+    const foundUser = await User.findOne({ email, isActive: true });
     if (!foundUser) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "No matching account found!" });
     }
     if (foundUser.role === "driver") {
       user = await Driver.findOne({ email }).populate("user");
@@ -210,7 +210,7 @@ router.get("/", isAdmin, async (req, res) => {
   const search = req.query.search;
   let usersList = [];
   if (search) {
-    const user = await User.findOne({ nationalId: search });
+    const user = await User.findOne({ nationalId: search, isActive: true });
     if (!user) {
       return res
         .status(404)
@@ -224,14 +224,14 @@ router.get("/", isAdmin, async (req, res) => {
     }
   } else {
     if (type === "drivers") {
-      usersList = await Driver.find({}).populate("user").sort({ _id: -1 });
+      usersList = await Driver.find({isActive: true}).populate("user").sort({ _id: -1 });
     } else if (type === "loaders") {
-      usersList = await Loader.find({}).populate("user").sort({ _id: -1 });
+      usersList = await Loader.find({isActive: true}).populate("user").sort({ _id: -1 });
     } else if (type === "admins") {
-      usersList = await User.find({ role: "admin" }).sort({ _id: -1 });
+      usersList = await User.find({ role: "admin", isActive: true }).sort({ _id: -1 });
     } else {
-      const drivers = await Driver.find({}).populate("user").sort({ _id: -1 });
-      const loaders = await Loader.find({}).populate("user").sort({ _id: -1 });
+      const drivers = await Driver.find({isActive: true}).populate("user").sort({ _id: -1 });
+      const loaders = await Loader.find({isActive: true}).populate("user").sort({ _id: -1 });
       usersList = [...drivers, ...loaders];
     }
   }
@@ -245,11 +245,11 @@ router.get("/profile", verify, async (req, res) => {
     let user;
 
     if (type === "driver") {
-      user = await Driver.findOne({ user: req.user.id }).populate("user");
+      user = await Driver.findOne({ user: req.user.id, isActive: true }).populate("user");
     } else if (type === "loader") {
-      user = await Loader.findOne({ user: req.user.id }).populate("user");
+      user = await Loader.findOne({ user: req.user.id, isActive: true }).populate("user");
     } else {
-      user = await User.findById(req.user.id);
+      user = await User.find({_id: req.user.id, isActive: true});
        let profile = {
          ...user,
          drivingLicense: null,
@@ -287,7 +287,7 @@ router.get("/:id", verify, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
 
-    if (!user) {
+    if (!user || !user.isActive) {
       return res.status(404).json({ message: "User not found" });
     }
 
@@ -481,8 +481,7 @@ router.put("/profile/admin/:id", isAdmin, async (req, res) => {
   try {
     const user = await User.findById(id);
 
-    if (!user) {
-      console.log("User not found");
+    if (!user || !user.isActive) {
       return res.status(404).json({ message: "User not found" });
     }
 
@@ -511,10 +510,8 @@ router.put("/profile/admin/:id", isAdmin, async (req, res) => {
         await profile.save();
       }
     }
-    console.log(profile)
     res.status(200).json({ message: "Profile updated successfully" });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -528,23 +525,30 @@ router.delete("/:id", isAdmin, async (req, res) => {
     if (type === "driver") {
       user = await Driver.findOne({ user: req.params.id }).populate("user");
       if (user) {
-        await User.findByIdAndDelete(user.user._id);
-        await Driver.findByIdAndDelete(req.params.id);
+        user.isActive = false;
+        await user.save();
+        const driver = await User.findById(user.user._id);
+        driver.isActive = false;
+        await driver.save();
       }
     } else if (type === "loader") {
       user = await Loader.findOne({ user: req.params.id }).populate("user");
       if (user) {
-        await User.findByIdAndDelete(user.user._id);
-        await Loader.findByIdAndDelete(req.params.id);
+        user.isActive = false;
+        await user.save();
+        const loaderUser = await User.findById(user.user._id);
+        loaderUser.isActive = false;
+        await loaderUser.save()
       }
     } else {
-      await User.findByIdAndDelete(req.params.id);
+      user = await User.findById(req.params.id);
+      user.isActive = false;
+      await user.save();
     }
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-
     res.status(200).json({ message: "User profile deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });

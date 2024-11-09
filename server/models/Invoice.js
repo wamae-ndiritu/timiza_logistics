@@ -17,6 +17,7 @@ const InvoiceSchema = new mongoose.Schema({
   supplierAddress: { type: String },
   supplierPhoneNumber: { type: String },
   document: { type: mongoose.Schema.Types.ObjectId, ref: "Document", required: true },
+  isActive: { type: Boolean, default: true },
 });
 
 const Invoice = mongoose.model("Invoice", InvoiceSchema);

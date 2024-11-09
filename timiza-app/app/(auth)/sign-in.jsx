@@ -39,60 +39,69 @@ const SignIn = () => {
     }, [dispatch, userData, router, loading])
   );
 
+
+  useEffect(() => {
+    if (error){
+      setForm({
+        email: "",
+        password: "",
+      });
+
+      const timeout = setTimeout(() => {
+        dispatch(resetUserState());
+      }, 5000)
+
+      return () => clearTimeout(timeout);
+    }
+  }, [error])
+
   return (
     <SafeAreaView className='bg-white h-full'>
-      {loading ? (
-        <View className='h-full flex-row justify-center items-center'>
-          <Loading />
-        </View>
-      ) : (
-        <ScrollView>
-          <View className='bg-white py-8 flex-col justify-center px-4'>
-            <Image
-              source={images.logoHorizontal}
-              resizeMode='contain'
-              className='w-[300px] h-[75px]'
-            />
-            {error && (
-              <Message
-                description={error}
-                icon={icons.warning}
-                descriptionStyles='text-lg text-red-400'
-              />
-            )}
-            <FormField
-              title='Email'
-              value={form.email}
-              handleChangeText={(e) => setForm({ ...form, email: e })}
-              otherStyles='mt-3'
-              keyboardType='email-address'
-              placeholder='johndoe@gmail.com'
-            />
-            <FormField
-              title='Password'
-              placeholder='........'
-              value={form.password}
-              handleChangeText={(e) => setForm({ ...form, password: e })}
-              otherStyles='mt-3'
-            />
-            <CustomButton
-              title='Sign In'
-              handlePress={submit}
-              containerStyles='mt-3 w-full rounded'
-              textStyles='text-white-100 text-xl text-white'
-              isLoading={loading}
-            />
-            <View className='mt-2 flex-row justify-end'>
-              <Link
-                href='/forgot-password'
-                className='text-pink-500 underline font-semibold'
-              >
-                Forgot Password?
-              </Link>
+      <ScrollView>
+        <View className='bg-white py-8 flex-col justify-center px-4'>
+          <Image
+            source={images.logoHorizontal}
+            resizeMode='contain'
+            className='w-[300px] h-[75px]'
+          />
+          {error && (
+            <View className='bg-red-100 p-3 rounded mb-3'>
+              <Text className='text-red-600 text-lg font-pmedium'>{error}</Text>
             </View>
+          )}
+          {loading && <Loading />}
+          <FormField
+            title='Email'
+            value={form.email}
+            handleChangeText={(e) => setForm({ ...form, email: e })}
+            otherStyles='mt-3'
+            keyboardType='email-address'
+            placeholder='johndoe@gmail.com'
+          />
+          <FormField
+            title='Password'
+            placeholder='........'
+            value={form.password}
+            handleChangeText={(e) => setForm({ ...form, password: e })}
+            otherStyles='mt-3'
+          />
+          <CustomButton
+            title='Sign In'
+            handlePress={submit}
+            containerStyles='mt-3 w-full rounded'
+            textStyles='text-white-100 text-xl text-white'
+            isLoading={loading}
+          />
+          <View className='mt-2 flex-row justify-end'>
+            <Link
+              href='/forgot-password'
+              className='text-pink-500 underline font-semibold'
+            >
+              Forgot Password?
+            </Link>
           </View>
-        </ScrollView>
-      )}
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };

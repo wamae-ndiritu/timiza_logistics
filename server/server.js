@@ -78,10 +78,10 @@ app.use("/api/v1/vehicles", vehicleRouter);
 app.use("/api/v1/trips", tripRouter);
 app.use("/api/v1/locations", locationRouter);
 app.get('/api/v1/stats', async (req, res) => {
-  const vehicleCount = await Vehicle.countDocuments({});
-  const driverCount = await Driver.countDocuments({});
-  const loaderCount = await Loader.countDocuments({});
-  const tripCount = await Trip.countDocuments({});
+  const vehicleCount = await Vehicle.countDocuments({isActive: true});
+  const driverCount = await Driver.countDocuments({isActive: true});
+  const loaderCount = await Loader.countDocuments({isActive: true});
+  const tripCount = await Trip.countDocuments({isActive: true});
   return res.status(200).json({vehicleCount, driverCount, loaderCount, tripCount})
 
 })

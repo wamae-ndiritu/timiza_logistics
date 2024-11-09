@@ -11,6 +11,7 @@ const loaderSchema = new mongoose.Schema(
     nationalIdBack: { type: String, default: null },
     drivingLicense: { type: String, default: null },
     nationalIdCopy: { type: String, default: null },
+    isActive: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

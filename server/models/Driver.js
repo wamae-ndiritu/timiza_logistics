@@ -10,6 +10,7 @@ const driverSchema = new mongoose.Schema(
     nationalIdFront: { type: String, default: null },
     nationalIdBack: { type: String, default: null },
     drivingLicense: { type: String, default: null },
+    isActive: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

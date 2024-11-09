@@ -13,6 +13,7 @@ const deliveryNoteSchema = new mongoose.Schema(
     total: { type: String },
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     fileRef: {type: String, default: null},
+    isActive: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

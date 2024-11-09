@@ -39,9 +39,9 @@ const Staff = () => {
   return (
     <SafeAreaView className='flex-1 pt-4'>
       <TopBar title='Staff'>
-        <Link href='/new-staff'>
+        {/* <Link href='/new-staff'>
           <Icon name='search' size={24} color='#FFF' />
-        </Link>
+        </Link> */}
         <Link href='/new-staff'>
           <Icon name='plus' size={24} color='#FFF' />
         </Link>

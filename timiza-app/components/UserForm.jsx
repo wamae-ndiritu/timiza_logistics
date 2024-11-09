@@ -14,6 +14,7 @@ import Loading from "./Loading";
 import { resetUserState } from "../lib/redux/slices/users";
 import CustomRadioButton from "./CustomRadioButton";
 import { icons } from "../constants";
+import { revokeUserAccess } from "../lib/redux/actions/userActions";
 
 const UserForm = ({
   mode = "new",
@@ -22,7 +23,7 @@ const UserForm = ({
   onSubmit,
 }) => {
   const dispatch = useDispatch();
-  const { userData, loading, error, success, updateSuccess } = useSelector(
+  const { userData, loading, error, success, updateSuccess, deleteSuccess } = useSelector(
     (state) => state.user
   );
   const router = useRouter();
@@ -49,9 +50,20 @@ const UserForm = ({
 
   useEffect(() => {
     if (updateSuccess) {
-      ToastAndroid.show("Staff details updated!", ToastAndroid.SHORT, ToastAndroid.TOP);
+      ToastAndroid.show(
+        "Staff details updated!",
+        ToastAndroid.SHORT,
+        ToastAndroid.TOP
+      );
+    } else if (deleteSuccess) {
+      ToastAndroid.show(
+        "Staff access has been revoked!",
+        ToastAndroid.SHORT,
+        ToastAndroid.TOP
+      );
+      router.replace("/staff")
     }
-  }, [updateSuccess]);
+  }, [updateSuccess, deleteSuccess]);
 
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -69,7 +81,7 @@ const UserForm = ({
     // confirm action
     Alert.alert(
       "Warning!",
-      "You're about to delete the Staff. This action cannot be undone.",
+      "You're about to remove the Staff. This action cannot be undone.",
       [
         {
           text: "Cancel",
@@ -81,9 +93,8 @@ const UserForm = ({
         {
           text: "OK",
           onPress: () => {
-            if (initialData?._id) {
-              //  delete staff
-              router.push("/staff");
+            if (initialData?.user?._id) {
+              dispatch(revokeUserAccess(initialData?.user?._id, initialData?.role || initialData?.user?.role));
             }
           },
         },

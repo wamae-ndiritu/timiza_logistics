@@ -16,6 +16,7 @@ const vehicleSchema = new mongoose.Schema(
     driverHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], 
     loaderHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], 
     tripHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: "Trip" }],
+    isActive: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

@@ -6,6 +6,7 @@ const initialState = {
   error: null,
   success: false,
   updateSuccess: false,
+  deleteSuccess: false,
   usersList: [],
   profile: null,
   loaders: [],
@@ -23,6 +24,7 @@ export const userSlice = createSlice({
       state.error = null;
       state.updateSuccess = false;
       state.resetPass = false;
+      state.deleteSuccess = false;
     },
     userActionFail: (state, action) => {
       state.loading = false;
@@ -44,6 +46,10 @@ export const userSlice = createSlice({
       state.loading = false;
       state.updateSuccess = true;
     },
+    userDeleteSuccess: (state) => {
+      state.loading = false;
+      state.deleteSuccess = true;
+    },
     forgotPassReqSuccess: (state, action) => {
       state.loading = false;
       state.resetPass = true;
@@ -61,7 +67,7 @@ export const userSlice = createSlice({
     },
     fetchLoaders: (state, action) => {
       state.loading = false;
-      state.loaders = action.payload; 
+      state.loaders = action.payload;
     },
     getUserTruck: (state, action) => {
       state.loading = false;
@@ -74,6 +80,6 @@ export const userSlice = createSlice({
 });
 
 
-export const { userActionStart, userActionFail, userLogin, userRegister, resetUserState, userList, logoutUser, userUpdate, getProfile, forgotPassReqSuccess, getUserTruck, fetchLoaders } = userSlice.actions;
+export const { userActionStart, userActionFail, userLogin, userRegister, resetUserState, userList, logoutUser, userUpdate, userDeleteSuccess, getProfile, forgotPassReqSuccess, getUserTruck, fetchLoaders } = userSlice.actions;
 
 export default userSlice.reducer;

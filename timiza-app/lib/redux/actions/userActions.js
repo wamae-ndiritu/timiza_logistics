@@ -7,6 +7,7 @@ import {
   logoutUser,
   userActionFail,
   userActionStart,
+  userDeleteSuccess,
   userList,
   userLogin,
   userRegister,
@@ -238,6 +239,29 @@ export const getUserAssignedTruck = (userId) => async (dispatch, getState) => {
       ? error.response?.data.message || error.response?.data.error
       : error.message;
     dispatch(userActionFail(message));
+  }
+};
+
+// Mark user as not active (delete)
+export const revokeUserAccess = (userId, type) => async (dispatch, getState) => {
+  try {
+    const {
+      user: { userData },
+    } = getState();
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userData?.token}`,
+        "Content-Type": "application/json",
+      },
+    };
+    dispatch(userActionStart())
+    await axios.delete(`${END_POINT}/users/${userId}?type=${type}`, config);
+    dispatch(userDeleteSuccess());
+  } catch (error) {
+    const message = error?.response
+      ? error.response?.data.message || error.response?.data.error
+      : error.message;
+      dispatch(userActionFail(message))
   }
 };
 

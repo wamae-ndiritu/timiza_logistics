@@ -10,7 +10,8 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     role: { type: String, enum: ["admin", "driver", "loader"], required: true },
     isDefaultPassword: {type: Boolean, default: true},
-    fullName: {type: String}
+    fullName: {type: String},
+    isActive: {type: Boolean, default: true},
   },
   { timestamps: true }
 );

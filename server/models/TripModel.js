@@ -46,6 +46,7 @@ const tripSchema = new mongoose.Schema(
       ref: "DeliveryNote",
       default: null,
     },
+    isActive: { type: Boolean, default: true },
   },
   { timestamps: true }
 );
