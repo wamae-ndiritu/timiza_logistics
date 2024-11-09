@@ -65,7 +65,9 @@ const AssignVehicleStaffScreen = () => {
 
   return (
     <SafeAreaView className='flex-1 bg-white'>
-      <TopBar title={`Assign Staff to ${currentVehicle?.vehicleNumberPlate || "..."}`} />
+      <TopBar
+        title={`Assign Staff to ${currentVehicle?.vehicleNumberPlate || "..."}`}
+      />
       <ScrollView className='px-4 py-4'>
         {loading && <Loading />}
         {successUpdate && (
@@ -86,18 +88,32 @@ const AssignVehicleStaffScreen = () => {
                 selectedDriver === driver?.user?._id
                   ? "bg-slate-200"
                   : "bg-white"
-              } border-gray-300 rounded-lg flex-row items-center space-x-4`}
+              } border-gray-300 rounded-lg`}
             >
-              <Feather name='user' size={24} color='#000' />
-              <Text
-                className={`text-lg font-semibold ${
-                  selectedDriver === driver?.user?._id
-                    ? "text-secondary"
-                    : "text-gray-700"
-                }`}
-              >
-                {driver.fullName}
-              </Text>
+              <View className='flex-row items-center space-x-4'>
+                <Feather name='user' size={24} color='#000' />
+                <Text
+                  className={`text-lg font-semibold ${
+                    selectedDriver === driver?.user?._id
+                      ? "text-secondary"
+                      : "text-gray-700"
+                  }`}
+                >
+                  {driver.fullName}
+                </Text>
+              </View>
+              {driver?.assignedVehicle && (
+                <View className='flex-row flex-wrap items-center py-2'>
+                  <Text className='text-xs text-gray-500'>
+                    Currently assigned to{" "}
+                  </Text>
+                  <Text className='text-xs text-secondary truncate w-full'>
+                    {driver?.assignedVehicle?.vehicleMake}{" "}
+                    {driver?.assignedVehicle?.vehicleModel}{" "}
+                    {driver?.assignedVehicle?.vehicleNumberPlate}
+                  </Text>
+                </View>
+              )}
             </TouchableOpacity>
           ))}
 

@@ -267,10 +267,31 @@ const UserForm = ({
           />
         )}
         {mode === "view" && userData?.user?.role === "admin" && (
-          <View className='flex-row justify-between my-4 space-x-2'>
-            <ActionButton type='edit' handlePress={handleEdit} />
-            <ActionButton type='delete' handlePress={handleDelete} />
-          </View>
+          <>
+            {initialData?.assignedVehicle && (
+              <View
+                className={`mb-4 p-4 border bg-white border-gray-300 rounded-lg`}
+              >
+                <Text className={`text-lg font-semibold text-secondary`}>
+                  Vehicle Assigned
+                </Text>
+                <View className='flex-row flex-wrap items-center py-2'>
+                  <Text className='text-xs text-gray-500'>
+                    Currently assigned to{" "}
+                  </Text>
+                  <Text className='text-xs text-secondary truncate w-full'>
+                    {initialData?.assignedVehicle?.vehicleMake}{" "}
+                    {initialData?.assignedVehicle?.vehicleModel}{" "}
+                    {initialData?.assignedVehicle?.vehicleNumberPlate}
+                  </Text>
+                </View>
+              </View>
+            )}
+            <View className='flex-row justify-between my-4 space-x-2'>
+              <ActionButton type='edit' handlePress={handleEdit} />
+              <ActionButton type='delete' handlePress={handleDelete} />
+            </View>
+          </>
         )}
       </ScrollView>
       <StatusBar backgroundColor='#2A7353' style='light' />

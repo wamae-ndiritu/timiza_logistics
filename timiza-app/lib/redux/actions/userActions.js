@@ -56,7 +56,9 @@ export const registerUser = (userForm) => async (dispatch, getState) => {
 };
 
 export const listUsers =
-  (type = "", search = "") =>
+  (type = "", search = "", include={
+    assigned_truck: false,
+  }) =>
   async (dispatch, getState) => {
     try {
       const {
@@ -70,7 +72,7 @@ export const listUsers =
       };
       dispatch(userActionStart());
       const { data } = await axios.get(
-        `${END_POINT}/users/?type=${type}&search=${search}`,
+        `${END_POINT}/users/?type=${type}&search=${search}&include=${JSON.stringify(include)}`,
         config
       );
       dispatch(userList(data));
