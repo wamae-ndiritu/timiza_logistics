@@ -11,6 +11,7 @@ const {
 } = require("../helpers");
 const PasswordReset = require("../models/PasswordResetModel");
 const { createTestAccount } = require("nodemailer");
+const Vehicle = require("../models/VehicleModel");
 
 const router = express.Router();
 
@@ -206,37 +207,92 @@ router.post("/register", isAdmin, async (req, res) => {
 
 // Admin get all users
 router.get("/", isAdmin, async (req, res) => {
-  const type = req.query.type;
-  const search = req.query.search;
+  const { type, search } = req.query;
   let usersList = [];
-  if (search) {
-    const user = await User.findOne({ nationalId: search, isActive: true });
-    if (!user) {
-      return res
-        .status(404)
-        .json({ message: "No user match the search criteria" });
-    }
-    if (user.role === "driver") {
-      usersList = await Driver.find({ user: user._id }).populate("user");
-    }
-    if (user.role === "loader") {
-      usersList = await Loader.find({ user: user._id }).populate("user");
-    }
-  } else {
-    if (type === "drivers") {
-      usersList = await Driver.find({isActive: true}).populate("user").sort({ _id: -1 });
-    } else if (type === "loaders") {
-      usersList = await Loader.find({isActive: true}).populate("user").sort({ _id: -1 });
-    } else if (type === "admins") {
-      usersList = await User.find({ role: "admin", isActive: true }).sort({ _id: -1 });
+
+  try {
+    if (search) {
+      // Search for a user by nationalId
+      const user = await User.findOne({ nationalId: search, isActive: true });
+      if (!user) {
+        return res.status(404).json({ message: "No user matches the search criteria" });
+      }
+
+      if (user.role === "driver") {
+        // Find the driver and associated vehicle
+        const driver = await Driver.findOne({ user: user._id }).populate("user");
+        const vehicle = await Vehicle.findOne({ currentDriver: user._id, isActive: true })
+          .select("vehicleNumberPlate vehicleMake vehicleModel");
+
+        usersList = [{ ...driver.toObject(), assignedVehicle: vehicle }];
+      }
+
+      if (user.role === "loader") {
+        // Find the loader and associated vehicle
+        const loader = await Loader.findOne({ user: user._id }).populate("user");
+        const vehicle = await Vehicle.findOne({ currentLoaders: user._id, isActive: true })
+          .select("vehicleNumberPlate vehicleMake vehicleModel");
+
+        usersList = [{ ...loader.toObject(), assignedVehicle: vehicle }];
+      }
     } else {
-      const drivers = await Driver.find({isActive: true}).populate("user").sort({ _id: -1 });
-      const loaders = await Loader.find({isActive: true}).populate("user").sort({ _id: -1 });
-      usersList = [...drivers, ...loaders];
+      // Get all users based on type
+      if (type === "drivers") {
+        const drivers = await Driver.find({ isActive: true }).populate("user").sort({ _id: -1 });
+
+        // Fetch assigned vehicles for each driver
+        usersList = await Promise.all(
+          drivers.map(async (driver) => {
+            const vehicle = await Vehicle.findOne({ currentDriver: driver.user._id, isActive: true })
+              .select("vehicleNumberPlate vehicleMake vehicleModel");
+            return { ...driver.toObject(), assignedVehicle: vehicle };
+          })
+        );
+      } else if (type === "loaders") {
+        const loaders = await Loader.find({ isActive: true }).populate("user").sort({ _id: -1 });
+
+        // Fetch assigned vehicles for each loader
+        usersList = await Promise.all(
+          loaders.map(async (loader) => {
+            const vehicle = await Vehicle.findOne({ currentLoaders: loader.user._id, isActive: true })
+              .select("vehicleNumberPlate vehicleMake vehicleModel");
+            return { ...loader.toObject(), assignedVehicle: vehicle };
+          })
+        );
+      } else if (type === "admins") {
+        usersList = await User.find({ role: "admin", isActive: true }).sort({ _id: -1 });
+      } else {
+        // Get all active drivers and loaders with their vehicles
+        const drivers = await Driver.find({ isActive: true }).populate("user").sort({ _id: -1 });
+        const loaders = await Loader.find({ isActive: true }).populate("user").sort({ _id: -1 });
+
+        const driverList = await Promise.all(
+          drivers.map(async (driver) => {
+            const vehicle = await Vehicle.findOne({ currentDriver: driver.user._id, isActive: true })
+              .select("vehicleNumberPlate vehicleMake vehicleModel");
+            return { ...driver.toObject(), assignedVehicle: vehicle };
+          })
+        );
+
+        const loaderList = await Promise.all(
+          loaders.map(async (loader) => {
+            const vehicle = await Vehicle.findOne({ currentLoaders: loader.user._id, isActive: true })
+              .select("vehicleNumberPlate vehicleMake vehicleModel");
+            return { ...loader.toObject(), assignedVehicle: vehicle };
+          })
+        );
+
+        usersList = [...driverList, ...loaderList];
+      }
     }
+
+    return res.status(200).json(usersList);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ message: "An error occurred while retrieving users" });
   }
-  res.status(200).json(usersList);
 });
+
 
 // User get their profile
 router.get("/profile", verify, async (req, res) => {
@@ -281,10 +337,10 @@ router.get("/profile", verify, async (req, res) => {
   }
 });
 
-
 // Get a user by ID
 router.get("/:id", verify, async (req, res) => {
   try {
+    // Find the user by ID
     const user = await User.findById(req.params.id);
 
     if (!user || !user.isActive) {
@@ -292,23 +348,36 @@ router.get("/:id", verify, async (req, res) => {
     }
 
     let profile;
+    let assignedVehicle = null;
 
     if (user.role === "driver") {
+      // Fetch the driver's profile and assigned vehicle if available
       profile = await Driver.findOne({ user: user._id }).populate("user");
+      assignedVehicle = await Vehicle.findOne({
+        currentDriver: user._id,
+        isActive: true,
+      }).select("vehicleNumberPlate vehicleMake vehicleModel");
     } else if (user.role === "loader") {
+      // Fetch the loader's profile and assigned vehicle if available
       profile = await Loader.findOne({ user: user._id }).populate("user");
+      assignedVehicle = await Vehicle.findOne({
+        currentLoaders: user._id,
+        isActive: true,
+      }).select("vehicleNumberPlate vehicleMake vehicleModel");
     } else {
+      // If the user is an admin or other role, set the profile directly
       profile = user;
     }
 
-    res.status(200).json(profile);
+    // Convert profile to a plain object and add assignedVehicle
+    const profileObj = profile.toObject ? profile.toObject() : profile;
+    profileObj.assignedVehicle = assignedVehicle;
+
+    res.status(200).json(profileObj);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
-
-
-
 
 
 // User update  their profile (password only)
