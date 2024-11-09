@@ -42,10 +42,10 @@ const Home = () => {
 
 
   const data = [
-    { id: 0, title: "Trips", stats: stats?.tripCount || 0, icon: icons.tripTruck, color: "bg-slate-200" },
-    { id: 1, title: "Drivers", stats: stats?.driverCount || 0, icon: icons.driver, color: "bg-lime-200" },
-    { id: 2, title: "Loaders", stats: stats?.loaderCount || 0, icon: icons.loader, color: "bg-lime-300" },
-    { id: 3, title: "Vehicles", stats: stats?.vehicleCount || 0, icon: icons.deliveryTruck, color: "bg-slate-300" },
+    { id: 0, title: "Trips", stats: stats?.tripCount || 0, icon: icons.tripTruck, color: "bg-slate-200", href: "/trip" },
+    { id: 1, title: "Drivers", stats: stats?.driverCount || 0, icon: icons.driver, color: "bg-lime-200" , href: "/staff"},
+    { id: 2, title: "Loaders", stats: stats?.loaderCount || 0, icon: icons.loader, color: "bg-lime-300", href: "/staff" },
+    { id: 3, title: "Vehicles", stats: stats?.vehicleCount || 0, icon: icons.deliveryTruck, color: "bg-slate-300", href: "/vehicles" },
   ];
 
   return (
@@ -68,6 +68,7 @@ const Home = () => {
                 stats={item.stats}
                 icon={item.icon}
                 color={item.color}
+                href={item.href}
                 containerStyles='mb-4 p-4 bg-white border border-gray-300 rounded-lg flex-1 mx-1'
               />
             )}

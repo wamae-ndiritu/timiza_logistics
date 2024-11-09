@@ -10,7 +10,7 @@ const TopBar = ({title, children}) => {
         <Feather name='arrow-left' size={24} color='white' />
       </TouchableOpacity>
       <View className='flex-2 flex-row justify-center'>
-        <Text className='text-white text-2xl font-semibold'>{title}</Text>
+        <Text className='text-white text-lg font-semibold truncate'>{title}</Text>
       </View>
       <View className="flex-1 flex-row justify-end items-center space-x-4">{children}</View>
       <View />

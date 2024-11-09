@@ -1,8 +1,11 @@
+import { TouchableOpacity } from "react-native";
 import { Image, Text, View } from "react-native";
+import {router} from 'expo-router';
 
-const DashboardCard = ({ title, stats, containerStyles, textStyles, icon=null, color="bg-white" }) => {
+const DashboardCard = ({ title, stats, containerStyles, textStyles, icon=null, color="bg-white", href=null }) => {
   return (
-    <View
+    <TouchableOpacity
+    onPress={href ? () => router.push(href) : () => {}}
       className={`mt-3 p-4 rounded shadow-md mb-2 mx-0 ${containerStyles} flex-row items-center ${color}` }
     >
       {icon && (
@@ -18,7 +21,7 @@ const DashboardCard = ({ title, stats, containerStyles, textStyles, icon=null, c
           {stats}
         </Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
