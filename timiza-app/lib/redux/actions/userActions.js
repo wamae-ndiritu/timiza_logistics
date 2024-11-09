@@ -269,5 +269,6 @@ export const revokeUserAccess = (userId, type) => async (dispatch, getState) => 
 
 export const logout = () => (dispatch) => {
   dispatch(logoutUser());
+  persistor.purge();
   router.replace('/sign-in');
 }

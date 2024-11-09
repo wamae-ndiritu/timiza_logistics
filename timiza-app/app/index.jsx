@@ -10,7 +10,7 @@ export default function IndexScreen() {
   useEffect(() => {
     // Redirect to the sign-in page after 5 seconds
     const timer = setTimeout(() => {
-      router.push("/sign-in");
+      router.replace("/sign-in");
     }, 5000);
 
     // Interval for dot animation

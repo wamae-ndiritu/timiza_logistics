@@ -1,4 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { persistReducer } from "redux-persist";
 
 const initialState = {
   loading: false,
@@ -13,8 +15,9 @@ const initialState = {
   resetPass: false,
   activeUser: null,
   currentTruck: null,
-}
+};
 
+// Define your slice as usual
 export const userSlice = createSlice({
   name: "user",
   initialState,
@@ -79,7 +82,27 @@ export const userSlice = createSlice({
   },
 });
 
+// Configure persistence for user slice
+const persistConfig = {
+  key: "user",
+  storage: AsyncStorage,
+  whitelist: ["userData"], // Persist only userData, or other keys you want to persist
+};
 
-export const { userActionStart, userActionFail, userLogin, userRegister, resetUserState, userList, logoutUser, userUpdate, userDeleteSuccess, getProfile, forgotPassReqSuccess, getUserTruck, fetchLoaders } = userSlice.actions;
+export const {
+  userActionStart,
+  userActionFail,
+  userLogin,
+  userRegister,
+  resetUserState,
+  userList,
+  logoutUser,
+  userUpdate,
+  userDeleteSuccess,
+  getProfile,
+  forgotPassReqSuccess,
+  getUserTruck,
+  fetchLoaders,
+} = userSlice.actions;
 
-export default userSlice.reducer;
+export default persistReducer(persistConfig, userSlice.reducer);

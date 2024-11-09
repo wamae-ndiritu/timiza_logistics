@@ -3,7 +3,8 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useFonts } from "expo-font";
 import { Provider } from "react-redux";
-import { store } from "../lib/redux/store";
+import { PersistGate } from "redux-persist/integration/react";
+import { store, persistor } from "../lib/redux/store";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -34,55 +35,75 @@ const RootLayout = () => {
 
   return (
     <Provider store={store}>
-      <Stack>
-        <Stack.Screen name='index' options={{ headerShown: false }} />
-        <Stack.Screen name='(auth)' options={{ headerShown: false }} />
-        <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
-        <Stack.Screen name='not-authorized' options={{ headerShown: false }} />
-        <Stack.Screen
-          name='reset-password/[password]'
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name='view-delivery/[id]'
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name='edit-delivery/[id]'
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen name='new-trip' options={{ headerShown: false }} />
-        <Stack.Screen name='new-vehicle' options={{ headerShown: false }} />
-        <Stack.Screen name='new-staff' options={{ headerShown: false }} />
-        <Stack.Screen name='vehicles' options={{ headerShown: false }} />
-        <Stack.Screen
-          name='vehicles/view/[id]'
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name='vehicles/edit/[id]'
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name='vehicles/staff/[id]'
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen name='trips/view/[id]' options={{ headerShown: false }} />
-        <Stack.Screen
-          name='trips/[id]/attach-delivery-note'
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen name='forgot-password' options={{ headerShown: false }} />
-        <Stack.Screen name='verify-otp' options={{ headerShown: false }} />
-        <Stack.Screen name='locations/index' options={{ headerShown: false }} />
-        <Stack.Screen name='locations/new' options={{ headerShown: false }} />
-        <Stack.Screen
-          name='locations/view/[locationId]'
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen name='users/view/[id]' options={{ headerShown: false }} />
-        <Stack.Screen name='users/edit/[id]' options={{ headerShown: false }} />
-      </Stack>
+      <PersistGate loading={null} persistor={persistor}>
+        <Stack>
+          <Stack.Screen name='index' options={{ headerShown: false }} />
+          <Stack.Screen name='(auth)' options={{ headerShown: false }} />
+          <Stack.Screen name='(tabs)' options={{ headerShown: false }} />
+          <Stack.Screen
+            name='not-authorized'
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='reset-password/[password]'
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='view-delivery/[id]'
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='edit-delivery/[id]'
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen name='new-trip' options={{ headerShown: false }} />
+          <Stack.Screen name='new-vehicle' options={{ headerShown: false }} />
+          <Stack.Screen name='new-staff' options={{ headerShown: false }} />
+          <Stack.Screen name='vehicles' options={{ headerShown: false }} />
+          <Stack.Screen
+            name='vehicles/view/[id]'
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='vehicles/edit/[id]'
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='vehicles/staff/[id]'
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='trips/view/[id]'
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='trips/[id]/attach-delivery-note'
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='forgot-password'
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen name='verify-otp' options={{ headerShown: false }} />
+          <Stack.Screen
+            name='locations/index'
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen name='locations/new' options={{ headerShown: false }} />
+          <Stack.Screen
+            name='locations/view/[locationId]'
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='users/view/[id]'
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name='users/edit/[id]'
+            options={{ headerShown: false }}
+          />
+        </Stack>
+      </PersistGate>
     </Provider>
   );
 };
