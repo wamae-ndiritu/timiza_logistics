@@ -506,7 +506,7 @@ router.put("/verify-otp", async (req, res) => {
 
 // User update nationalIdCopy and drivingLicenseCopy (normal user)
 router.put("/profile/documents", verify, async (req, res) => {
-  const { nationalIdFront, nationalIdBack, drivingLicenseCopy } = req.body;
+  const { nationalIdFront, nationalIdBack, drivingLicense } = req.body;
 
   try {
     // Find the user by ID
@@ -530,10 +530,8 @@ router.put("/profile/documents", verify, async (req, res) => {
 
     user.nationalIdFront = nationalIdFront || user.nationalIdFront;
     user.nationalIdBack = nationalIdBack || user.nationalIdBack;
-    user.drivingLicense = drivingLicenseCopy || user.drivingLicense;
+    user.drivingLicense = drivingLicense || user.drivingLicense;
     await user.save();
-
-    console.log(user);
 
     res.status(200).json({ message: "Documents updated successfully" });
   } catch (error) {
