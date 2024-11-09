@@ -1,4 +1,11 @@
-import { View, Text, ScrollView, Alert, Image, ToastAndroid } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  Alert,
+  Image,
+  ToastAndroid,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Link, useRouter } from "expo-router";
@@ -15,6 +22,7 @@ import { resetUserState } from "../lib/redux/slices/users";
 import CustomRadioButton from "./CustomRadioButton";
 import { icons } from "../constants";
 import { revokeUserAccess } from "../lib/redux/actions/userActions";
+import PDFPreview from "./PDFPreview";
 
 const UserForm = ({
   mode = "new",
@@ -23,9 +31,8 @@ const UserForm = ({
   onSubmit,
 }) => {
   const dispatch = useDispatch();
-  const { userData, loading, error, success, updateSuccess, deleteSuccess } = useSelector(
-    (state) => state.user
-  );
+  const { userData, loading, error, success, updateSuccess, deleteSuccess } =
+    useSelector((state) => state.user);
   const router = useRouter();
   const [form, setForm] = useState({
     fullName: "",
@@ -43,8 +50,8 @@ const UserForm = ({
   }, []);
 
   useEffect(() => {
-    if (initialData){
-      setForm(initialData)
+    if (initialData) {
+      setForm(initialData);
     }
   }, [initialData]);
 
@@ -61,7 +68,7 @@ const UserForm = ({
         ToastAndroid.SHORT,
         ToastAndroid.TOP
       );
-      router.replace("/staff")
+      router.replace("/staff");
     }
   }, [updateSuccess, deleteSuccess]);
 
@@ -94,7 +101,12 @@ const UserForm = ({
           text: "OK",
           onPress: () => {
             if (initialData?.user?._id) {
-              dispatch(revokeUserAccess(initialData?.user?._id, initialData?.role || initialData?.user?.role));
+              dispatch(
+                revokeUserAccess(
+                  initialData?.user?._id,
+                  initialData?.role || initialData?.user?.role
+                )
+              );
             }
           },
         },
@@ -201,6 +213,19 @@ const UserForm = ({
                 </View>
               )}
             </View>
+            {initialData?.drivingLicense && (
+              <>
+                <Text className='text-lg mt-3 text-gray-600 font-pmedium mb-2'>
+                  Driving License
+                </Text>
+                <View className='bg-gray-100 rounded-lg p-2'>
+                  <PDFPreview
+                    form={{ drivingLicense: initialData?.drivingLicense }}
+                    fileField='drivingLicense'
+                  />
+                </View>
+              </>
+            )}
           </>
         )}
         <FormField
