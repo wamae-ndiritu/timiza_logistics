@@ -22,7 +22,6 @@ const RootLayout = () => {
 
   useEffect(() => {
     if (error) {
-      console.error(error);
       SplashScreen.hideAsync();
       throw error; 
     }
