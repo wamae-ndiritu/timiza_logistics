@@ -102,6 +102,10 @@ const RootLayout = () => {
             name='users/edit/[id]'
             options={{ headerShown: false }}
           />
+          <Stack.Screen
+            name='users/trips/[id]'
+            options={{ headerShown: false }}
+          />
         </Stack>
       </PersistGate>
     </Provider>

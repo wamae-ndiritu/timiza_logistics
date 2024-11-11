@@ -23,6 +23,7 @@ import CustomRadioButton from "./CustomRadioButton";
 import { icons } from "../constants";
 import { revokeUserAccess } from "../lib/redux/actions/userActions";
 import PDFPreview from "./PDFPreview";
+import { TouchableOpacity } from "react-native";
 
 const UserForm = ({
   mode = "new",
@@ -146,6 +147,10 @@ const UserForm = ({
       Alert.alert("Error", error.message);
     }
   }, [success]);
+
+  const viewUserTrips = () => {
+    router.push(`/users/trips/${initialData?.user?._id}`);
+  }
 
   return (
     <SafeAreaView className='flex-1 bg-white'>
@@ -312,6 +317,15 @@ const UserForm = ({
                 </View>
               </View>
             )}
+            <TouchableOpacity
+              onPress={viewUserTrips}
+              className="flex-row space-x-4 items-center mb-4 p-2 border bg-white border-gray-300 rounded-lg"
+            >
+              <Icon name='map-pin' size={24} />
+              <Text className={`text-lg font-semibold text-secondary`}>
+                View Trips
+              </Text>
+            </TouchableOpacity>
             <View className='flex-row justify-between my-4 space-x-2'>
               <ActionButton type='edit' handlePress={handleEdit} />
               <ActionButton type='delete' handlePress={handleDelete} />

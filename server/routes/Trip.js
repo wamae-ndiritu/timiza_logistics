@@ -240,6 +240,33 @@ router.get("/", verify, async (req, res) => {
 });
 
 
+// Get trips for a specific user (driver or loader)
+router.get("/user/:id", verify, async (req, res) => {
+  try {
+    const userId = req.params.id;
+    let trips;
+
+    // Fetch trips for the identified vehicles
+    trips = await Trip.find({
+      $or: [{ driver: userId }, { loaders: { $in: [userId] } }],
+    })
+      .populate("vehicle")
+      .populate("driver", "fullName email phoneNumber")
+      .populate("loaders", "fullName email phoneNumber")
+      .populate("deliveryNote")
+      .populate("destinations.location")
+      .sort({ createdAt: -1 });
+
+      console.log(trips)
+
+    res.status(200).json(trips);
+  } catch (error) {
+    res.status(500).json({ message: "An error occurred while retrieving user trips." });
+  }
+});
+
+
+
 // Get trip by ID
 /**
  * @swagger
