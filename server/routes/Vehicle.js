@@ -47,7 +47,7 @@ router.post("/create", isAdmin, async (req, res) => {
 // Get all vehicles (Admin only)
 router.get("/", isAdmin, async (req, res) => {
   try {
-    const vehicles = await Vehicle.find().sort({createdAt: -1});
+    const vehicles = await Vehicle.find({isActive: true}).sort({createdAt: -1});
     res.status(200).json(vehicles);
   } catch (error) {
     res.status(500).json({ message: "Error retrieving vehicles", error: error.message });
@@ -87,10 +87,12 @@ router.put("/:id", verify, isAdmin, async (req, res) => {
 // Delete vehicle by ID (Admin only)
 router.delete("/:id", isAdmin, async (req, res) => {
   try {
-    const deletedVehicle = await Vehicle.findByIdAndDelete(req.params.id);
+    const deletedVehicle = await Vehicle.findById(req.params.id);
     if (!deletedVehicle) {
       return res.status(404).json({ message: "Vehicle not found" });
     }
+    deletedVehicle.isActive = false;
+    deletedVehicle.save();
     res.status(200).json({ message: "Vehicle deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Error deleting vehicle", error: error.message });

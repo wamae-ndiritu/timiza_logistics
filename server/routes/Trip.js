@@ -257,8 +257,6 @@ router.get("/user/:id", verify, async (req, res) => {
       .populate("destinations.location")
       .sort({ createdAt: -1 });
 
-      console.log(trips)
-
     res.status(200).json(trips);
   } catch (error) {
     res.status(500).json({ message: "An error occurred while retrieving user trips." });

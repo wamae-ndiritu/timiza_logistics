@@ -86,7 +86,6 @@ const router = express.Router();
 
 // Route to create a new location with its branches
 router.post("/create", isAdmin, async (req, res) => {
-    console.log("Creating called...")
   try {
     const { type, name, branches } = req.body;
 
@@ -109,9 +108,7 @@ router.post("/create", isAdmin, async (req, res) => {
       location: newLocation,
     });
 
-    console.log(newLocation)
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Server error", error });
   }
 });
@@ -170,7 +167,6 @@ router.put("/:locationId/add-branch", isAdmin, async (req, res) => {
   try {
     const { locationId } = req.params;
     const { branches } = req.body;
-    console.log(branches)
 
     if (!branches || branches.length === 0) {
       return res
@@ -192,7 +188,6 @@ router.put("/:locationId/add-branch", isAdmin, async (req, res) => {
       location,
     });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Server error", error });
   }
 });
@@ -234,6 +229,7 @@ router.get('/', verify, async (req, res) => {
     // If search query is provided, filter locations by name (starting with search term)
     if (search) {
       query.name = { $regex: `^${search}`, $options: 'i' }; // Case-insensitive match
+      isActive = true;
     }
 
     // Fetch the locations, sort by name, and limit the results
@@ -243,7 +239,6 @@ router.get('/', verify, async (req, res) => {
 
     res.status(200).json(locations);
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: 'Server error', error });
   }
 });
@@ -285,7 +280,7 @@ router.get('/:locationId/branches', verify, async (req, res) => {
   try {
     const { locationId } = req.params;
     
-    const location = await Location.findById(locationId);
+    const location = await Location.find({ _id: locationId, isActive: true });
     
     if (!location) {
       return res.status(404).json({ message: "Location not found" });
@@ -293,7 +288,6 @@ router.get('/:locationId/branches', verify, async (req, res) => {
     
     res.status(200).json(location.branches);
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Server error", error });
   }
 });
@@ -330,7 +324,7 @@ router.get('/:locationId/branches', verify, async (req, res) => {
 router.get('/:id', verify, async (req, res) => {
   try {
     const locationId = req.params.id;
-    const location = await Location.findById(locationId);
+    const location = await Location.findOne({_id: locationId, isActive: true});
 
     if (!location) {
       return res.status(404).json({ message: 'Location not found' });
@@ -338,7 +332,6 @@ router.get('/:id', verify, async (req, res) => {
 
     res.status(200).json(location);
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: 'Server error', error });
   }
 });
@@ -393,7 +386,6 @@ router.delete('/:locationId/branches/:branchId', isAdmin, async (req, res) => {
 
     res.status(200).json({ message: "Branch deleted successfully" });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Server error", error });
   }
 });
@@ -435,7 +427,6 @@ router.delete('/:locationId', isAdmin, async (req, res) => {
 
     res.status(200).json({ message: "Location and its branches deleted successfully" });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Server error", error });
   }
 });

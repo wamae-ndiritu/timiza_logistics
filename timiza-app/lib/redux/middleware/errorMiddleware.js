@@ -1,4 +1,5 @@
 import { logout } from "../actions/userActions";
+import { resetUserState } from "../slices/users";
 
 const errorMiddleware =
   ({ dispatch }) =>
@@ -11,6 +12,7 @@ const errorMiddleware =
         errorMessage === "Token is not valid" ||
         errorMessage === "Token expired" || errorMessage === "No token, authorization denied"
       ) {
+        dispatch(resetUserState())
         dispatch(logout());
       }
     }
