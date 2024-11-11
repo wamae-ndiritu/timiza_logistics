@@ -2,7 +2,7 @@ import { View, Text, Image, ScrollView, Alert } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { icons, images } from "../../constants";
+import { images } from "../../constants";
 import FormField from "../../components/FormField";
 import CustomButton from "../../components/CustomButton";
 import { Link, router } from "expo-router";
@@ -57,7 +57,7 @@ const SignIn = () => {
 
   return (
     <SafeAreaView className='bg-white h-full'>
-      <ScrollView>
+      <ScrollView keyboardShouldPersistTaps='handled'>
         <View className='bg-white py-8 flex-col justify-center px-4'>
           <Image
             source={images.logoHorizontal}

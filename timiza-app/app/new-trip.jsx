@@ -17,7 +17,6 @@ import Icon from "react-native-vector-icons/Feather";
 import Loading from "../components/Loading";
 import Error from "../components/Error";
 import {
-  getLocation,
   listLocationBranches,
   listLocations,
 } from "../lib/redux/actions/locationActions";
@@ -95,6 +94,8 @@ const NewTrip = () => {
     setSearchQuery("");
     setBranchSearchQuery("");
   };
+
+  console.log(destinations);
 
   // Remove destination
   const handleRemoveDestination = (index) => {
@@ -174,186 +175,179 @@ const NewTrip = () => {
   return (
     <SafeAreaView className='flex-1'>
       <TopBar title='New Trip' />
+      <ScrollView keyboardShouldPersistTaps='handled' className='px-4 py-4'>
+        {loading && <Loading />}
+        {error && <Error message={error} />}
+        <FormField
+          title='Start Location'
+          placeholder='Enter start location'
+          value={startLocation}
+          handleChangeText={(e) => setStartLocation(e)}
+        />
 
-      {loading ? (
-        <Loading />
-      ) : error ? (
-        <Error>{error}</Error>
-      ) : (
-        <ScrollView className='px-4 py-4'>
-          <FormField
-            title='Start Location'
-            placeholder='Enter start location'
-            value={startLocation}
-            handleChangeText={(e) => setStartLocation(e)}
+        {/* Location Search Input */}
+        <Text className='text-base text-gray-600 text-lg font-pmedium mb-2 mt-3'>
+          Search and Select Your Destination
+        </Text>
+        <View className='flex-row items-center border border-gray-200 rounded px-2 py-2'>
+          <TextInput
+            placeholder='Search location'
+            value={
+              selectedLocation
+                ? locations.find((l) => l._id === selectedLocation)?.name
+                : searchQuery
+            }
+            onChangeText={(text) => setSearchQuery(text)}
+            onFocus={() => setIsLocationInputFocused(true)}
+            onBlur={() => setIsLocationInputFocused(false)}
+            className='flex-1'
           />
-
-          {/* Location Search Input */}
-          <Text className='text-base text-gray-600 text-lg font-pmedium mb-2 mt-3'>
-            Search and Select Your Destination
-          </Text>
-          <View className='flex-row items-center border border-gray-200 rounded px-2 py-2'>
-            <TextInput
-              placeholder='Search location'
-              value={
-                selectedLocation
-                  ? locations.find((l) => l._id === selectedLocation)?.name
-                  : searchQuery
-              }
-              onChangeText={(text) => setSearchQuery(text)}
-              onFocus={() => setIsLocationInputFocused(true)}
-              onBlur={() => setIsLocationInputFocused(false)}
-              className='flex-1'
-            />
-            {selectedLocation || searchQuery ? (
-              <TouchableOpacity onPress={resetSearchQuery}>
-                <Icon name='x' size={20} color='gray' />
-              </TouchableOpacity>
-            ) : (
-              <Icon name='search' size={20} color='gray' />
-            )}
+          {selectedLocation || searchQuery ? (
+            <TouchableOpacity onPress={resetSearchQuery}>
+              <Icon name='x' size={20} color='gray' />
+            </TouchableOpacity>
+          ) : (
+            <Icon name='search' size={20} color='gray' />
+          )}
+        </View>
+        {isLocationInputFocused && locations.length > 0 && (
+          <View className='border border-gray-300 mt-1'>
+            {locations.map((location) => {
+              return (
+                <TouchableOpacity
+                  key={location._id}
+                  onPress={() => {
+                    setSelectedLocation(location._id);
+                    setIsLocationInputFocused(false);
+                  }}
+                  className='px-2 py-4 border-b border-gray-200'
+                >
+                  <Text>{location.name}</Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
-          {isLocationInputFocused && locations.length > 0 && (
-            <View className='border border-gray-300 mt-1'>
-              {locations.map((location) => {
-                return (
-                  <TouchableOpacity
-                    key={location._id}
-                    onPress={() => {
-                      setSelectedLocation(location._id);
-                      setIsLocationInputFocused(false);
-                    }}
-                    className='px-2 py-4 border-b border-gray-200'
-                  >
-                    <Text>{location.name}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          )}
-          {selectedLocation && (
-            <>
-              {/* Branch Search Input */}
-              <Text className='text-base text-gray-600 text-lg font-pmedium mb-2 mt-2'>
-                Search and Select Branch
-              </Text>
-              <View className='flex-row items-center border border-gray-200 rounded px-2 py-2'>
-                <TextInput
-                  placeholder='Search branch'
-                  value={
-                    selectedBranch
-                      ? branches.find((b) => b._id === selectedBranch)?.name
-                      : branchSearchQuery
-                  }
-                  onChangeText={(text) => setBranchSearchQuery(text)}
-                  onFocus={() => setIsBranchInputFocused(true)}
-                  onBlur={() => setIsBranchInputFocused(false)}
-                  className='flex-1'
-                />
-                {selectedBranch || branchSearchQuery ? (
-                  <TouchableOpacity
-                    onPress={() => {
-                      setBranchSearchQuery("");
-                      setSelectedBranch(null);
-                    }}
-                  >
-                    <Icon name='x' size={20} color='gray' />
-                  </TouchableOpacity>
-                ) : (
-                  <Icon name='search' size={20} color='gray' />
-                )}
-              </View>
-              {isBranchInputFocused && filteredBranches.length > 0 && (
-                <View className='border border-gray-300 mt-1'>
-                  {filteredBranches.map((branch) => (
-                    <TouchableOpacity
-                      key={branch._id}
-                      onPress={() => {
-                        setSelectedBranch(branch._id);
-                        setIsBranchInputFocused(false);
-                      }}
-                      className='p-2 border-b border-gray-200'
-                    >
-                      <Text>{branch.name}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
+        )}
+        {selectedLocation && (
+          <>
+            {/* Branch Search Input */}
+            <Text className='text-base text-gray-600 text-lg font-pmedium mb-2 mt-2'>
+              Search and Select Branch
+            </Text>
+            <View className='flex-row items-center border border-gray-200 rounded px-2 py-2'>
+              <TextInput
+                placeholder='Search branch'
+                value={
+                  selectedBranch
+                    ? branches.find((b) => b._id === selectedBranch)?.name
+                    : branchSearchQuery
+                }
+                onChangeText={(text) => setBranchSearchQuery(text)}
+                onFocus={() => setIsBranchInputFocused(true)}
+                onBlur={() => setIsBranchInputFocused(false)}
+                className='flex-1'
+              />
+              {selectedBranch || branchSearchQuery ? (
+                <TouchableOpacity
+                  onPress={() => {
+                    setBranchSearchQuery("");
+                    setSelectedBranch(null);
+                  }}
+                >
+                  <Icon name='x' size={20} color='gray' />
+                </TouchableOpacity>
+              ) : (
+                <Icon name='search' size={20} color='gray' />
               )}
-            </>
-          )}
-          <TouchableOpacity onPress={handleAddDestination} className='mt-4'>
-            <Text className='text-blue-500 text-lg'>+ Add Destination</Text>
-          </TouchableOpacity>
-          {/* Destinations List */}
-          <View>
-            {destinations.map((destination, index) => (
-              <View
-                key={index}
-                className='bg-white p-4 border border-gray-200 rounded-lg mt-2'
-              >
-                <View className='flex-row justify-between items-center'>
-                  <Text className='text-lg text-gray-600'>
-                    {
-                      locations.find((l) => l._id === destination.location)
-                        ?.name
-                    }
-                    , {branches.find((b) => b._id === destination.branch)?.name}
-                  </Text>
+            </View>
+            {isBranchInputFocused && filteredBranches.length > 0 && (
+              <View className='border border-gray-300 mt-1'>
+                {filteredBranches.map((branch) => (
                   <TouchableOpacity
-                    onPress={() => handleRemoveDestination(index)}
+                    key={branch._id}
+                    onPress={() => {
+                      setSelectedBranch(branch._id);
+                      setIsBranchInputFocused(false);
+                    }}
+                    className='p-2 border-b border-gray-200'
                   >
-                    <Icon name='trash' size={20} color='red' />
+                    <Text>{branch.name}</Text>
                   </TouchableOpacity>
-                </View>
-                <View className='w-full flex-row my-3'>
-                  <FormField
-                    placeholder='Enter invoice number'
-                    otherStyles='flex-1'
-                    value={
-                      invoiceInputs[
-                        `${destination.location}-${destination.branch}`
-                      ] || ""
-                    }
-                    handleChangeText={(e) =>
-                      setInvoiceInputs((prevInputs) => ({
-                        ...prevInputs,
-                        [`${destination.location}-${destination.branch}`]: e,
-                      }))
-                    }
-                  />
-                  <TouchableOpacity
-                    onPress={() => handleAddInvoice(destination)}
-                    className='border border-gray-100 rounded bg-orange flex-row items-center justify-center w-12 ml-1'
-                  >
-                    <Icon name='check-circle' size={28} color='white' />
-                  </TouchableOpacity>
-                </View>
-                {destination.invoices.map((invoice) => (
-                  <View
-                    key={invoice}
-                    className='border border-gray-100 p-2 rounded my-1 flex-row justify-between'
-                  >
-                    <Text className='text-gray-600 text-sm'>{invoice}</Text>
-                    <TouchableOpacity
-                      onPress={() =>
-                        handleRemoveDestinationInvoice(destination, invoice)
-                      }
-                    >
-                      <Icon name='x-circle' size={20} color='red' />
-                    </TouchableOpacity>
-                  </View>
                 ))}
               </View>
-            ))}
-          </View>
-          {/* Submit Button */}
-          <CustomButton
-            onPress={submitForm}
-            title='Submit Trip'
-            containerStyles='mt-4 mb-8'
-          />
-        </ScrollView>
-      )}
+            )}
+          </>
+        )}
+        <TouchableOpacity onPress={handleAddDestination} className='mt-4'>
+          <Text className='text-blue-500 text-lg'>+ Add Destination</Text>
+        </TouchableOpacity>
+        {/* Destinations List */}
+        <View>
+          {destinations.map((destination, index) => (
+            <View
+              key={destination.branch}
+              className='bg-white p-4 border border-gray-200 rounded-lg mt-2'
+            >
+              <View className='flex-row justify-between items-center'>
+                <Text className='text-lg text-gray-600'>
+                  {locations.find((l) => l._id === destination.location)?.name},{" "}
+                  {branches.find((b) => b._id === destination.branch)?.name}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => handleRemoveDestination(index)}
+                >
+                  <Icon name='trash' size={20} color='red' />
+                </TouchableOpacity>
+              </View>
+              <View className='w-full flex-row my-3'>
+                <FormField
+                  placeholder='Enter invoice number'
+                  otherStyles='flex-1'
+                  value={
+                    invoiceInputs[
+                      `${destination.location}-${destination.branch}`
+                    ] || ""
+                  }
+                  handleChangeText={(e) =>
+                    setInvoiceInputs((prevInputs) => ({
+                      ...prevInputs,
+                      [`${destination.location}-${destination.branch}`]: e,
+                    }))
+                  }
+                />
+                <TouchableOpacity
+                  onPress={() => handleAddInvoice(destination)}
+                  className='border border-gray-100 rounded bg-orange flex-row items-center justify-center w-12 ml-1'
+                >
+                  <Icon name='check-circle' size={28} color='white' />
+                </TouchableOpacity>
+              </View>
+              {destination.invoices.map((invoice) => (
+                <View
+                  key={invoice}
+                  className='border border-gray-100 p-2 rounded my-1 flex-row justify-between'
+                >
+                  <Text className='text-gray-600 text-sm'>{invoice}</Text>
+                  <TouchableOpacity
+                    onPress={() =>
+                      handleRemoveDestinationInvoice(destination, invoice)
+                    }
+                  >
+                    <Icon name='x-circle' size={20} color='red' />
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+          ))}
+        </View>
+        {/* Submit Button */}
+        <CustomButton
+          handlePress={submitForm}
+          isLoading={loading || submitting}
+          title='Submit Trip'
+          containerStyles='mt-4 mb-8'
+        />
+      </ScrollView>
     </SafeAreaView>
   );
 };
