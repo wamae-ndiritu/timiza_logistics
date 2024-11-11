@@ -4,6 +4,8 @@ import {
   FlatList,
   RefreshControl,
   TouchableOpacity,
+  Animated,
+  Easing,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -19,6 +21,8 @@ const DriverHome = () => {
   const { currentTruck, userData } = useSelector((state) => state.user);
 
   const [refreshing, setRefreshing] = useState(false);
+  const [moveAnim] = useState(new Animated.Value(0)); // Animation value for truck movement
+  const [flipAnim] = useState(new Animated.Value(1)); // Animation for truck flipping
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -28,10 +32,40 @@ const DriverHome = () => {
 
   useEffect(() => {
     dispatch(getUserAssignedTruck(userData?.user?.id));
-  }, [dispatch])
+    startTruckAnimation();
+  }, [dispatch]);
+
+  // Animation function for truck moving back and forth with flipping
+  const startTruckAnimation = () => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(moveAnim, {
+          toValue: 200, // Move to the end of the road
+          duration: 3000,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }),
+        Animated.timing(flipAnim, {
+          toValue: -1, // Flip the truck horizontally
+          duration: 0,
+          useNativeDriver: true,
+        }),
+        Animated.timing(moveAnim, {
+          toValue: 0, // Move back to the start
+          duration: 3000,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }),
+        Animated.timing(flipAnim, {
+          toValue: 1, // Flip back to the original orientation
+          duration: 0,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  };
 
   const data = [
-    // { id: 0, title: "Add Trip (Comming soon...)", icon: "plus", route: "/add-trip" },
     { id: 1, title: "New Trip", icon: "plus", route: "/new-trip" },
     { id: 2, title: "Trip History", icon: "clock", route: "/trip" },
   ];
@@ -61,21 +95,45 @@ const DriverHome = () => {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
         />
+
         {currentTruck && (
           <>
-            <Text className='text-xl font-semibold text-gray-700 mb-2'>
-              Current Truck
+            <Text className='text-xl text-center font-semibold text-gray-700 mb-4'>
+              Current Assigned Truck
             </Text>
-            <View className='bg-secondary py-2 px-4 rounded flex-row items-center space-x-4'>
-              <Icon name='truck' size={60} color='#FFFFFF' />
-              <View>
-                <Text className='uppercase text-xl text-white'>
-                  {currentTruck?.vehicleNumberPlate}
-                </Text>
-                <Text className='text-white'>
-                  {currentTruck?.vehicleMake} {currentTruck?.vehicleModel}
-                </Text>
-              </View>
+
+            {/* Road View */}
+            <View className='relative h-20 mb-6 justify-center bg-white rounded-lg border border-gray-300'>
+              <View
+                className='absolute bottom-3 left-0 right-0 mx-4'
+                style={{
+                  height: 2,
+                  backgroundColor: "#333", // Darker line for the road positioned lower
+                }}
+              />
+
+              {/* Animated Truck Icon */}
+              <Animated.View
+                style={{
+                  transform: [{ translateX: moveAnim }, { scaleX: flipAnim }],
+                }}
+                className='absolute top-1/4 left-0 flex-row items-center justify-center'
+              >
+                <Icon name='truck' size={40} color='#2A7353' />
+              </Animated.View>
+            </View>
+
+            {/* Truck Details */}
+            <View className='bg-slate-100 p-8 flex-col items-center rounded-lg'>
+              <Text className='uppercase text-xl text-gray-700 font-semibold'>
+                {currentTruck?.vehicleNumberPlate}
+              </Text>
+              <Text className='text-gray-600'>
+                {currentTruck?.vehicleMake}
+              </Text>
+              <Text className='text-gray-600'>
+               {currentTruck?.vehicleModel}
+              </Text>
             </View>
           </>
         )}

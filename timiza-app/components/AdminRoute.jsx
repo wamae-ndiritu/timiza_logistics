@@ -7,7 +7,7 @@ const AdminRoute = ({ children }) => {
 
   useEffect(() => {
     if (userData?.user?.role !== "admin") {
-      router.replace("/not-authorized");
+      router.replace("/userhome");
     }
   }, [userData]);
 
