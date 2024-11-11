@@ -30,6 +30,7 @@ import {
 import * as DocumentPicker from "expo-document-picker";
 import PDFPreview from "../../components/PDFPreview";
 import TopBar from "../../components/TopBar";
+import { persistor } from "../../lib/redux/store";
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -50,6 +51,7 @@ const Profile = () => {
   const [dl, setDL] = useState(null);
 
   const handleLogout = () => {
+    persistor.purge();
     dispatch(logout());
   };
 

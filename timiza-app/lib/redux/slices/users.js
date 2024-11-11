@@ -86,7 +86,7 @@ export const userSlice = createSlice({
 const persistConfig = {
   key: "user",
   storage: AsyncStorage,
-  whitelist: ["userData"], // Persist only userData, or other keys you want to persist
+  whitelist: ["userData"],
 };
 
 export const {

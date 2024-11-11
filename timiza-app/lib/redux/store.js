@@ -19,16 +19,9 @@ const rootReducer = combineReducers({
   location: locationReducer,
 });
 
-const persistConfig = {
-  key: "root",
-  storage: AsyncStorage,
-  whitelist: ["user"], // Only persist the user slice
-};
-
-const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
-  reducer: persistedReducer,
+  reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false,
